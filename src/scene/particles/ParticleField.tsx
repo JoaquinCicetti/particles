@@ -7,6 +7,18 @@ const COUNT = 6000
 const SPEED = 0.04
 const SPREAD = 1.1
 
+// deterministic PRNG (mulberry32) — keeps render pure/idempotent
+function createRandom(seed: number) {
+  let a = seed
+  return () => {
+    a |= 0
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
 /**
  * Placeholder particle system: COUNT points flow along `flowPath`, each with
  * a random progress offset and a radial jitter that tightens as the particle
@@ -23,11 +35,12 @@ export default function ParticleField() {
     const positions = new Float32Array(COUNT * 3)
     const offsets = new Float32Array(COUNT)
     const jitter = new Float32Array(COUNT * 3)
+    const random = createRandom(1337)
     for (let i = 0; i < COUNT; i++) {
-      offsets[i] = Math.random()
-      jitter[i * 3] = (Math.random() - 0.5) * 2
-      jitter[i * 3 + 1] = (Math.random() - 0.5) * 2
-      jitter[i * 3 + 2] = (Math.random() - 0.5) * 2
+      offsets[i] = random()
+      jitter[i * 3] = (random() - 0.5) * 2
+      jitter[i * 3 + 1] = (random() - 0.5) * 2
+      jitter[i * 3 + 2] = (random() - 0.5) * 2
     }
     return { positions, offsets, jitter }
   }, [])
