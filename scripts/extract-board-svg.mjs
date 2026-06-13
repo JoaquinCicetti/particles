@@ -4,7 +4,7 @@
 // becomes circuit traces (stroke), filled classes become component bodies.
 import { readFileSync, writeFileSync } from 'node:fs'
 
-const SRC = 'public/industrial-board.tsx'
+const SRC = 'public/AnimatedGrowcastIndustryWithControlAndExpander.tsx'
 const OUT = 'public/industrial-board.svg'
 
 let src = readFileSync(SRC, 'utf8')
