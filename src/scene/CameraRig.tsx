@@ -7,19 +7,21 @@ import { scrollState } from '../lib/scroll'
  * Scroll-driven cinematic camera. Position and look-target each follow a
  * CatmullRom path keyed to scroll progress:
  *   wide establishing shot → lateral drift → descent onto the elevator →
- *   inside the particle stream → pull-back to the data field → sphere → logo.
+ *   inside the particle stream → pull-back to the data field → convergence
+ *   sphere → industrial board → brand mark.
  * Subtle pointer parallax and idle breathing keep static moments alive.
  */
 
 const POSITIONS = [
-  [0, 4.8, 23],
-  [7.5, 5.5, 15],
-  [3.5, 8.5, 7],
-  [0.3, 5.2, 1.1],
-  [0, 4.2, 1.0],
-  [0, 3.4, 8.0],
-  [0, 2.8, 9.5],
-  [0, 2.5, 8.6],
+  [0, 4.8, 23], //   0.000  wide establishing
+  [7.5, 5.5, 15], // 0.125  lateral drift
+  [3.5, 8.5, 7], //  0.250  descent toward elevator
+  [0.3, 5.2, 1.1], // 0.375 into the stream
+  [0, 4.2, 1.0], //  0.500  inside the stream
+  [0, 3.0, 8.0], //  0.625  pull back to the data field
+  [0, 2.9, 9.5], //  0.750  convergence sphere
+  [0, 2.9, 10.6], // 0.875  industrial board (framed wide)
+  [0, 2.9, 7.4], //  1.000  brand-mark reveal
 ].map((p) => new THREE.Vector3(...(p as [number, number, number])))
 
 const TARGETS = [
@@ -28,9 +30,10 @@ const TARGETS = [
   [0, 6.5, 0],
   [0, 8, 0],
   [0, 10, 0],
-  [0, 2.2, 0],
-  [0, 2.5, 0],
-  [0, 2.5, 0],
+  [0, 2.6, 0],
+  [0, 2.9, 0],
+  [0, 2.9, 0],
+  [0, 2.9, 0],
 ].map((p) => new THREE.Vector3(...(p as [number, number, number])))
 
 export default function CameraRig() {

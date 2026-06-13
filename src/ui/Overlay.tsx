@@ -6,19 +6,20 @@ import { fadeWindow, lerp, smoothstep } from '../lib/math'
 const SCHEDULE_URL = '#agenda'
 
 const METRICS = [
-  { label: 'TEMPERATURA', value: '18.4', unit: '°C', note: 'Δ −0.3 / 24H', bar: 0.42, range: [0.34, 0.47], side: 'left' },
-  { label: 'HUMEDAD', value: '61.2', unit: '%HR', note: 'ESTABLE', bar: 0.61, range: [0.4, 0.53], side: 'right' },
-  { label: 'CO₂', value: '412', unit: 'PPM', note: 'NOMINAL', bar: 0.28, range: [0.46, 0.59], side: 'left' },
-  { label: 'FLUJO DE AIRE', value: '1.8', unit: 'M/S', note: 'ÓPTIMO', bar: 0.74, range: [0.52, 0.65], side: 'right' },
+  { label: 'TEMPERATURA', value: '18.4', unit: '°C', note: 'Δ −0.3 / 24H', bar: 0.42, range: [0.34, 0.42], side: 'left' },
+  { label: 'HUMEDAD', value: '61.2', unit: '%HR', note: 'ESTABLE', bar: 0.61, range: [0.38, 0.46], side: 'right' },
+  { label: 'CO₂', value: '412', unit: 'PPM', note: 'NOMINAL', bar: 0.28, range: [0.42, 0.5], side: 'left' },
+  { label: 'FLUJO DE AIRE', value: '1.8', unit: 'M/S', note: 'ÓPTIMO', bar: 0.74, range: [0.46, 0.54], side: 'right' },
 ] as const
 
 const PHASES: Array<[number, string]> = [
   [0, '01 / VISTA DEL SITIO'],
   [0.16, '02 / RED DE TELEMETRÍA'],
-  [0.32, '03 / FLUJO DEL ELEVADOR'],
-  [0.56, '04 / SÍNTESIS DE DATOS'],
-  [0.74, '05 / CONVERGENCIA'],
-  [0.9, '06 / GROWCAST'],
+  [0.3, '03 / FLUJO DEL ELEVADOR'],
+  [0.48, '04 / SÍNTESIS DE DATOS'],
+  [0.64, '05 / CONVERGENCIA'],
+  [0.78, '06 / PLACA INDUSTRIAL'],
+  [0.92, '07 / GROWCAST'],
 ]
 
 export default function Overlay() {
@@ -99,7 +100,10 @@ export default function Overlay() {
   return (
     <div className="overlay" ref={root}>
       <nav className="nav">
-        <span className="wordmark">GROWCAST</span>
+        <a className="brand" href="#top" aria-label="Growcast — inicio">
+          <span className="brand-mark" aria-hidden />
+          <span className="wordmark">GROWCAST</span>
+        </a>
         <a className="nav-cta" href={SCHEDULE_URL}>
           AGENDAR REUNIÓN
         </a>
@@ -141,7 +145,7 @@ export default function Overlay() {
         </div>
       ))}
 
-      <section className="block block-left" data-window="0.58,0.73">
+      <section className="block block-left" data-window="0.55,0.64">
         <span className="kicker">DEL MOVIMIENTO AL SIGNIFICADO</span>
         <h2>El flujo crudo se vuelve información estructurada.</h2>
         <p>
@@ -150,9 +154,18 @@ export default function Overlay() {
         </p>
       </section>
 
-      <section className="block block-center" data-window="0.78,0.9">
+      <section className="block block-center" data-window="0.65,0.74">
         <span className="kicker">UNA SOLA FUENTE DE VERDAD</span>
         <h2>Todo converge.</h2>
+      </section>
+
+      <section className="block block-right" data-window="0.77,0.89">
+        <span className="kicker">DEL DATO AL DISPOSITIVO</span>
+        <h2>Hardware diseñado para el grano.</h2>
+        <p>
+          Sensores, módulos de expansión y la placa de control Growcast: la inteligencia
+          ambiental, hecha hierro.
+        </p>
       </section>
 
       <footer className="finale" data-finale>

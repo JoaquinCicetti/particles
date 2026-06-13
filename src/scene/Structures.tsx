@@ -28,18 +28,68 @@ function pushRing(out: number[], cx: number, cy: number, cz: number, r: number, 
 
 function buildSiloLines(pos: THREE.Vector3, r: number, h: number) {
   const out: number[] = []
-  for (const f of [0.02, 0.3, 0.55, 0.8, 1]) {
-    pushRing(out, pos.x, pos.y + h * f, pos.z, f === 1 ? r * 0.94 : r)
+
+  // base skirt + corrugated banding up the body (steel-bin rings)
+  pushRing(out, pos.x, pos.y, pos.z, r * 1.05)
+  const bands = 13
+  for (let b = 0; b <= bands; b++) {
+    const f = b / bands
+    pushRing(out, pos.x, pos.y + h * f, pos.z, r)
   }
-  const apex = new THREE.Vector3(pos.x, pos.y + h + r * 0.5, pos.z)
-  for (let i = 0; i < 10; i++) {
-    const a = (i / 10) * Math.PI * 2
-    const top = new THREE.Vector3(pos.x + Math.cos(a) * r * 0.94, pos.y + h, pos.z + Math.sin(a) * r * 0.94)
+
+  // vertical seam staves + conical roof spokes to the apex
+  const apex = new THREE.Vector3(pos.x, pos.y + h + r * 0.55, pos.z)
+  const staves = 16
+  for (let i = 0; i < staves; i++) {
+    const a = (i / staves) * Math.PI * 2
+    const top = new THREE.Vector3(pos.x + Math.cos(a) * r * 0.95, pos.y + h, pos.z + Math.sin(a) * r * 0.95)
     const bottom = new THREE.Vector3(pos.x + Math.cos(a) * r, pos.y, pos.z + Math.sin(a) * r)
     pushLine(out, bottom, top)
     pushLine(out, top, apex)
   }
+
+  // roof eave + cap rings, and a vent cap at the peak
+  pushRing(out, pos.x, pos.y + h, pos.z, r * 0.95, 32)
+  pushRing(out, pos.x, pos.y + h + r * 0.32, pos.z, r * 0.42, 24)
+  pushRing(out, pos.x, pos.y + h + r * 0.55, pos.z, r * 0.16, 16)
+
+  // exterior maintenance ladder (two rails + rungs) on the +x face
+  const lx = pos.x + r
+  const lz = pos.z
+  const railGap = 0.16
+  pushLine(out, new THREE.Vector3(lx, pos.y, lz - railGap), new THREE.Vector3(lx, pos.y + h, lz - railGap))
+  pushLine(out, new THREE.Vector3(lx, pos.y, lz + railGap), new THREE.Vector3(lx, pos.y + h, lz + railGap))
+  const rungs = Math.floor(h / 0.45)
+  for (let i = 1; i < rungs; i++) {
+    const y = pos.y + (h / rungs) * i
+    pushLine(out, new THREE.Vector3(lx, y, lz - railGap), new THREE.Vector3(lx, y, lz + railGap))
+  }
   return out
+}
+
+// stylized wireframe conifer: stacked triangular tiers + trunk
+function buildTreeLines(out: number[], cx: number, cz: number, scale: number) {
+  const trunkH = 0.5 * scale
+  pushLine(out, new THREE.Vector3(cx, 0, cz), new THREE.Vector3(cx, trunkH, cz))
+  const tiers = 3
+  for (let t = 0; t < tiers; t++) {
+    const baseY = trunkH + (t * 1.0) * scale
+    const topY = baseY + 1.25 * scale
+    const rad = (0.95 - t * 0.26) * scale
+    const seg = 7
+    let prev: THREE.Vector3 | null = null
+    const first = new THREE.Vector3()
+    const apex = new THREE.Vector3(cx, topY, cz)
+    for (let i = 0; i <= seg; i++) {
+      const a = (i / seg) * Math.PI * 2
+      const p = new THREE.Vector3(cx + Math.cos(a) * rad, baseY, cz + Math.sin(a) * rad)
+      if (i === 0) first.copy(p)
+      if (prev) pushLine(out, prev, p)
+      pushLine(out, p, apex) // skirt spoke
+      prev = p
+    }
+    if (prev) pushLine(out, prev, first)
+  }
 }
 
 function buildElevatorLines(w: number, h: number) {
@@ -106,9 +156,17 @@ export default function Structures() {
     for (const s of SILOS) sensors.push(s.pos.x, s.pos.y + s.height + s.radius * 0.5, s.pos.z)
     sensors.push(0, ELEVATOR.height + 1, 0, 0, 8, 0.05, -8.5, 0.45, 5, 9.5, 2.4, 1.5, -9, 1.2, -6, -2, 3, 1.4)
 
-    // polar data-floor
+    // background scenery: a ring of stylized conifers on the far perimeter
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2 + random() * 0.18
+      const rr = 19 + random() * 7
+      buildTreeLines(lines, Math.cos(a) * rr, Math.sin(a) * rr, 0.8 + random() * 0.7)
+    }
+
+    // polar data-floor + far horizon rings
     const grid: number[] = []
     for (const r of [3, 6, 9, 12, 15, 18]) pushRing(grid, 0, 0.01, 0, r, 96)
+    for (const r of [26, 34, 44]) pushRing(grid, 0, 0.01, 0, r, 120)
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2
       pushLine(
