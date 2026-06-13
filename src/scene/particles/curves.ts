@@ -3,89 +3,80 @@ import * as THREE from 'three'
 /**
  * Farm layout + telemetry flow curves.
  *
- * A working farm around a central data hub (the grain elevator at origin):
- *   • GREENHOUSE  — cultivation, on the left
- *   • SILOS       — grain storage, clustered at the back
- *   • MILKING     — dairy parlor, front-right
- * Telemetry "flows" from every zone into the elevator and rises. Curves are
- * baked into a float DataTexture so the particle vertex shader follows them
- * on the GPU (see bakeCurveTexture + sampleCurve in the shader).
+ * A working farm around a central grain-elevator tower (the data hub at the
+ * origin):
+ *   • WAREHOUSE — the main building (priority), front-left
+ *   • SILOS     — grain storage, clustered to the right/back
+ * Bright SENSOR_POINTS sit on the structures and are the *sources* of the
+ * telemetry: every flow curve begins at a sensor, runs to the tower and
+ * rises. Curves are baked into a float DataTexture and followed on the GPU.
  */
 
 const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
-export const ELEVATOR = { width: 1.5, height: 11.5 }
+export const ELEVATOR = { width: 1.6, height: 11.5 }
 
-// grain storage — back cluster
+// grain storage — right/back cluster
 export const SILOS = [
-  { pos: v(3.0, 0, -6.5), radius: 1.6, height: 5.6 },
-  { pos: v(6.2, 0, -6.0), radius: 1.6, height: 5.2 },
-  { pos: v(4.7, 0, -3.7), radius: 1.3, height: 4.4 },
+  { pos: v(5.5, 0, -3.5), radius: 1.7, height: 6.0 },
+  { pos: v(8.2, 0, -2.0), radius: 1.5, height: 5.2 },
+  { pos: v(6.6, 0, 0.6), radius: 1.4, height: 4.6 },
 ]
 
-// cultivation — long gabled structure on the left, long axis along z
-export const GREENHOUSE = {
-  pos: v(-8, 0, 3),
-  len: 8, // z extent
-  wid: 3.2, // x extent
-  wall: 1.8, // eave height
-  ridge: 2.9, // roof peak height
+// the main building (priority) — broad gabled warehouse, gable faces camera
+export const WAREHOUSE = {
+  pos: v(-3.6, 0, 6.2),
+  w: 7.4, // x span
+  d: 8.4, // z span (gable runs along z)
+  wall: 2.9, // eave height
+  ridge: 5.2, // roof peak
 }
 
-// dairy — parlor building + rotary milking carousel, front-right
-export const MILKING = {
-  pos: v(7.5, 0, 4.6),
-  w: 5, // x
-  d: 5, // z
-  h: 2.2,
-  carouselR: 1.7,
-}
+// sensor source points that live ON the structures (and a couple on ground)
+const SILO_SENSORS = SILOS.map((s) => v(s.pos.x, s.pos.y + s.height + 0.2, s.pos.z))
+const WAREHOUSE_FRONT = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos.z + WAREHOUSE.d / 2)
+const WAREHOUSE_BACK = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos.z - WAREHOUSE.d / 2)
+const GROUND_SENSOR = v(-8.5, 0.4, 8.5)
 
+const HUB = v(0, 6.4, 0)
+const RISE_A = v(0, 10.8, 0)
+const RISE_B = v(0, 10.4, 0)
+
+// each flow curve starts at a sensor source → tower hub → rises up the shaft
 export const FLOW_CURVES = [
-  // greenhouse → elevator → up
   new THREE.CatmullRomCurve3(
-    [v(-8, 2.4, 3), v(-4.5, 4.2, 1.6), v(-1.6, 5.4, 0.6), v(0, 6.4, 0), v(0, 10.8, 0)],
-    false,
-    'centripetal',
-  ),
-  // milking → elevator → up
-  new THREE.CatmullRomCurve3(
-    [v(7.5, 2.6, 4.6), v(4, 4.4, 2.4), v(1.4, 5.6, 0.8), v(0, 6.6, 0), v(0, 11, 0)],
-    false,
-    'centripetal',
-  ),
-  // silo cluster → elevator → up (two streams)
-  new THREE.CatmullRomCurve3(
-    [v(3.0, 5.2, -6.5), v(2.0, 6.0, -3.2), v(0.8, 6.4, -1.0), v(0, 6.9, 0), v(0, 10.6, 0)],
+    [WAREHOUSE_FRONT, v(-3, 5.2, 5), v(-1.1, 6.0, 1.4), HUB, RISE_A],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [v(6.2, 4.9, -6.0), v(3.6, 6.1, -3.0), v(1.2, 6.4, -0.8), v(0, 7.1, 0), v(0, 10.4, 0)],
+    [WAREHOUSE_BACK, v(-2.4, 5.6, 1.4), v(-0.7, 6.4, 0.4), HUB, RISE_B],
     false,
     'centripetal',
   ),
-  // ground sensor field → elevator → up
   new THREE.CatmullRomCurve3(
-    [v(-9, 0.4, 6.5), v(-4.5, 1.8, 3.4), v(-1.6, 3.2, 1.2), v(0, 5.4, 0), v(0, 10.2, 0)],
+    [SILO_SENSORS[0], v(3.2, 6.6, -1.8), v(1.0, 6.9, -0.5), HUB, RISE_A],
     false,
     'centripetal',
   ),
-  // inter-zone link: greenhouse → silos
   new THREE.CatmullRomCurve3(
-    [v(-8, 2.6, 3), v(-3.5, 2.0, -2), v(0.5, 2.6, -5), v(4.7, 3.0, -3.7)],
+    [SILO_SENSORS[1], v(4.6, 6.2, -1.0), v(1.6, 6.7, -0.3), HUB, RISE_B],
     false,
     'centripetal',
   ),
-  // high arc: milking → greenhouse
   new THREE.CatmullRomCurve3(
-    [v(7.5, 3.2, 4.6), v(2.5, 7.6, 5.2), v(-3, 7.8, 4), v(-8, 3.4, 3)],
+    [SILO_SENSORS[2], v(3.6, 5.6, 0.4), v(1.0, 6.5, 0.1), HUB, RISE_A],
     false,
     'centripetal',
   ),
-  // perimeter sweep
   new THREE.CatmullRomCurve3(
-    [v(-10, 1.2, -6), v(0, 2, -8), v(9, 1.6, -5), v(10.5, 2.4, 2), v(5, 1.4, 8), v(-4, 2.2, 9), v(-10.5, 1.8, 3)],
+    [GROUND_SENSOR, v(-4.5, 1.9, 4.5), v(-1.2, 3.6, 1.2), v(0, 5.4, 0), RISE_B],
+    false,
+    'centripetal',
+  ),
+  // faint perimeter sweep (atmosphere)
+  new THREE.CatmullRomCurve3(
+    [v(-10, 1.2, -6), v(0, 2, -8), v(9, 1.6, -5), v(10.5, 2.4, 2), v(4, 1.4, 9), v(-6, 2.0, 9.5)],
     false,
     'centripetal',
   ),
@@ -114,22 +105,17 @@ export function bakeCurveTexture() {
   return tex
 }
 
-// glowing sensor nodes across the farm — one+ per zone
+// the fraction [0,1] of each curve a particle should respect as its origin —
+// sensors are the sources, so most particles start near the curve's head.
+
+// glowing sensor nodes — the data sources on every structure
 export const SENSOR_POINTS: THREE.Vector3[] = [
-  // silos
-  v(3.0, 5.7, -6.5),
-  v(6.2, 5.3, -6.0),
-  v(4.7, 4.5, -3.7),
-  // greenhouse (ridge)
-  v(-8, GREENHOUSE.ridge + 0.1, 0),
-  v(-8, GREENHOUSE.ridge + 0.1, 6),
-  // milking (carousel center + eave)
-  v(7.5, 2.4, 4.6),
-  v(7.5, 0.9, 4.6),
-  // elevator
-  v(0, 11.6, 0),
-  v(0, 8, 0.05),
-  // ground
-  v(-9, 0.45, 6.5),
-  v(-2, 3, 1.2),
+  ...SILO_SENSORS,
+  // a second sensor partway up each silo body (side-mounted)
+  ...SILOS.map((s) => v(s.pos.x + s.radius, s.pos.y + s.height * 0.55, s.pos.z)),
+  WAREHOUSE_FRONT,
+  WAREHOUSE_BACK,
+  v(WAREHOUSE.pos.x + WAREHOUSE.w / 2, WAREHOUSE.wall, WAREHOUSE.pos.z + 1.5),
+  GROUND_SENSOR,
+  v(0, ELEVATOR.height + 0.4, 0),
 ]

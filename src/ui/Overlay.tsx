@@ -13,11 +13,11 @@ const METRICS = [
 ] as const
 
 const PHASES: Array<[number, string]> = [
-  [0, '01 / LA GRANJA'],
-  [0.16, '02 / RED DE TELEMETRÍA'],
-  [0.32, '03 / FLUJO DEL ELEVADOR'],
-  [0.5, '04 / SÍNTESIS DE DATOS'],
-  [0.62, '05 / ELECTRÓNICA'],
+  [0, '01 / EL ESTABLECIMIENTO'],
+  [0.16, '02 / RED DE SENSORES'],
+  [0.32, '03 / FLUJO DE DATOS'],
+  [0.5, '04 / SÍNTESIS'],
+  [0.62, '05 / INGENIERÍA'],
   [0.88, '06 / GROWCAST'],
 ]
 
@@ -104,29 +104,29 @@ export default function Overlay() {
           <span className="wordmark">GROWCAST</span>
         </a>
         <a className="nav-cta" href={SCHEDULE_URL}>
-          AGENDAR REUNIÓN
+          COORDINAR REUNIÓN
         </a>
       </nav>
 
       <header className="hero" data-hero>
-        <span className="kicker">INTELIGENCIA AGRÍCOLA DE PUNTA A PUNTA</span>
+        <span className="kicker">PLATAFORMA DE MONITOREO AGRÍCOLA</span>
         <h1>
-          El campo que
+          Tu campo,
           <br />
-          se siente<span className="accent">.</span>
+          en tiempo real<span className="accent">.</span>
         </h1>
         <p>
-          Growcast conecta invernaderos, silos y salas de ordeñe en un solo sistema nervioso:
-          millones de datos, del campo a la decisión.
+          Growcast integra silos, depósitos y cultivos en una sola plataforma de monitoreo.
+          Datos en tiempo real, del campo a la decisión.
         </p>
       </header>
 
       <section className="block block-right" data-window="0.16,0.3">
-        <span className="kicker">LA RED</span>
-        <h2>Toda la granja, una sola red.</h2>
+        <span className="kicker">RED DE SENSORES</span>
+        <h2>Todo el establecimiento, una sola red.</h2>
         <p>
-          Invernadero, silos y tambo enlazados por hilos de cobre de telemetría: nada se mueve
-          sin medirse.
+          Cada sensor en silos y depósitos transmite a un núcleo central. Nada se mueve sin
+          medirse.
         </p>
       </section>
 
@@ -145,34 +145,34 @@ export default function Overlay() {
       ))}
 
       <section className="block block-left" data-window="0.5,0.6">
-        <span className="kicker">DEL MOVIMIENTO AL SIGNIFICADO</span>
-        <h2>El flujo crudo se vuelve información estructurada.</h2>
+        <span className="kicker">DE LA SEÑAL A LA DECISIÓN</span>
+        <h2>Datos crudos, información accionable.</h2>
         <p>
-          Las corrientes se resuelven en series de tiempo, umbrales y pronósticos: el idioma de
-          tu operación.
+          Series temporales, umbrales y alertas tempranas: la trazabilidad completa de tu
+          operación.
         </p>
       </section>
 
       <section className="block block-left" data-window="0.64,0.84">
-        <span className="kicker">DEL DATO AL SILICIO</span>
+        <span className="kicker">INGENIERÍA PROPIA</span>
         <h2>Diseñamos la electrónica.</h2>
         <p>
-          No solo leemos el campo: fabricamos los sensores y las placas que lo hacen posible —
-          ingeniería propia, de la traza al cultivo.
+          Desarrollamos el hardware que vive en el campo: sensores y placas de control de diseño
+          propio, preparados para condiciones reales.
         </p>
       </section>
 
       <footer className="finale" data-finale>
         <span className="finale-word">GROWCAST</span>
-        <span className="finale-tag">MONITOREAR · PREDECIR · PROTEGER</span>
+        <span className="finale-tag">MEDIR · PREDECIR · DECIDIR</span>
         <a className="cta" href={SCHEDULE_URL} id="agenda">
-          Agendar una reunión
+          Coordinar una reunión
         </a>
         <span className="finale-fine">GROWCAST © 2026 — INTELIGENCIA AGRÍCOLA</span>
       </footer>
 
       <div className="hint" data-hint>
-        <span>DESPLAZATE PARA ENTRAR AL FLUJO</span>
+        <span>DESPLAZÁ PARA EXPLORAR</span>
         <i />
       </div>
 
@@ -184,7 +184,7 @@ export default function Overlay() {
       </div>
 
       <div className="phase" data-phase aria-hidden>
-        01 / LA GRANJA
+        01 / EL ESTABLECIMIENTO
       </div>
 
       <div className="grain" aria-hidden />
