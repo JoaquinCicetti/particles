@@ -1,17 +1,19 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { SILOS, ELEVATOR, GREENHOUSE, MILKING, SENSOR_POINTS } from './particles/curves'
+import { SILOS, ELEVATOR, WAREHOUSE, SENSOR_POINTS } from './particles/curves'
 import { createRandom } from '../lib/random'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
 
 /**
- * Holographic farm structures: wireframe grain silos, a gabled greenhouse, a
- * dairy milking parlor, the central elevator frame, and a polar data-floor.
- * No solid surfaces — only lines and luminous points. Everything fades out as
- * the camera dives into the elevator stream.
+ * Holographic farm structures: detailed wireframe grain silos, a gabled
+ * warehouse (the main building), and the central grain-elevator tower. No
+ * solid surfaces — only lines and luminous points. Bright sensor nodes mark
+ * the data sources. Everything fades as the camera dives into the stream.
  */
+
+const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 function pushLine(out: number[], a: THREE.Vector3, b: THREE.Vector3) {
   out.push(a.x, a.y, a.z, b.x, b.y, b.z)
@@ -26,187 +28,213 @@ function pushRing(out: number[], cx: number, cy: number, cz: number, r: number, 
   }
 }
 
+// detailed steel grain bin: corrugated body, ribbed roof, discharge cone,
+// foundation, man-door, side ladder, and a conveyor bridge to the tower.
 function buildSiloLines(pos: THREE.Vector3, r: number, h: number) {
   const out: number[] = []
 
-  // base skirt + corrugated banding up the body (steel-bin rings)
-  pushRing(out, pos.x, pos.y, pos.z, r * 1.05)
-  const bands = 13
-  for (let b = 0; b <= bands; b++) {
-    const f = b / bands
-    pushRing(out, pos.x, pos.y + h * f, pos.z, r)
-  }
+  // foundation + base skirt
+  pushRing(out, pos.x, 0.04, pos.z, r * 1.08)
+  pushRing(out, pos.x, 0.04, pos.z, r * 1.0)
+
+  // corrugated banding up the body
+  const bands = 14
+  for (let b = 0; b <= bands; b++) pushRing(out, pos.x, (h * b) / bands, pos.z, r, 40)
 
   // vertical seam staves + conical roof spokes to the apex
-  const apex = new THREE.Vector3(pos.x, pos.y + h + r * 0.55, pos.z)
-  const staves = 16
+  const apex = V(pos.x, h + r * 0.55, pos.z)
+  const staves = 18
   for (let i = 0; i < staves; i++) {
     const a = (i / staves) * Math.PI * 2
-    const top = new THREE.Vector3(pos.x + Math.cos(a) * r * 0.95, pos.y + h, pos.z + Math.sin(a) * r * 0.95)
-    const bottom = new THREE.Vector3(pos.x + Math.cos(a) * r, pos.y, pos.z + Math.sin(a) * r)
-    pushLine(out, bottom, top)
+    const top = V(pos.x + Math.cos(a) * r * 0.95, h, pos.z + Math.sin(a) * r * 0.95)
+    pushLine(out, V(pos.x + Math.cos(a) * r, 0, pos.z + Math.sin(a) * r), top)
     pushLine(out, top, apex)
   }
 
-  // roof eave + cap rings, and a vent cap at the peak
-  pushRing(out, pos.x, pos.y + h, pos.z, r * 0.95, 32)
-  pushRing(out, pos.x, pos.y + h + r * 0.32, pos.z, r * 0.42, 24)
-  pushRing(out, pos.x, pos.y + h + r * 0.55, pos.z, r * 0.16, 16)
+  // eave + roof cap rings + peak vent
+  pushRing(out, pos.x, h, pos.z, r * 0.95, 32)
+  pushRing(out, pos.x, h + r * 0.3, pos.z, r * 0.44, 24)
+  pushRing(out, pos.x, h + r * 0.55, pos.z, r * 0.16, 16)
 
-  // exterior maintenance ladder (two rails + rungs) on the +x face
+  // interior discharge cone (hopper) hinted under the eave
+  const coneTipY = Math.max(0.3, h * 0.16)
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2
+    pushLine(out, V(pos.x + Math.cos(a) * r * 0.9, h * 0.34, pos.z + Math.sin(a) * r * 0.9), V(pos.x, coneTipY, pos.z))
+  }
+
+  // man-door on the -z face
+  const dw = 0.32
+  const dh = 1.0
+  pushLine(out, V(pos.x - dw, 0, pos.z - r), V(pos.x - dw, dh, pos.z - r))
+  pushLine(out, V(pos.x + dw, 0, pos.z - r), V(pos.x + dw, dh, pos.z - r))
+  pushLine(out, V(pos.x - dw, dh, pos.z - r), V(pos.x + dw, dh, pos.z - r))
+
+  // exterior ladder on the +x face
   const lx = pos.x + r
-  const lz = pos.z
-  const railGap = 0.16
-  pushLine(out, new THREE.Vector3(lx, pos.y, lz - railGap), new THREE.Vector3(lx, pos.y + h, lz - railGap))
-  pushLine(out, new THREE.Vector3(lx, pos.y, lz + railGap), new THREE.Vector3(lx, pos.y + h, lz + railGap))
+  const g = 0.16
+  pushLine(out, V(lx, 0, pos.z - g), V(lx, h, pos.z - g))
+  pushLine(out, V(lx, 0, pos.z + g), V(lx, h, pos.z + g))
   const rungs = Math.floor(h / 0.45)
   for (let i = 1; i < rungs; i++) {
-    const y = pos.y + (h / rungs) * i
-    pushLine(out, new THREE.Vector3(lx, y, lz - railGap), new THREE.Vector3(lx, y, lz + railGap))
+    const y = (h / rungs) * i
+    pushLine(out, V(lx, y, pos.z - g), V(lx, y, pos.z + g))
   }
+
+  // conveyor bridge from the silo peak toward the tower head
+  pushLine(out, V(pos.x, h + r * 0.2, pos.z), V(0, ELEVATOR.height - 1.2, 0))
+  return out
+}
+
+// detailed gabled warehouse: footprint, panelled walls, ribbed gable roof,
+// a big sliding door on the camera-facing gable, eave trim and roof vents.
+function buildWarehouseLines(wh: typeof WAREHOUSE) {
+  const out: number[] = []
+  const { pos, w, d, wall, ridge } = wh
+  const hw = w / 2
+  const hd = d / 2
+  const x0 = pos.x - hw
+  const x1 = pos.x + hw
+  const z0 = pos.z - hd
+  const z1 = pos.z + hd // camera-facing gable
+
+  // footprint
+  pushLine(out, V(x0, 0, z0), V(x1, 0, z0))
+  pushLine(out, V(x1, 0, z0), V(x1, 0, z1))
+  pushLine(out, V(x1, 0, z1), V(x0, 0, z1))
+  pushLine(out, V(x0, 0, z1), V(x0, 0, z0))
+
+  // eaves + ridge (run along z)
+  pushLine(out, V(x0, wall, z0), V(x0, wall, z1))
+  pushLine(out, V(x1, wall, z0), V(x1, wall, z1))
+  pushLine(out, V(pos.x, ridge, z0), V(pos.x, ridge, z1))
+
+  // wall panel seams + roof rafters along the length
+  const ribs = 10
+  for (let i = 0; i <= ribs; i++) {
+    const z = z0 + (d * i) / ribs
+    pushLine(out, V(x0, 0, z), V(x0, wall, z))
+    pushLine(out, V(x1, 0, z), V(x1, wall, z))
+    pushLine(out, V(x0, wall, z), V(pos.x, ridge, z))
+    pushLine(out, V(x1, wall, z), V(pos.x, ridge, z))
+  }
+
+  // gable ends (both): eave line + roof slopes already covered; add the wall top
+  for (const z of [z0, z1]) {
+    pushLine(out, V(x0, wall, z), V(x1, wall, z))
+  }
+
+  // big sliding door on the front gable (z1)
+  const ddw = w * 0.32
+  const ddh = wall * 0.82
+  pushLine(out, V(pos.x - ddw, 0, z1), V(pos.x - ddw, ddh, z1))
+  pushLine(out, V(pos.x + ddw, 0, z1), V(pos.x + ddw, ddh, z1))
+  pushLine(out, V(pos.x - ddw, ddh, z1), V(pos.x + ddw, ddh, z1))
+  pushLine(out, V(pos.x, 0, z1), V(pos.x, ddh, z1)) // center split
+  // side windows on the +x wall
+  for (let i = 0; i < 3; i++) {
+    const z = z0 + d * (0.28 + i * 0.22)
+    const wy0 = wall * 0.45
+    const wy1 = wall * 0.78
+    pushLine(out, V(x1, wy0, z - 0.4), V(x1, wy0, z + 0.4))
+    pushLine(out, V(x1, wy1, z - 0.4), V(x1, wy1, z + 0.4))
+    pushLine(out, V(x1, wy0, z - 0.4), V(x1, wy1, z - 0.4))
+    pushLine(out, V(x1, wy0, z + 0.4), V(x1, wy1, z + 0.4))
+  }
+  // ridge vents
+  for (let i = 0; i < 3; i++) {
+    const z = z0 + d * (0.3 + i * 0.2)
+    pushRing(out, pos.x, ridge + 0.08, z, 0.22, 4)
+  }
+  return out
+}
+
+// detailed grain-elevator tower: braced lattice legs, leg cross-bracing,
+// a head house at the top with a roof, and a discharge spout.
+function buildTowerLines(w: number, h: number) {
+  const out: number[] = []
+  const hw = w / 2
+  const corners: [number, number][] = [
+    [-hw, -hw],
+    [hw, -hw],
+    [hw, hw],
+    [-hw, hw],
+  ]
+  // legs
+  for (const [x, z] of corners) pushLine(out, V(x, 0, z), V(x, h, z))
+
+  const levels = 9
+  for (let l = 0; l <= levels; l++) {
+    const y = (h / levels) * l
+    for (let i = 0; i < 4; i++) {
+      const [x0, z0] = corners[i]
+      const [x1, z1] = corners[(i + 1) % 4]
+      pushLine(out, V(x0, y, z0), V(x1, y, z1))
+    }
+  }
+  // diagonal cross-bracing on each face, alternating per level
+  for (let l = 0; l < levels; l++) {
+    const y0 = (h / levels) * l
+    const y1 = (h / levels) * (l + 1)
+    for (let i = 0; i < 4; i++) {
+      const [x0, z0] = corners[i]
+      const [x1, z1] = corners[(i + 1) % 4]
+      if (l % 2 === 0) pushLine(out, V(x0, y0, z0), V(x1, y1, z1))
+      else pushLine(out, V(x1, y0, z1), V(x0, y1, z0))
+    }
+  }
+  // inner belt guides
+  pushLine(out, V(-0.18, 0, 0), V(-0.18, h, 0))
+  pushLine(out, V(0.18, 0, 0), V(0.18, h, 0))
+
+  // head house (boxy enclosure) at the top
+  const hh = 2.0
+  const hwH = hw * 1.45
+  const hc: [number, number][] = [
+    [-hwH, -hwH],
+    [hwH, -hwH],
+    [hwH, hwH],
+    [-hwH, hwH],
+  ]
+  for (const [x, z] of hc) pushLine(out, V(x, h, z), V(x, h + hh, z))
+  for (let i = 0; i < 4; i++) {
+    const [x0, z0] = hc[i]
+    const [x1, z1] = hc[(i + 1) % 4]
+    pushLine(out, V(x0, h, z0), V(x1, h, z1))
+    pushLine(out, V(x0, h + hh, z0), V(x1, h + hh, z1))
+  }
+  // head-house roof apex
+  const apex = V(0, h + hh + 0.9, 0)
+  for (const [x, z] of hc) pushLine(out, V(x, h + hh, z), apex)
+
+  // discharge spout angling down off the head house
+  pushLine(out, V(hwH, h + hh * 0.6, 0), V(hwH + 2.4, h + hh * 0.1, 0))
+  pushLine(out, V(hwH, h + hh * 0.6, 0.25), V(hwH + 2.4, h + hh * 0.1, 0.25))
   return out
 }
 
 // stylized wireframe conifer: stacked triangular tiers + trunk
 function buildTreeLines(out: number[], cx: number, cz: number, scale: number) {
   const trunkH = 0.5 * scale
-  pushLine(out, new THREE.Vector3(cx, 0, cz), new THREE.Vector3(cx, trunkH, cz))
-  const tiers = 3
-  for (let t = 0; t < tiers; t++) {
-    const baseY = trunkH + (t * 1.0) * scale
+  pushLine(out, V(cx, 0, cz), V(cx, trunkH, cz))
+  for (let t = 0; t < 3; t++) {
+    const baseY = trunkH + t * 1.0 * scale
     const topY = baseY + 1.25 * scale
     const rad = (0.95 - t * 0.26) * scale
     const seg = 7
     let prev: THREE.Vector3 | null = null
     const first = new THREE.Vector3()
-    const apex = new THREE.Vector3(cx, topY, cz)
+    const apex = V(cx, topY, cz)
     for (let i = 0; i <= seg; i++) {
       const a = (i / seg) * Math.PI * 2
-      const p = new THREE.Vector3(cx + Math.cos(a) * rad, baseY, cz + Math.sin(a) * rad)
+      const p = V(cx + Math.cos(a) * rad, baseY, cz + Math.sin(a) * rad)
       if (i === 0) first.copy(p)
       if (prev) pushLine(out, prev, p)
-      pushLine(out, p, apex) // skirt spoke
+      pushLine(out, p, apex)
       prev = p
     }
     if (prev) pushLine(out, prev, first)
   }
-}
-
-// gabled greenhouse: footprint + eaves + ridge + rafters + gable ends.
-// crop-row dots are returned separately so they glow as points.
-function buildGreenhouseLines(gh: typeof GREENHOUSE, crops: number[]) {
-  const out: number[] = []
-  const { pos, len, wid, wall, ridge } = gh
-  const hw = wid / 2
-  const hl = len / 2
-  const x0 = pos.x - hw
-  const x1 = pos.x + hw
-  const z0 = pos.z - hl
-  const z1 = pos.z + hl
-  const P = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
-
-  // footprint
-  pushLine(out, P(x0, 0, z0), P(x1, 0, z0))
-  pushLine(out, P(x1, 0, z0), P(x1, 0, z1))
-  pushLine(out, P(x1, 0, z1), P(x0, 0, z1))
-  pushLine(out, P(x0, 0, z1), P(x0, 0, z0))
-  // eaves + ridge (long axis along z)
-  pushLine(out, P(x0, wall, z0), P(x0, wall, z1))
-  pushLine(out, P(x1, wall, z0), P(x1, wall, z1))
-  pushLine(out, P(pos.x, ridge, z0), P(pos.x, ridge, z1))
-
-  // ribs along the length: wall verticals + roof rafters to the ridge
-  const ribs = 9
-  for (let i = 0; i <= ribs; i++) {
-    const z = z0 + (len * i) / ribs
-    pushLine(out, P(x0, 0, z), P(x0, wall, z))
-    pushLine(out, P(x1, 0, z), P(x1, wall, z))
-    pushLine(out, P(x0, wall, z), P(pos.x, ridge, z))
-    pushLine(out, P(x1, wall, z), P(pos.x, ridge, z))
-  }
-
-  // crop rows inside (glowing points)
-  const rows = 3
-  for (let r = 0; r < rows; r++) {
-    const x = x0 + wid * ((r + 0.5) / rows)
-    const n = 26
-    for (let i = 0; i < n; i++) {
-      const z = z0 + 0.4 + (len - 0.8) * (i / (n - 1))
-      crops.push(x, 0.12 + (i % 2) * 0.05, z)
-    }
-  }
-  return out
-}
-
-// dairy milking parlor: building box + rotary carousel with radial stalls.
-function buildMilkingLines(m: typeof MILKING) {
-  const out: number[] = []
-  const { pos, w, d, h, carouselR } = m
-  const hw = w / 2
-  const hd = d / 2
-  const corners: [number, number][] = [
-    [pos.x - hw, pos.z - hd],
-    [pos.x + hw, pos.z - hd],
-    [pos.x + hw, pos.z + hd],
-    [pos.x - hw, pos.z + hd],
-  ]
-  // box: base ring, top ring, verticals
-  for (let i = 0; i < 4; i++) {
-    const [x0, z0] = corners[i]
-    const [x1, z1] = corners[(i + 1) % 4]
-    pushLine(out, new THREE.Vector3(x0, 0, z0), new THREE.Vector3(x1, 0, z1))
-    pushLine(out, new THREE.Vector3(x0, h, z0), new THREE.Vector3(x1, h, z1))
-    pushLine(out, new THREE.Vector3(x0, 0, z0), new THREE.Vector3(x0, h, z0))
-  }
-  // shallow roof apex line
-  const apex = new THREE.Vector3(pos.x, h + 0.7, pos.z)
-  for (const [x, z] of corners) pushLine(out, new THREE.Vector3(x, h, z), apex)
-
-  // rotary carousel: two rings + radial stalls
-  pushRing(out, pos.x, 0.55, pos.z, carouselR, 40)
-  pushRing(out, pos.x, 0.55, pos.z, carouselR * 0.45, 28)
-  const stalls = 12
-  for (let i = 0; i < stalls; i++) {
-    const a = (i / stalls) * Math.PI * 2
-    pushLine(
-      out,
-      new THREE.Vector3(pos.x + Math.cos(a) * carouselR * 0.45, 0.55, pos.z + Math.sin(a) * carouselR * 0.45),
-      new THREE.Vector3(pos.x + Math.cos(a) * carouselR, 0.55, pos.z + Math.sin(a) * carouselR),
-    )
-  }
-  return out
-}
-
-function buildElevatorLines(w: number, h: number) {
-  const out: number[] = []
-  const hw = w / 2
-  const corners = [
-    [-hw, -hw],
-    [hw, -hw],
-    [hw, hw],
-    [-hw, hw],
-  ]
-  for (const [x, z] of corners) {
-    pushLine(out, new THREE.Vector3(x, 0, z), new THREE.Vector3(x, h, z))
-  }
-  const levels = 8
-  for (let l = 0; l <= levels; l++) {
-    const y = (h / levels) * l
-    for (let i = 0; i < 4; i++) {
-      const [x0, z0] = corners[i]
-      const [x1, z1] = corners[(i + 1) % 4]
-      pushLine(out, new THREE.Vector3(x0, y, z0), new THREE.Vector3(x1, y, z1))
-    }
-  }
-  // inner belt guides
-  pushLine(out, new THREE.Vector3(-0.18, 0, 0), new THREE.Vector3(-0.18, h, 0))
-  pushLine(out, new THREE.Vector3(0.18, 0, 0), new THREE.Vector3(0.18, h, 0))
-  // crown
-  const apex = new THREE.Vector3(0, h + 1, 0)
-  for (const [x, z] of corners) {
-    pushLine(out, new THREE.Vector3(x, h, z), apex)
-  }
-  return out
 }
 
 function linesGeometry(positions: number[]) {
@@ -222,30 +250,41 @@ export default function Structures() {
     const random = createRandom(424242)
 
     const lines: number[] = []
-    const shellPts: number[] = []
     for (const s of SILOS) lines.push(...buildSiloLines(s.pos, s.radius, s.height))
-    lines.push(...buildElevatorLines(ELEVATOR.width, ELEVATOR.height))
-    lines.push(...buildGreenhouseLines(GREENHOUSE, shellPts)) // crop rows → shellPts
-    lines.push(...buildMilkingLines(MILKING))
+    lines.push(...buildTowerLines(ELEVATOR.width, ELEVATOR.height))
+    lines.push(...buildWarehouseLines(WAREHOUSE))
 
-    // shimmering particle shells on silo surfaces
+    // shimmering particle shells on silo + warehouse surfaces
+    const shellPts: number[] = []
     for (const s of SILOS) {
-      for (let i = 0; i < 2200; i++) {
+      for (let i = 0; i < 2400; i++) {
         const a = random() * Math.PI * 2
         const y = random() * s.height
         const r = s.radius + (random() - 0.5) * 0.05
-        shellPts.push(s.pos.x + Math.cos(a) * r, s.pos.y + y, s.pos.z + Math.sin(a) * r)
+        shellPts.push(s.pos.x + Math.cos(a) * r, y, s.pos.z + Math.sin(a) * r)
+      }
+    }
+    // warehouse roof shimmer
+    {
+      const { pos, w, d, wall, ridge } = WAREHOUSE
+      for (let i = 0; i < 2600; i++) {
+        const side = random() < 0.5 ? -1 : 1
+        const t = random()
+        const z = pos.z - d / 2 + d * random()
+        const x = pos.x + side * (w / 2) * (1 - t)
+        const y = wall + (ridge - wall) * t
+        shellPts.push(x, y, z)
       }
     }
 
-    // sensor nodes across every farm zone (brighter, pulsing material)
+    // sensor nodes — the data sources
     const sensors: number[] = []
     for (const s of SENSOR_POINTS) sensors.push(s.x, s.y, s.z)
 
-    // background scenery: a ring of stylized conifers on the far perimeter
-    for (let i = 0; i < 18; i++) {
-      const a = (i / 18) * Math.PI * 2 + random() * 0.18
-      const rr = 19 + random() * 7
+    // background conifers on the far perimeter
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2 + random() * 0.18
+      const rr = 20 + random() * 7
       buildTreeLines(lines, Math.cos(a) * rr, Math.sin(a) * rr, 0.8 + random() * 0.7)
     }
 
@@ -255,11 +294,7 @@ export default function Structures() {
     for (const r of [26, 34, 44]) pushRing(grid, 0, 0.01, 0, r, 120)
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2
-      pushLine(
-        grid,
-        new THREE.Vector3(Math.cos(a) * 2, 0.01, Math.sin(a) * 2),
-        new THREE.Vector3(Math.cos(a) * 18, 0.01, Math.sin(a) * 18),
-      )
+      pushLine(grid, V(Math.cos(a) * 2, 0.01, Math.sin(a) * 2), V(Math.cos(a) * 18, 0.01, Math.sin(a) * 18))
     }
 
     return {
@@ -274,7 +309,7 @@ export default function Structures() {
     const line = new THREE.LineBasicMaterial({
       color: '#b97a3e',
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.6,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
@@ -287,19 +322,19 @@ export default function Structures() {
     })
     const shell = new THREE.PointsMaterial({
       color: '#d99550',
-      size: 0.028,
+      size: 0.026,
       sizeAttenuation: true,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.42,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
     const sensor = new THREE.PointsMaterial({
-      color: '#ffd9a0',
-      size: 0.16,
+      color: '#ffe6bf',
+      size: 0.28,
       sizeAttenuation: true,
       transparent: true,
-      opacity: 0.9,
+      opacity: 1,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
@@ -307,13 +342,14 @@ export default function Structures() {
   }, [])
 
   useFrame(({ clock }) => {
-    const fade = 1 - smoothstep(0.28, 0.42, scrollState.smooth)
+    const fade = 1 - smoothstep(0.3, 0.44, scrollState.smooth)
     const group = groupRef.current
     if (group) group.visible = fade > 0.01
-    materials.line.opacity = 0.55 * fade
+    materials.line.opacity = 0.6 * fade
     materials.grid.opacity = 0.16 * fade
-    materials.shell.opacity = 0.5 * fade
-    materials.sensor.opacity = (0.65 + 0.35 * Math.sin(clock.elapsedTime * 2.2)) * fade
+    materials.shell.opacity = 0.42 * fade
+    // sensors pulse like live data sources
+    materials.sensor.opacity = (0.7 + 0.3 * Math.sin(clock.elapsedTime * 2.6)) * fade
   })
 
   return (

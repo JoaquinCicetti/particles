@@ -66,10 +66,11 @@ void main() {
   float wPcb  = toPcb  * (1.0 - toLogo);
   float wLogo = toLogo;
 
-  // ── act 1: telemetry flowing along the farm curves ──
+  // ── act 1: telemetry flowing along the farm curves (soft, tight stream
+  //    that emanates from the sensor sources at each curve's head) ──
   float ct = fract(aFlow.x + uTime * 0.02 * aFlow.y);
   vec3 jitter = (aRand.xyz * 2.0 - 1.0);
-  vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * mix(0.32, 0.08, ct);
+  vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * mix(0.16, 0.04, ct);
 
   // ── act 2: calm upward stream inside the elevator (behind the cards) ──
   float ang = aRand.x * 6.28318 + uTime * (0.15 + aRand.y * 0.28);
@@ -101,7 +102,8 @@ void main() {
   float blur = clamp(abs(dist - uFocus) * 0.07, 0.0, 1.6);
 
   float head = wPcb * pulse;
-  float size = (1.2 + aRand.y * 1.6) * (1.0 + wLogo * 0.35 - wPcb * 0.35 + head * 1.4);
+  // softer, smaller points during the flow so the structures read clearly
+  float size = (1.2 + aRand.y * 1.6) * (1.0 - wFlow * 0.3 + wLogo * 0.35 - wPcb * 0.35 + head * 1.4);
   gl_PointSize = size * uPixelRatio * (9.0 / dist) * (1.0 + blur * 0.8);
 
   vec3 deep   = vec3(0.42, 0.20, 0.07); // dark copper
@@ -114,7 +116,7 @@ void main() {
 
   // normalize additive energy per formation: same particle count occupies
   // wildly different screen areas in each phase
-  float density = wFlow * 0.5 + wTun * 0.3 + wGrid * 0.45 + wPcb * 0.4 + wLogo * 0.2;
+  float density = wFlow * 0.28 + wTun * 0.3 + wGrid * 0.45 + wPcb * 0.4 + wLogo * 0.2;
   vAlpha = (0.5 + 0.5 * aRand.z) * density * (1.0 + head * 0.8);
   vAlpha *= smoothstep(0.8, 2.6, dist);          // don't bloom out near camera
   vAlpha /= (1.0 + blur * blur * 1.6);           // defocused = dimmer
