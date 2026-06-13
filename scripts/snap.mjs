@@ -2,7 +2,7 @@
 import puppeteer from 'puppeteer-core'
 
 const URL = process.env.URL ?? 'http://localhost:5174/'
-const STOPS = [0, 0.3, 0.5, 0.66, 0.74, 0.85, 0.93, 1.0]
+const STOPS = [0, 0.12, 0.3, 0.46, 0.56, 0.7, 0.78, 0.9, 1.0]
 
 const browser = await puppeteer.launch({
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',

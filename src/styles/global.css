@@ -340,7 +340,7 @@ body {
   color: var(--fg-dim);
 }
 
-/* finale — sits below the centered, glowing icon */
+/* finale — sits below the centered, glowing brand mark */
 .finale {
   position: absolute;
   left: 50%;
@@ -352,6 +352,16 @@ body {
   gap: 1.2rem;
   opacity: 0;
   text-align: center;
+}
+
+.finale-word {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3vw, 2.3rem);
+  letter-spacing: 0.42em;
+  margin-right: -0.42em; /* optically recenter tracked text */
+  color: var(--fg);
+  text-shadow: 0 0 28px rgba(200, 127, 61, 0.45);
 }
 
 .finale-tag {
