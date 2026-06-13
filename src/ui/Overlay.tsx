@@ -13,13 +13,12 @@ const METRICS = [
 ] as const
 
 const PHASES: Array<[number, string]> = [
-  [0, '01 / VISTA DEL SITIO'],
-  [0.14, '02 / RED DE TELEMETRÍA'],
-  [0.3, '03 / FLUJO DEL ELEVADOR'],
-  [0.46, '04 / SÍNTESIS DE DATOS'],
-  [0.6, '05 / CIRCUITOS'],
-  [0.78, '06 / PLACA INDUSTRIAL'],
-  [0.9, '07 / GROWCAST'],
+  [0, '01 / LA GRANJA'],
+  [0.16, '02 / RED DE TELEMETRÍA'],
+  [0.32, '03 / FLUJO DEL ELEVADOR'],
+  [0.5, '04 / SÍNTESIS DE DATOS'],
+  [0.62, '05 / ELECTRÓNICA'],
+  [0.88, '06 / GROWCAST'],
 ]
 
 export default function Overlay() {
@@ -110,24 +109,24 @@ export default function Overlay() {
       </nav>
 
       <header className="hero" data-hero>
-        <span className="kicker">PLATAFORMA DE INTELIGENCIA DE GRANOS</span>
+        <span className="kicker">INTELIGENCIA AGRÍCOLA DE PUNTA A PUNTA</span>
         <h1>
-          Silos que
+          El campo que
           <br />
-          sienten<span className="accent">.</span>
+          se siente<span className="accent">.</span>
         </h1>
         <p>
-          Growcast convierte los silos en instrumentos vivos: millones de datos fluyendo del
-          grano a la decisión, en tiempo real.
+          Growcast conecta invernaderos, silos y salas de ordeñe en un solo sistema nervioso:
+          millones de datos, del campo a la decisión.
         </p>
       </header>
 
-      <section className="block block-right" data-window="0.14,0.28">
+      <section className="block block-right" data-window="0.16,0.3">
         <span className="kicker">LA RED</span>
-        <h2>Tres silos. Un solo torrente.</h2>
+        <h2>Toda la granja, una sola red.</h2>
         <p>
-          Hilos de cobre de telemetría conectan cada sensor con el elevador central: nada se
-          mueve sin medirse.
+          Invernadero, silos y tambo enlazados por hilos de cobre de telemetría: nada se mueve
+          sin medirse.
         </p>
       </section>
 
@@ -145,7 +144,7 @@ export default function Overlay() {
         </div>
       ))}
 
-      <section className="block block-left" data-window="0.48,0.57">
+      <section className="block block-left" data-window="0.5,0.6">
         <span className="kicker">DEL MOVIMIENTO AL SIGNIFICADO</span>
         <h2>El flujo crudo se vuelve información estructurada.</h2>
         <p>
@@ -154,21 +153,22 @@ export default function Overlay() {
         </p>
       </section>
 
-      <section className="block block-left" data-window="0.62,0.78">
-        <span className="kicker">DEL DATO AL DISPOSITIVO</span>
-        <h2>El dato fluye por el circuito.</h2>
+      <section className="block block-left" data-window="0.64,0.84">
+        <span className="kicker">DEL DATO AL SILICIO</span>
+        <h2>Diseñamos la electrónica.</h2>
         <p>
-          Sensores, módulos de expansión y la placa de control Growcast: la inteligencia
-          ambiental, hecha hierro.
+          No solo leemos el campo: fabricamos los sensores y las placas que lo hacen posible —
+          ingeniería propia, de la traza al cultivo.
         </p>
       </section>
 
       <footer className="finale" data-finale>
+        <span className="finale-word">GROWCAST</span>
         <span className="finale-tag">MONITOREAR · PREDECIR · PROTEGER</span>
         <a className="cta" href={SCHEDULE_URL} id="agenda">
           Agendar una reunión
         </a>
-        <span className="finale-fine">GROWCAST © 2026 — INTELIGENCIA DE GRANOS</span>
+        <span className="finale-fine">GROWCAST © 2026 — INTELIGENCIA AGRÍCOLA</span>
       </footer>
 
       <div className="hint" data-hint>
@@ -184,7 +184,7 @@ export default function Overlay() {
       </div>
 
       <div className="phase" data-phase aria-hidden>
-        01 / VISTA DEL SITIO
+        01 / LA GRANJA
       </div>
 
       <div className="grain" aria-hidden />
