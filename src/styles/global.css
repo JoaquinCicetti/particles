@@ -47,8 +47,10 @@
   --fg-dim: rgba(242, 233, 221, 0.55);
   --copper: #c87f3d;
   --copper-bright: #ffd9a0;
+  --copper-hover: #b3702f; /* plain copper, a touch darker — no gold */
   --copper-dim: rgba(200, 127, 61, 0.35);
   --copper-faint: rgba(200, 127, 61, 0.14);
+  --radius: 0.5rem; /* shadcn-style corner radius */
   --display: 'Aeonik', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', monospace;
   --body: 'Aeonik', system-ui, sans-serif;
@@ -127,14 +129,13 @@ body {
   text-decoration: none;
 }
 
-/* lime logo.svg recolored to copper via mask — geometry only */
+/* lime logo.svg recolored to flat copper via mask — geometry only */
 .brand-mark {
   width: 2rem;
   height: 2rem;
-  background: linear-gradient(150deg, var(--copper-bright), var(--copper));
+  background: var(--copper);
   -webkit-mask: url('/logo.svg') center / contain no-repeat;
   mask: url('/logo.svg') center / contain no-repeat;
-  filter: drop-shadow(0 0 9px rgba(200, 127, 61, 0.5));
   transition: transform 0.4s ease;
 }
 
@@ -150,19 +151,39 @@ body {
   color: var(--fg);
 }
 
+/* shadcn-style "AGRO" badge marking the agro branch */
+.brand-sub {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  color: var(--copper);
+  border: 1px solid var(--copper-dim);
+  border-radius: calc(var(--radius) - 0.25rem);
+  padding: 0.12rem 0.4rem;
+  margin-left: -0.35rem;
+}
+
+/* shadcn-style outline button */
 .nav-cta {
   pointer-events: auto;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.28em;
-  color: var(--copper-bright);
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--copper);
   text-decoration: none;
+  background: transparent;
   border: 1px solid var(--copper-dim);
-  padding: 0.7rem 1.3rem;
+  border-radius: var(--radius);
+  padding: 0.55rem 1.05rem;
   transition:
-    background 0.35s ease,
-    color 0.35s ease,
-    border-color 0.35s ease;
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .nav-cta:hover {
@@ -355,6 +376,9 @@ body {
 }
 
 .finale-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-family: var(--display);
   font-weight: 700;
   font-size: clamp(1.4rem, 3vw, 2.3rem);
@@ -364,6 +388,18 @@ body {
   text-shadow: 0 0 28px rgba(200, 127, 61, 0.45);
 }
 
+.finale-sub {
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 0.42em;
+  letter-spacing: 0.3em;
+  color: var(--copper);
+  border: 1px solid var(--copper-dim);
+  border-radius: calc(var(--radius) - 0.25rem);
+  padding: 0.2em 0.5em;
+  text-shadow: none;
+}
+
 .finale-tag {
   font-family: var(--mono);
   font-size: 0.66rem;
@@ -371,24 +407,31 @@ body {
   color: var(--copper);
 }
 
+/* shadcn-style primary button — flat copper, no gradient/glow */
 .cta {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-decoration: none;
   color: var(--bg);
-  background: linear-gradient(120deg, var(--copper), var(--copper-bright));
-  padding: 1.05rem 2.4rem;
-  box-shadow: 0 0 26px rgba(200, 127, 61, 0.4);
+  background: var(--copper);
+  border: 1px solid var(--copper);
+  border-radius: var(--radius);
+  padding: 0.7rem 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
   transition:
-    box-shadow 0.35s ease,
-    transform 0.35s ease;
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .cta:hover {
-  box-shadow: 0 0 44px rgba(255, 217, 160, 0.65);
-  transform: translateY(-2px);
+  background: var(--copper-hover);
+  border-color: var(--copper-hover);
+  transform: translateY(-1px);
 }
 
 .finale-fine {
