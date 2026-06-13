@@ -76,7 +76,7 @@ body {
 }
 
 .scroll-track {
-  height: 800vh;
+  height: 1100vh;
 }
 
 .canvas-layer {
@@ -117,6 +117,29 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 2.1rem clamp(1.5rem, 4vw, 3.2rem);
+}
+
+.brand {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+}
+
+/* lime logo.svg recolored to copper via mask — geometry only */
+.brand-mark {
+  width: 2rem;
+  height: 2rem;
+  background: linear-gradient(150deg, var(--copper-bright), var(--copper));
+  -webkit-mask: url('/logo.svg') center / contain no-repeat;
+  mask: url('/logo.svg') center / contain no-repeat;
+  filter: drop-shadow(0 0 9px rgba(200, 127, 61, 0.5));
+  transition: transform 0.4s ease;
+}
+
+.brand:hover .brand-mark {
+  transform: rotate(-8deg) scale(1.06);
 }
 
 .wordmark {
