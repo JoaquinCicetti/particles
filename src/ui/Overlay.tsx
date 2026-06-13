@@ -99,9 +99,10 @@ export default function Overlay() {
   return (
     <div className="overlay" ref={root}>
       <nav className="nav">
-        <a className="brand" href="#top" aria-label="Growcast — inicio">
+        <a className="brand" href="#top" aria-label="Growcast Agro — inicio">
           <span className="brand-mark" aria-hidden />
           <span className="wordmark">GROWCAST</span>
+          <span className="brand-sub">AGRO</span>
         </a>
         <a className="nav-cta" href={SCHEDULE_URL}>
           COORDINAR REUNIÓN
@@ -163,12 +164,14 @@ export default function Overlay() {
       </section>
 
       <footer className="finale" data-finale>
-        <span className="finale-word">GROWCAST</span>
+        <span className="finale-word">
+          GROWCAST<span className="finale-sub">AGRO</span>
+        </span>
         <span className="finale-tag">MEDIR · PREDECIR · DECIDIR</span>
         <a className="cta" href={SCHEDULE_URL} id="agenda">
           Coordinar una reunión
         </a>
-        <span className="finale-fine">GROWCAST © 2026 — INTELIGENCIA AGRÍCOLA</span>
+        <span className="finale-fine">GROWCAST AGRO © 2026 — INTELIGENCIA AGRÍCOLA</span>
       </footer>
 
       <div className="hint" data-hint>
