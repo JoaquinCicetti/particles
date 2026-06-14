@@ -15,9 +15,9 @@ import { scrollState } from '../lib/scroll'
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 const POSITIONS = [
-  V(-4, 4.4, 20), //   0.000  wide farm establishing (favor warehouse, left)
-  V(9.5, 6.2, 14), //  0.111  sweep right across the farm
-  V(3.5, 8.5, 8), //   0.222  descent toward the elevator
+  V(-1, 6.2, 24), //   0.000  far, high, wide farm landscape
+  V(6.5, 5.8, 18), //  0.111  drift right toward the warehouse
+  V(3.5, 8.5, 9), //   0.222  descent toward the elevator
   V(0.3, 5.2, 1.1), // 0.333  into the stream
   V(0, 4.2, 1.0), //   0.444  inside the stream
   V(0, 3.1, 11), //    0.556  pull back to the data field
@@ -28,8 +28,8 @@ const POSITIONS = [
 ]
 
 const TARGETS = [
-  V(0, 3.4, 0),
-  V(0, 4, 0),
+  V(0, 2.8, 0),
+  V(1.5, 3.2, 0),
   V(0, 6.5, 0),
   V(0, 8, 0),
   V(0, 10, 0),

@@ -8,7 +8,7 @@ export default function Scene() {
   return (
     <>
       <color attach="background" args={['#050302']} />
-      <fogExp2 attach="fog" args={['#050302', 0.042]} />
+      <fogExp2 attach="fog" args={['#050302', 0.03]} />
       <CameraRig />
       <Structures />
       <Network />

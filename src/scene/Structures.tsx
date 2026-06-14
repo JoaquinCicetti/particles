@@ -149,6 +149,38 @@ function buildWarehouseLines(wh: typeof WAREHOUSE) {
   return out
 }
 
+// hydroponic interior: rows of stacked grow racks (trays running along z) with
+// vertical posts and nutrient channels. Tray nodes (plants/sensors) are pushed
+// into `nodes` so they glow as points.
+function buildHydroInterior(wh: typeof WAREHOUSE, nodes: number[]) {
+  const out: number[] = []
+  const { pos, w, d } = wh
+  const rackRows = 4
+  const shelves = 4
+  const zr0 = pos.z - d / 2 + 0.7
+  const zr1 = pos.z + d / 2 - 0.7
+  const topY = wh.wall * 0.86
+  for (let r = 0; r < rackRows; r++) {
+    const x = pos.x - w / 2 + w * ((r + 0.7) / (rackRows + 0.4))
+    // vertical posts at both ends of the rack
+    pushLine(out, V(x, 0, zr0), V(x, topY, zr0))
+    pushLine(out, V(x, 0, zr1), V(x, topY, zr1))
+    for (let s = 1; s <= shelves; s++) {
+      const y = (topY * s) / shelves
+      // tray rails (two close lines) running the rack length
+      pushLine(out, V(x - 0.12, y, zr0), V(x - 0.12, y, zr1))
+      pushLine(out, V(x + 0.12, y, zr0), V(x + 0.12, y, zr1))
+      // plant / sensor nodes along the tray
+      const n = 7
+      for (let i = 0; i < n; i++) {
+        const z = zr0 + (zr1 - zr0) * (i / (n - 1))
+        nodes.push(x, y + 0.06, z)
+      }
+    }
+  }
+  return out
+}
+
 // detailed grain-elevator tower: braced lattice legs, leg cross-bracing,
 // a head house at the top with a roof, and a discharge spout.
 function buildTowerLines(w: number, h: number) {
@@ -250,12 +282,13 @@ export default function Structures() {
     const random = createRandom(424242)
 
     const lines: number[] = []
+    const shellPts: number[] = []
     for (const s of SILOS) lines.push(...buildSiloLines(s.pos, s.radius, s.height))
     lines.push(...buildTowerLines(ELEVATOR.width, ELEVATOR.height))
     lines.push(...buildWarehouseLines(WAREHOUSE))
+    lines.push(...buildHydroInterior(WAREHOUSE, shellPts)) // rack tray nodes → glow
 
     // shimmering particle shells on silo + warehouse surfaces
-    const shellPts: number[] = []
     for (const s of SILOS) {
       for (let i = 0; i < 2400; i++) {
         const a = random() * Math.PI * 2
@@ -295,6 +328,13 @@ export default function Structures() {
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2
       pushLine(grid, V(Math.cos(a) * 2, 0.01, Math.sin(a) * 2), V(Math.cos(a) * 18, 0.01, Math.sin(a) * 18))
+    }
+
+    // field furrows (crop rows) in the open foreground — sells a real farm
+    for (let i = -15; i <= 15; i++) {
+      const x = i * 1.15
+      const wobble = (random() - 0.5) * 0.1
+      pushLine(grid, V(x, 0.015, 8.5), V(x + wobble, 0.015, 20))
     }
 
     return {
