@@ -66,8 +66,10 @@ export default function CameraRig() {
       return
     }
 
-    posCurve.getPoint(p, vPos.current)
-    tgtCurve.getPoint(p, vTgt.current)
+    // skip the first 5% of the path so it opens a bit closer to the warehouse
+    const cp = 0.05 + p * 0.95
+    posCurve.getPoint(cp, vPos.current)
+    tgtCurve.getPoint(cp, vTgt.current)
 
     // pointer parallax + idle breathing, tapered to nothing at the finale
     const calm = 1 - THREE.MathUtils.smoothstep(p, 0.88, 1.0)
