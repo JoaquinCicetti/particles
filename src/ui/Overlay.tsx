@@ -1,29 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { scrollState } from '../lib/scroll'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
+import { M } from '../i18n/messages'
 import ContactDialog from './ContactDialog'
 
 const METRICS = [
-  { label: 'TEMPERATURA', value: '18.4', unit: '°C', note: 'Δ −0.3 / 24H', bar: 0.42, range: [0.16, 0.24], side: 'left' },
-  { label: 'HUMEDAD', value: '61.2', unit: '%HR', note: 'ESTABLE', bar: 0.61, range: [0.2, 0.28], side: 'right' },
-  { label: 'CO₂', value: '412', unit: 'PPM', note: 'NOMINAL', bar: 0.28, range: [0.24, 0.32], side: 'left' },
-  { label: 'CONDUCTIVIDAD', value: '1.9', unit: 'mS/cm', note: 'EC · ÓPTIMO', bar: 0.55, range: [0.28, 0.36], side: 'right' },
-  { label: 'pH', value: '6.3', unit: '', note: 'EN RANGO', bar: 0.63, range: [0.32, 0.4], side: 'left' },
-  { label: 'FLUJO DE AIRE', value: '1.8', unit: 'M/S', note: 'ÓPTIMO', bar: 0.74, range: [0.36, 0.44], side: 'right' },
+  { label: M.mTempLabel, value: '18.4', unit: '°C', note: M.mTempNote, bar: 0.42, range: [0.16, 0.24], side: 'left' },
+  { label: M.mHumLabel, value: '61.2', unit: '%HR', note: M.mHumNote, bar: 0.61, range: [0.2, 0.28], side: 'right' },
+  { label: M.mCo2Label, value: '412', unit: 'PPM', note: M.mCo2Note, bar: 0.28, range: [0.24, 0.32], side: 'left' },
+  { label: M.mEcLabel, value: '1.9', unit: 'mS/cm', note: M.mEcNote, bar: 0.55, range: [0.28, 0.36], side: 'right' },
+  { label: M.mPhLabel, value: '6.3', unit: '', note: M.mPhNote, bar: 0.63, range: [0.32, 0.4], side: 'left' },
+  { label: M.mAirLabel, value: '1.8', unit: 'M/S', note: M.mAirNote, bar: 0.74, range: [0.36, 0.44], side: 'right' },
 ] as const
 
-const PHASES: Array<[number, string]> = [
-  [0, '01 / EL ESTABLECIMIENTO'],
-  [0.16, '02 / RED DE SENSORES'],
-  [0.32, '03 / FLUJO DE DATOS'],
-  [0.5, '04 / DATOS ESTRUCTURADOS'],
-  [0.62, '05 / CONVERGENCIA'],
-  [0.88, '06 / GROWCAST'],
-]
+const PHASE_AT = [0, 0.16, 0.32, 0.5, 0.62, 0.88] as const
+const PHASE_MSG = [M.phase1, M.phase2, M.phase3, M.phase4, M.phase5, M.phase6] as const
 
 export default function Overlay() {
+  const intl = useIntl()
   const root = useRef<HTMLDivElement>(null)
   const [contactOpen, setContactOpen] = useState(false)
+
+  // localized phase labels, kept in a ref so the rAF loop reads the current
+  // language without re-binding the animation each render
+  const phasesRef = useRef<Array<[number, string]>>([])
+  phasesRef.current = PHASE_AT.map((at, i) => [at, intl.formatMessage(PHASE_MSG[i])])
 
   useEffect(() => {
     const el = root.current
@@ -83,8 +85,9 @@ export default function Overlay() {
       if (railDot) railDot.style.transform = `translateY(${p * 38}vh)`
 
       if (phaseEl) {
-        let label = PHASES[0][1]
-        for (const [at, text] of PHASES) if (p >= at) label = text
+        const phases = phasesRef.current
+        let label = phases[0]?.[1] ?? ''
+        for (const [at, text] of phases) if (p >= at) label = text
         if (label !== lastPhase) {
           lastPhase = label
           phaseEl.textContent = label
@@ -100,43 +103,48 @@ export default function Overlay() {
   return (
     <div className="overlay" ref={root}>
       <nav className="nav">
-        <a className="brand" href="#top" aria-label="Growcast Agro — inicio">
+        <a className="brand" href="#top" aria-label={intl.formatMessage(M.brandAria)}>
           <span className="brand-mark" aria-hidden />
           <span className="wordmark">GROWCAST</span>
           <span className="brand-sub">AGRO</span>
         </a>
         <div className="nav-right">
           <button type="button" className="nav-cta" onClick={() => setContactOpen(true)}>
-            COORDINAR REUNIÓN
+            <FormattedMessage {...M.navCta} />
           </button>
         </div>
       </nav>
 
       <header className="hero" data-hero>
-        <span className="kicker">PLATAFORMA DE MONITOREO AGRÍCOLA</span>
+        <span className="kicker">
+          <FormattedMessage {...M.heroKicker} />
+        </span>
         <h1>
-          Tu campo,
-          <br />
-          en tiempo real<span className="accent">.</span>
+          <FormattedMessage
+            {...M.heroTitle}
+            values={{ br: () => <br />, accent: (c) => <span className="accent">{c}</span> }}
+          />
         </h1>
         <p>
-          Growcast integra silos, depósitos y cultivos en una sola plataforma de monitoreo.
-          Datos en tiempo real, del campo a la decisión.
+          <FormattedMessage {...M.heroBody} />
         </p>
       </header>
 
       <section className="block block-center" data-window="0.16,0.3">
-        <span className="kicker">RED DE SENSORES</span>
-        <h2>Todo el establecimiento, una sola red.</h2>
+        <span className="kicker">
+          <FormattedMessage {...M.sensorsKicker} />
+        </span>
+        <h2>
+          <FormattedMessage {...M.sensorsTitle} />
+        </h2>
         <p>
-          Temperatura, humedad, CO₂, conductividad y pH: cada variable, en cada punto,
-          transmitiendo a un núcleo central.
+          <FormattedMessage {...M.sensorsBody} />
         </p>
       </section>
 
       {METRICS.map((m) => (
-        <div key={m.label} className={`metric metric-${m.side}`} data-metric>
-          <span className="metric-label">{m.label}</span>
+        <div key={m.label.id} className={`metric metric-${m.side}`} data-metric>
+          <span className="metric-label">{intl.formatMessage(m.label)}</span>
           <div className="metric-value">
             {m.value}
             <span className="metric-unit">{m.unit}</span>
@@ -144,25 +152,31 @@ export default function Overlay() {
           <div className="metric-bar">
             <i style={{ width: `${m.bar * 100}%` }} />
           </div>
-          <span className="metric-note">{m.note}</span>
+          <span className="metric-note">{intl.formatMessage(m.note)}</span>
         </div>
       ))}
 
       <section className="block block-left" data-window="0.5,0.6">
-        <span className="kicker">DATOS ESTRUCTURADOS</span>
-        <h2>El dato crudo se vuelve estructura.</h2>
+        <span className="kicker">
+          <FormattedMessage {...M.dataKicker} />
+        </span>
+        <h2>
+          <FormattedMessage {...M.dataTitle} />
+        </h2>
         <p>
-          Series temporales, umbrales y alertas tempranas: cada variable, ordenada y lista para
-          decidir.
+          <FormattedMessage {...M.dataBody} />
         </p>
       </section>
 
       <section className="block block-left" data-window="0.64,0.85">
-        <span className="kicker">MEDIR · CONTROLAR · TRAZAR</span>
-        <h2>Todo converge en Growcast.</h2>
+        <span className="kicker">
+          <FormattedMessage {...M.tagline} />
+        </span>
+        <h2>
+          <FormattedMessage {...M.convergeTitle} />
+        </h2>
         <p>
-          Medimos cada variable, controlamos riego y clima, y trazamos cada lote —del sensor a la
-          decisión, en una sola fuente de verdad.
+          <FormattedMessage {...M.convergeBody} />
         </p>
       </section>
 
@@ -170,18 +184,26 @@ export default function Overlay() {
         <span className="finale-word">
           GROWCAST<span className="finale-sub">AGRO</span>
         </span>
-        <span className="finale-tag">MEDIR · CONTROLAR · TRAZAR</span>
+        <span className="finale-tag">
+          <FormattedMessage {...M.tagline} />
+        </span>
         <button type="button" className="cta" onClick={() => setContactOpen(true)}>
-          <span className="cta-label">Coordinar una reunión</span>
+          <span className="cta-label">
+            <FormattedMessage {...M.finaleCta} />
+          </span>
           <span className="cta-arrow" aria-hidden>→</span>
         </button>
-        <span className="finale-fine">GROWCAST AGRO © 2026 — INTELIGENCIA AGRÍCOLA</span>
+        <span className="finale-fine">
+          <FormattedMessage {...M.finaleFine} />
+        </span>
       </footer>
 
       <ContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />
 
       <div className="hint" data-hint>
-        <span>DESPLAZÁ PARA EXPLORAR</span>
+        <span>
+          <FormattedMessage {...M.hint} />
+        </span>
         <i />
       </div>
 
@@ -193,7 +215,7 @@ export default function Overlay() {
       </div>
 
       <div className="phase" data-phase aria-hidden>
-        01 / EL ESTABLECIMIENTO
+        {intl.formatMessage(M.phase1)}
       </div>
 
       <div className="grain" aria-hidden />
