@@ -45,9 +45,9 @@ const tx = ELEVATOR.pos.x
 const tz = ELEVATOR.pos.z
 const SPIRAL_TOP = 10.8
 const SPIRAL_BASE = 2.6
-const R_BASE = 2.9 // wide at the bottom
-const R_TOP = 0.6 // converges tight near the top
-const TWIST = 0.95 // radians of swirl per world unit of height
+const R_BASE = 0.72 // narrow — fits inside the tower lattice
+const R_TOP = 0.28 // converges tight near the top
+const TWIST = 1.15 // radians of swirl per world unit of height (tight spiral)
 
 const radiusAt = (y: number) =>
   R_BASE + (R_TOP - R_BASE) * Math.min(1, Math.max(0, (y - SPIRAL_BASE) / (SPIRAL_TOP - SPIRAL_BASE)))

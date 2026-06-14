@@ -64,7 +64,7 @@ void main() {
   // ── act 1: telemetry flowing along the farm curves (soft, tight) ──
   float ct = fract(aFlow.x + uTime * 0.02 * aFlow.y);
   vec3 jitter = (aRand.xyz * 2.0 - 1.0);
-  vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * mix(0.18, 0.12, ct);
+  vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * mix(0.10, 0.05, ct);
 
   // ── act 2: calm upward stream inside the elevator (centred on the tower) ──
   float ang = aRand.x * 6.28318 + uTime * (0.15 + aRand.y * 0.28);
