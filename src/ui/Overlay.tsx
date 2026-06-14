@@ -16,8 +16,8 @@ const PHASES: Array<[number, string]> = [
   [0, '01 / EL ESTABLECIMIENTO'],
   [0.16, '02 / RED DE SENSORES'],
   [0.32, '03 / FLUJO DE DATOS'],
-  [0.5, '04 / SÍNTESIS'],
-  [0.62, '05 / INGENIERÍA'],
+  [0.5, '04 / DATOS ESTRUCTURADOS'],
+  [0.62, '05 / CONVERGENCIA'],
   [0.88, '06 / GROWCAST'],
 ]
 
@@ -72,7 +72,7 @@ export default function Overlay() {
       })
 
       if (finale) {
-        const o = smoothstep(0.93, 0.985, p)
+        const o = smoothstep(0.92, 0.98, p)
         finale.style.opacity = String(o)
         finale.style.pointerEvents = o > 0.5 ? 'auto' : 'none'
         finale.style.visibility = o < 0.01 ? 'hidden' : 'visible'
@@ -146,20 +146,20 @@ export default function Overlay() {
       ))}
 
       <section className="block block-left" data-window="0.5,0.6">
-        <span className="kicker">DE LA SEÑAL A LA DECISIÓN</span>
-        <h2>Datos crudos, información accionable.</h2>
+        <span className="kicker">DATOS ESTRUCTURADOS</span>
+        <h2>El dato crudo se vuelve estructura.</h2>
         <p>
-          Series temporales, umbrales y alertas tempranas: la trazabilidad completa de tu
-          operación.
+          Series temporales, umbrales y alertas tempranas: cada variable, ordenada y lista para
+          decidir.
         </p>
       </section>
 
-      <section className="block block-left" data-window="0.64,0.84">
-        <span className="kicker">INGENIERÍA PROPIA</span>
-        <h2>Diseñamos la electrónica.</h2>
+      <section className="block block-left" data-window="0.64,0.85">
+        <span className="kicker">CONVERGENCIA</span>
+        <h2>Todo converge en Growcast.</h2>
         <p>
-          Desarrollamos el hardware que vive en el campo: sensores y placas de control de diseño
-          propio, preparados para condiciones reales.
+          El dato sube por nuestra electrónica —del sensor al silicio— y se convierte en una sola
+          fuente de verdad.
         </p>
       </section>
 
