@@ -26,3 +26,6 @@ dist-ssr
 
 # local verification screenshots
 scripts/*.png
+
+# Licensed Aeonik fonts — kept local, not redistributed
+public/fonts/
