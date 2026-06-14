@@ -40,42 +40,47 @@ const WAREHOUSE_FRONT = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos
 const WAREHOUSE_BACK = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos.z - WAREHOUSE.d / 2)
 const GROUND_SENSOR = v(-8.5, 0.4, 8.5)
 
-const HUB = v(ELEVATOR.pos.x, 6.4, ELEVATOR.pos.z)
-const RISE_A = v(ELEVATOR.pos.x, 10.8, ELEVATOR.pos.z)
-const RISE_B = v(ELEVATOR.pos.x, 10.4, ELEVATOR.pos.z)
+// a point on the tower's vertical data column (slight x/z variation so the
+// column reads with width, not as a single line)
+const tx = ELEVATOR.pos.x
+const tz = ELEVATOR.pos.z
+const shaft = (y: number, dx = 0, dz = 0) => v(tx + dx, y, tz + dz)
 
-// each flow curve starts at a sensor source → tower hub → rises up the shaft
+// each flow curve starts at a sensor source and JOINS the central rising
+// column at its own height (joinY differs per sensor), then climbs to the
+// top — so streams merge into the column in different places, not one point.
 export const FLOW_CURVES = [
-  // warehouse (right) → hub
+  // warehouse front → joins high
   new THREE.CatmullRomCurve3(
-    [WAREHOUSE_FRONT, v(1.2, 6.0, 3.0), v(-1.6, 6.3, 0.2), HUB, RISE_A],
+    [WAREHOUSE_FRONT, v(1.2, 6.2, 3.0), v(-1.8, 6.7, 0.0), shaft(6.8, 0.3, 0.2), shaft(10.4, -0.2, -0.2)],
+    false,
+    'centripetal',
+  ),
+  // warehouse back → joins highest
+  new THREE.CatmullRomCurve3(
+    [WAREHOUSE_BACK, v(0.8, 6.6, -1.2), v(-2.2, 7.2, -1.8), shaft(7.4, -0.3, 0.0), shaft(11.0, 0.2, -0.2)],
+    false,
+    'centripetal',
+  ),
+  // silos (left) → each joins at a different mid height
+  new THREE.CatmullRomCurve3(
+    [SILO_SENSORS[0], v(-5.6, 6.0, -3.2), shaft(5.6, -0.2, -0.3), shaft(10.6, 0.1, 0.1)],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [WAREHOUSE_BACK, v(0.8, 6.0, -1.2), v(-2.0, 6.3, -1.8), HUB, RISE_B],
-    false,
-    'centripetal',
-  ),
-  // silos (left) → hub
-  new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[0], v(-5.6, 6.4, -3.2), HUB, RISE_A],
+    [SILO_SENSORS[1], v(-7.0, 5.2, -2.1), shaft(4.8, 0.3, -0.1), shaft(10.2, -0.2, 0.2)],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[1], v(-7.0, 6.0, -2.1), HUB, RISE_B],
+    [SILO_SENSORS[2], v(-5.8, 4.6, -1.0), shaft(4.2, -0.1, 0.3), shaft(10.8, 0.2, -0.1)],
     false,
     'centripetal',
   ),
+  // ground / field sensor → joins lowest
   new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[2], v(-5.8, 6.0, -1.0), HUB, RISE_A],
-    false,
-    'centripetal',
-  ),
-  // ground / field sensor → hub
-  new THREE.CatmullRomCurve3(
-    [GROUND_SENSOR, v(-6.5, 1.9, 4.5), v(-4.8, 3.8, 0.4), HUB, RISE_B],
+    [GROUND_SENSOR, v(-6.0, 1.6, 4.0), v(-4.6, 2.8, 0.4), shaft(3.4, 0.2, 0.2), shaft(9.8, -0.1, -0.2)],
     false,
     'centripetal',
   ),
