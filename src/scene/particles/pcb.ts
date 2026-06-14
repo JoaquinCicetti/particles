@@ -2,77 +2,76 @@ import * as THREE from 'three'
 import { createRandom } from '../../lib/random'
 
 /**
- * Flat 2-D PCB that reads unmistakably as a circuit board. Everything lives on
- * a plane facing the camera (z ≈ 0). Three kinds of "traces" are generated and
- * baked into a float DataTexture (TRACE_SAMPLES × TRACE_COUNT), then particles
- * stream along them as signal pulses before collapsing into the logo:
- *   • routing traces — right-angle (Manhattan) copper runs on a grid
- *   • component outlines — IC/SMD rectangles with pin stubs
- *   • pads — tiny loops that read as bright solder points / vias
+ * Flat 2-D PCB that reads as real copper routing (not component boxes).
+ * Everything lives on a plane facing the camera (z ≈ 0). Traces are
+ * predominantly long horizontal "bus" runs that branch at right angles and
+ * fan out to pads/vias — so as particles stream along them they read as the
+ * "structured data → ordered lines → PCB paths" the brief asks for, before
+ * morphing into the logo. Baked into a DataTexture (TRACE_SAMPLES × TRACE_COUNT).
  */
 
-export const TRACE_COUNT = 120
+export const TRACE_COUNT = 132
 export const TRACE_SAMPLES = 64
 export const PCB_CENTER_Y = 2.9
 
-const HALF_W = 5.0
+const HALF_W = 5.6
 const HALF_H = 2.7
-const STEP = 0.4
-const Z = 0 // flat plane
+const STEP = 0.3
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 const snap = (v: number) => Math.round(v / STEP) * STEP
-const gx = (rand: () => number) => snap((rand() * 2 - 1) * HALF_W)
-const gy = (rand: () => number) => snap((rand() * 2 - 1) * HALF_H) + PCB_CENTER_Y
+const rowY = (k: number, rows: number) =>
+  PCB_CENTER_Y - HALF_H + (2 * HALF_H * (k + 0.5)) / rows
 
-// right-angle routing run across the board (x then y then x …)
-function routingTrace(random: () => number): THREE.Vector3[] {
-  let x = gx(random)
-  let y = gy(random)
-  const pts = [new THREE.Vector3(x, y, Z)]
-  const legs = 3 + Math.floor(random() * 4)
-  let horiz = random() < 0.5
-  for (let i = 0; i < legs; i++) {
-    const d = (random() < 0.5 ? -1 : 1) * snap(0.8 + random() * 2.4)
-    if (horiz) x = clamp(x + d, -HALF_W, HALF_W)
-    else y = clamp(y + d, PCB_CENTER_Y - HALF_H, PCB_CENTER_Y + HALF_H)
-    pts.push(new THREE.Vector3(x, y, Z))
-    horiz = !horiz
+// a long copper run: enters on one edge, travels the board on a bus row,
+// then right-angle branches to a pad on another row — classic PCB routing
+function routingTrace(random: () => number, rows: number): THREE.Vector3[] {
+  const startRow = Math.floor(random() * rows)
+  const fromLeft = random() < 0.5
+  const x0 = fromLeft ? -HALF_W : HALF_W
+  const y0 = rowY(startRow, rows)
+  const pts: THREE.Vector3[] = [new THREE.Vector3(x0, y0, 0)]
+
+  // travel along the bus row to a branch point
+  const bx = snap((random() * 2 - 1) * HALF_W * 0.8)
+  pts.push(new THREE.Vector3(bx, y0, 0))
+
+  // right-angle to a target row, then a short run to the pad
+  const targetRow = clamp(startRow + Math.floor((random() - 0.5) * rows), 0, rows - 1)
+  const y1 = rowY(targetRow, rows)
+  pts.push(new THREE.Vector3(bx, y1, 0))
+  const padX = clamp(bx + (random() < 0.5 ? -1 : 1) * snap(0.6 + random() * 2.2), -HALF_W, HALF_W)
+  pts.push(new THREE.Vector3(padX, y1, 0))
+
+  // optional second dog-leg for denser, more believable routing
+  if (random() < 0.5) {
+    const y2 = rowY(clamp(targetRow + (random() < 0.5 ? -1 : 1), 0, rows - 1), rows)
+    pts.push(new THREE.Vector3(padX, y2, 0))
+    pts.push(new THREE.Vector3(clamp(padX + snap(0.5 + random()), -HALF_W, HALF_W), y2, 0))
   }
   return pts
 }
 
-// component footprint: rectangle perimeter + a couple of pin stubs
-function componentTrace(random: () => number): THREE.Vector3[] {
-  const cx = gx(random)
-  const cy = gy(random)
-  const w = snap(0.8 + random() * 1.6)
-  const h = snap(0.6 + random() * 1.2)
-  const x0 = clamp(cx - w / 2, -HALF_W, HALF_W)
-  const x1 = clamp(cx + w / 2, -HALF_W, HALF_W)
-  const y0 = clamp(cy - h / 2, PCB_CENTER_Y - HALF_H, PCB_CENTER_Y + HALF_H)
-  const y1 = clamp(cy + h / 2, PCB_CENTER_Y - HALF_H, PCB_CENTER_Y + HALF_H)
-  const pts = [
-    new THREE.Vector3(x0, y0, Z),
-    new THREE.Vector3(x1, y0, Z),
-    new THREE.Vector3(x1, y1, Z),
-    new THREE.Vector3(x0, y1, Z),
-    new THREE.Vector3(x0, y0, Z),
-  ]
-  return pts
+// a tight cluster of parallel traces (a data bus) on adjacent rows
+function busTrace(random: () => number, rows: number): THREE.Vector3[] {
+  const r = Math.floor(random() * rows)
+  const y = rowY(r, rows)
+  const xa = snap(-HALF_W + random() * HALF_W)
+  const xb = clamp(xa + snap(2.5 + random() * 5), -HALF_W, HALF_W)
+  return [new THREE.Vector3(xa, y, 0), new THREE.Vector3(xb, y, 0)]
 }
 
-// pad / via: a tiny square loop → resamples into a dense bright dot
+// pad / via — a tiny loop that resamples into a dense bright dot
 function padTrace(random: () => number): THREE.Vector3[] {
-  const cx = gx(random)
-  const cy = gy(random)
-  const s = 0.07
+  const cx = snap((random() * 2 - 1) * HALF_W)
+  const cy = snap((random() * 2 - 1) * HALF_H) + PCB_CENTER_Y
+  const s = 0.06
   return [
-    new THREE.Vector3(cx - s, cy - s, Z),
-    new THREE.Vector3(cx + s, cy - s, Z),
-    new THREE.Vector3(cx + s, cy + s, Z),
-    new THREE.Vector3(cx - s, cy + s, Z),
-    new THREE.Vector3(cx - s, cy - s, Z),
+    new THREE.Vector3(cx - s, cy - s, 0),
+    new THREE.Vector3(cx + s, cy - s, 0),
+    new THREE.Vector3(cx + s, cy + s, 0),
+    new THREE.Vector3(cx - s, cy + s, 0),
+    new THREE.Vector3(cx - s, cy - s, 0),
   ]
 }
 
@@ -81,9 +80,9 @@ function resample(pts: THREE.Vector3[], n: number): THREE.Vector3[] {
   const seg: number[] = []
   let total = 0
   for (let i = 1; i < pts.length; i++) {
-    const d = pts[i].distanceTo(pts[i - 1])
-    seg.push(d)
-    total += d
+    const dd = pts[i].distanceTo(pts[i - 1])
+    seg.push(dd)
+    total += dd
   }
   if (total < 1e-5) return new Array(n).fill(0).map(() => pts[0].clone())
   const out: THREE.Vector3[] = []
@@ -102,11 +101,12 @@ function resample(pts: THREE.Vector3[], n: number): THREE.Vector3[] {
 
 export function bakePcbTexture() {
   const random = createRandom(778899)
+  const rows = 13
   const data = new Float32Array(TRACE_SAMPLES * TRACE_COUNT * 4)
   for (let c = 0; c < TRACE_COUNT; c++) {
     const roll = c / TRACE_COUNT
     const pts =
-      roll < 0.62 ? routingTrace(random) : roll < 0.82 ? componentTrace(random) : padTrace(random)
+      roll < 0.6 ? routingTrace(random, rows) : roll < 0.82 ? busTrace(random, rows) : padTrace(random)
     const rs = resample(pts, TRACE_SAMPLES)
     for (let s = 0; s < TRACE_SAMPLES; s++) {
       const p = rs[s]

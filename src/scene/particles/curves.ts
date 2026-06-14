@@ -16,20 +16,21 @@ const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 export const ELEVATOR = { width: 1.6, height: 11.5 }
 
-// grain storage — right/back cluster
+// grain storage — left cluster, mid-distance
 export const SILOS = [
-  { pos: v(5.5, 0, -3.5), radius: 1.7, height: 6.0 },
-  { pos: v(8.2, 0, -2.0), radius: 1.5, height: 5.2 },
-  { pos: v(6.6, 0, 0.6), radius: 1.4, height: 4.6 },
+  { pos: v(-6.6, 0, -2.4), radius: 1.7, height: 6.0 },
+  { pos: v(-8.8, 0, -0.6), radius: 1.5, height: 5.2 },
+  { pos: v(-6.9, 0, 1.2), radius: 1.4, height: 4.6 },
 ]
 
-// the main building (priority) — broad gabled warehouse, gable faces camera
+// the main building (priority) — hydroponic warehouse, gable faces camera,
+// placed right-of-centre so the hero copy (bottom-left) never overlaps it
 export const WAREHOUSE = {
-  pos: v(-3.6, 0, 6.2),
-  w: 7.4, // x span
-  d: 8.4, // z span (gable runs along z)
+  pos: v(4.6, 0, 3.4),
+  w: 7.0, // x span
+  d: 8.0, // z span (gable runs along z)
   wall: 2.9, // eave height
-  ridge: 5.2, // roof peak
+  ridge: 5.0, // roof peak
 }
 
 // sensor source points that live ON the structures (and a couple on ground)
@@ -44,31 +45,34 @@ const RISE_B = v(0, 10.4, 0)
 
 // each flow curve starts at a sensor source → tower hub → rises up the shaft
 export const FLOW_CURVES = [
+  // warehouse (right) → hub
   new THREE.CatmullRomCurve3(
-    [WAREHOUSE_FRONT, v(-3, 5.2, 5), v(-1.1, 6.0, 1.4), HUB, RISE_A],
+    [WAREHOUSE_FRONT, v(3.0, 5.6, 4.2), v(1.2, 6.2, 1.4), HUB, RISE_A],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [WAREHOUSE_BACK, v(-2.4, 5.6, 1.4), v(-0.7, 6.4, 0.4), HUB, RISE_B],
+    [WAREHOUSE_BACK, v(2.6, 5.8, -0.4), v(0.9, 6.4, -0.1), HUB, RISE_B],
+    false,
+    'centripetal',
+  ),
+  // silos (left) → hub
+  new THREE.CatmullRomCurve3(
+    [SILO_SENSORS[0], v(-3.4, 6.6, -1.4), v(-1.0, 6.8, -0.4), HUB, RISE_A],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[0], v(3.2, 6.6, -1.8), v(1.0, 6.9, -0.5), HUB, RISE_A],
+    [SILO_SENSORS[1], v(-4.6, 6.2, -0.3), v(-1.4, 6.6, -0.1), HUB, RISE_B],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[1], v(4.6, 6.2, -1.0), v(1.6, 6.7, -0.3), HUB, RISE_B],
+    [SILO_SENSORS[2], v(-3.6, 5.6, 0.7), v(-1.0, 6.4, 0.2), HUB, RISE_A],
     false,
     'centripetal',
   ),
-  new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[2], v(3.6, 5.6, 0.4), v(1.0, 6.5, 0.1), HUB, RISE_A],
-    false,
-    'centripetal',
-  ),
+  // ground / field sensor → hub
   new THREE.CatmullRomCurve3(
     [GROUND_SENSOR, v(-4.5, 1.9, 4.5), v(-1.2, 3.6, 1.2), v(0, 5.4, 0), RISE_B],
     false,
@@ -116,6 +120,9 @@ export const SENSOR_POINTS: THREE.Vector3[] = [
   WAREHOUSE_FRONT,
   WAREHOUSE_BACK,
   v(WAREHOUSE.pos.x + WAREHOUSE.w / 2, WAREHOUSE.wall, WAREHOUSE.pos.z + 1.5),
+  // hydroponic rack sensors inside the warehouse
+  v(WAREHOUSE.pos.x - 1.6, WAREHOUSE.wall * 0.7, WAREHOUSE.pos.z),
+  v(WAREHOUSE.pos.x + 1.6, WAREHOUSE.wall * 0.5, WAREHOUSE.pos.z - 1.2),
   GROUND_SENSOR,
   v(0, ELEVATOR.height + 0.4, 0),
 ]
