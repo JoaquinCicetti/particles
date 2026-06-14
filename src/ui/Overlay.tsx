@@ -143,7 +143,7 @@ export default function Overlay({
         </p>
       </header>
 
-      <section className="block block-right" data-window="0.16,0.3">
+      <section className="block block-left" data-window="0.16,0.3">
         <span className="kicker">RED DE SENSORES</span>
         <h2>Todo el establecimiento, una sola red.</h2>
         <p>

@@ -71,10 +71,11 @@ export default function CameraRig() {
     posCurve.getPoint(cp, vPos.current)
     tgtCurve.getPoint(cp, vTgt.current)
 
-    // translate the whole scene to the right (pan the camera left); ease the
-    // pan out toward the finale so the brand mark lands centred
-    const SCENE_SHIFT = 1.4
-    const pan = SCENE_SHIFT * (1 - THREE.MathUtils.smoothstep(p, 0.86, 1.0))
+    // shift the opening farm to the right (clears the hero copy on the left),
+    // then ease the pan out by the descent so the dive, data column and logo
+    // all stay centred
+    const SCENE_SHIFT = 1.6
+    const pan = SCENE_SHIFT * (1 - THREE.MathUtils.smoothstep(p, 0.16, 0.30))
     vPos.current.x -= pan
     vTgt.current.x -= pan
 
