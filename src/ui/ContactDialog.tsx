@@ -66,7 +66,7 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
         </label>
 
         <button type="button" className="cta dialog-send" onClick={send}>
-          Enviar por WhatsApp
+          <span className="cta-label">Enviar por WhatsApp</span>
         </button>
       </div>
     </div>
