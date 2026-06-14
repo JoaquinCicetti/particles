@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { bakeCurveTexture, CURVE_COUNT, CURVE_SAMPLES } from './curves'
+import { bakeCurveTexture, CURVE_COUNT, CURVE_SAMPLES, ELEVATOR } from './curves'
 import { sampleSvgPoints } from './svgSampler'
 import { createRandom } from '../../lib/random'
 import { scrollState } from '../../lib/scroll'
@@ -66,11 +66,11 @@ void main() {
   vec3 jitter = (aRand.xyz * 2.0 - 1.0);
   vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * mix(0.16, 0.04, ct);
 
-  // ── act 2: calm upward stream inside the elevator ──
+  // ── act 2: calm upward stream inside the elevator (centred on the tower) ──
   float ang = aRand.x * 6.28318 + uTime * (0.15 + aRand.y * 0.28);
   float rad = 0.7 + aRand.y * 1.9;
   float ty = fract(aRand.z + uTime * (0.18 + aRand.w * 0.26));
-  vec3 tunnelPos = vec3(cos(ang) * rad, ty * 15.0 - 2.0, sin(ang) * rad);
+  vec3 tunnelPos = vec3(TOWER_X_C + cos(ang) * rad, ty * 15.0 - 2.0, TOWER_Z_C + sin(ang) * rad);
   float core = max(0.0, 1.7 - rad * 0.6);
 
   // ── act 3: structured 3D rows (crisp, gently alive) ──
@@ -80,30 +80,39 @@ void main() {
   // ── act 4: the brand mark (raised, the destination) ──
   vec3 logoPos = aLogo;
 
-  // ── riser: rows → vertical circuit lanes → converge into the logo ──
+  // ── riser: rows → vertical circuit lanes → merge into a WIDE stratified
+  //    data column (each depth-row settles at its own height) → resolve into
+  //    the logo. The merge target is a wide column, never a single point. ──
   float laneStep = 1.1;
   float laneX = floor(aGrid.x / laneStep + 0.5) * laneStep;
   float panelZ = 0.0;
-  float manifoldY = LOGO_CENTER_Y_C - 1.8;
-  float order = clamp((aGrid.x + 8.0) / 16.0, 0.0, 1.0); // left→right sweep
-  float rstart = 0.60 + order * 0.08;
-  float rp = smoothstep(rstart, rstart + 0.26, pp);
-  float la = smoothstep(0.0, 0.30, rp);  // gather onto lane + panel
-  float lb = smoothstep(0.26, 0.66, rp); // rise up the lane
-  float lc = smoothstep(0.62, 1.0, rp);  // converge into the logo
+  float zrow = clamp((aGrid.z + 3.2) / 6.4, 0.0, 1.0); // 0..1 across the rows
+  float bandY = 3.2 + zrow * 4.3;                       // stratified 3.2 .. 7.5
+  float colX = aGrid.x * 0.64;                          // wide column (±~5)
+
+  float order = zrow; // back→front sweep
+  float rstart = 0.58 + order * 0.10;
+  float rp = smoothstep(rstart, rstart + 0.22, pp);
+  float la = smoothstep(0.0, 0.34, rp);  // gather onto a vertical lane
+  float lb = smoothstep(0.28, 0.66, rp); // rise to this row's band height
+  float lc = smoothstep(0.58, 1.0, rp);  // spread out into the wide column
 
   vec3 P = gridPos;
   P = mix(P, vec3(laneX, gridPos.y, panelZ), la);
-  P = mix(P, vec3(laneX, manifoldY, panelZ), lb);
-  P = mix(P, logoPos, lc);
-  vec3 riserPos = P;
+  P = mix(P, vec3(laneX, bandY, panelZ), lb);
+  P = mix(P, vec3(colX, bandY, panelZ), lc);
+  vec3 columnPos = P;
+
+  // the wide stratified column finally resolves into the brand mark
+  float logoT = smoothstep(0.86, 0.96, pp + (aRand.y - 0.5) * 0.04);
+  vec3 riserPos = mix(columnPos, logoPos, logoT);
 
   vec3 pos = wFlow * flowPos + wTun * tunnelPos + base * riserPos;
 
   // energy pulse travelling up the lanes while rising
   float rising = lb * (1.0 - lc);
   float pulse = pow(0.5 + 0.5 * sin(P.y * 1.3 - uTime * 2.2 + laneX), 8.0) * rising;
-  float inLogo = lc;
+  float inLogo = logoT;
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -127,7 +136,10 @@ void main() {
   vAlpha *= smoothstep(0.8, 2.6, dist);
   vAlpha /= (1.0 + blur * blur * 1.6);
 }
-`.replace(/LOGO_CENTER_Y_C/g, LOGO_CENTER_Y.toFixed(2))
+`
+  .replace(/LOGO_CENTER_Y_C/g, LOGO_CENTER_Y.toFixed(2))
+  .replace(/TOWER_X_C/g, ELEVATOR.pos.x.toFixed(2))
+  .replace(/TOWER_Z_C/g, ELEVATOR.pos.z.toFixed(2))
 
 const fragmentShader = /* glsl */ `
 varying float vAlpha;

@@ -82,7 +82,7 @@ function buildSiloLines(pos: THREE.Vector3, r: number, h: number) {
   }
 
   // conveyor bridge from the silo peak toward the tower head
-  pushLine(out, V(pos.x, h + r * 0.2, pos.z), V(0, ELEVATOR.height - 1.2, 0))
+  pushLine(out, V(pos.x, h + r * 0.2, pos.z), V(ELEVATOR.pos.x, ELEVATOR.height - 1.2, ELEVATOR.pos.z))
   return out
 }
 
@@ -207,7 +207,7 @@ function buildHydroInterior(wh: typeof WAREHOUSE, grow: number[]) {
 
 // detailed grain-elevator tower: braced lattice legs, leg cross-bracing,
 // a head house at the top with a roof, and a discharge spout.
-function buildTowerLines(w: number, h: number) {
+function buildTowerLines(pos: THREE.Vector3, w: number, h: number) {
   const out: number[] = []
   const hw = w / 2
   const corners: [number, number][] = [
@@ -266,6 +266,12 @@ function buildTowerLines(w: number, h: number) {
   // discharge spout angling down off the head house
   pushLine(out, V(hwH, h + hh * 0.6, 0), V(hwH + 2.4, h + hh * 0.1, 0))
   pushLine(out, V(hwH, h + hh * 0.6, 0.25), V(hwH + 2.4, h + hh * 0.1, 0.25))
+
+  // translate the whole tower to its world position (x, z)
+  for (let i = 0; i < out.length; i += 3) {
+    out[i] += pos.x
+    out[i + 2] += pos.z
+  }
   return out
 }
 
@@ -309,7 +315,7 @@ export default function Structures() {
     const shellPts: number[] = []
     const growPts: number[] = []
     for (const s of SILOS) lines.push(...buildSiloLines(s.pos, s.radius, s.height))
-    lines.push(...buildTowerLines(ELEVATOR.width, ELEVATOR.height))
+    lines.push(...buildTowerLines(ELEVATOR.pos, ELEVATOR.width, ELEVATOR.height))
     lines.push(...buildWarehouseLines(WAREHOUSE))
     lines.push(...buildHydroInterior(WAREHOUSE, growPts)) // rack grow nodes
 
