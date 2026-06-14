@@ -5,6 +5,7 @@ export const scrollState = {
   target: 0,
   smooth: 0,
   focusDist: 10, // camera→focus distance, used for fake particle DOF
+  freeCam: false, // dev: hand the camera to OrbitControls for free inspection
 }
 
 export function bindScroll() {

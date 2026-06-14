@@ -166,6 +166,73 @@ body {
   margin-left: -0.35rem;
 }
 
+.nav-right {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* temporary dev switch — free-fly camera */
+.freecam-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  color: var(--fg-dim);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0.35rem 0.4rem;
+  transition: color 0.2s ease;
+}
+
+.freecam-toggle:hover {
+  color: var(--fg);
+}
+
+.freecam-track {
+  position: relative;
+  width: 1.7rem;
+  height: 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--copper-dim);
+  background: rgba(255, 255, 255, 0.04);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.freecam-knob {
+  position: absolute;
+  top: 50%;
+  left: 0.12rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--fg-dim);
+  transform: translateY(-50%);
+  transition:
+    left 0.2s ease,
+    background 0.2s ease;
+}
+
+.freecam-toggle.is-on {
+  color: var(--copper-bright);
+}
+
+.freecam-toggle.is-on .freecam-track {
+  background: color-mix(in srgb, var(--copper) 35%, transparent);
+  border-color: var(--copper);
+}
+
+.freecam-toggle.is-on .freecam-knob {
+  left: calc(100% - 0.62rem);
+  background: var(--copper-bright);
+}
+
 /* shadcn-style outline button */
 .nav-cta {
   pointer-events: auto;
