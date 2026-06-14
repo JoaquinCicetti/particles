@@ -1,15 +1,15 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { scrollState } from '../lib/scroll'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
-
-// TODO: point at the real scheduling tool (Calendly / Cal.com) when ready
-const SCHEDULE_URL = '#agenda'
+import ContactDialog from './ContactDialog'
 
 const METRICS = [
-  { label: 'TEMPERATURA', value: '18.4', unit: '°C', note: 'Δ −0.3 / 24H', bar: 0.42, range: [0.3, 0.38], side: 'left' },
-  { label: 'HUMEDAD', value: '61.2', unit: '%HR', note: 'ESTABLE', bar: 0.61, range: [0.34, 0.42], side: 'right' },
-  { label: 'CO₂', value: '412', unit: 'PPM', note: 'NOMINAL', bar: 0.28, range: [0.38, 0.46], side: 'left' },
-  { label: 'FLUJO DE AIRE', value: '1.8', unit: 'M/S', note: 'ÓPTIMO', bar: 0.74, range: [0.42, 0.5], side: 'right' },
+  { label: 'TEMPERATURA', value: '18.4', unit: '°C', note: 'Δ −0.3 / 24H', bar: 0.42, range: [0.16, 0.24], side: 'left' },
+  { label: 'HUMEDAD', value: '61.2', unit: '%HR', note: 'ESTABLE', bar: 0.61, range: [0.2, 0.28], side: 'right' },
+  { label: 'CO₂', value: '412', unit: 'PPM', note: 'NOMINAL', bar: 0.28, range: [0.24, 0.32], side: 'left' },
+  { label: 'CONDUCTIVIDAD', value: '1.9', unit: 'mS/cm', note: 'EC · ÓPTIMO', bar: 0.55, range: [0.28, 0.36], side: 'right' },
+  { label: 'pH', value: '6.3', unit: '', note: 'EN RANGO', bar: 0.63, range: [0.32, 0.4], side: 'left' },
+  { label: 'FLUJO DE AIRE', value: '1.8', unit: 'M/S', note: 'ÓPTIMO', bar: 0.74, range: [0.36, 0.44], side: 'right' },
 ] as const
 
 const PHASES: Array<[number, string]> = [
@@ -21,14 +21,9 @@ const PHASES: Array<[number, string]> = [
   [0.88, '06 / GROWCAST'],
 ]
 
-export default function Overlay({
-  freeCam,
-  onToggleFreeCam,
-}: {
-  freeCam: boolean
-  onToggleFreeCam: () => void
-}) {
+export default function Overlay() {
   const root = useRef<HTMLDivElement>(null)
+  const [contactOpen, setContactOpen] = useState(false)
 
   useEffect(() => {
     const el = root.current
@@ -111,22 +106,9 @@ export default function Overlay({
           <span className="brand-sub">AGRO</span>
         </a>
         <div className="nav-right">
-          {/* temporary dev switch — free-fly camera for inspection */}
-          <button
-            type="button"
-            className={`freecam-toggle${freeCam ? ' is-on' : ''}`}
-            onClick={onToggleFreeCam}
-            aria-pressed={freeCam}
-            title="Cámara libre — orbitá con el mouse (dev)"
-          >
-            <span className="freecam-track">
-              <span className="freecam-knob" />
-            </span>
-            CÁM. LIBRE
-          </button>
-          <a className="nav-cta" href={SCHEDULE_URL}>
+          <button type="button" className="nav-cta" onClick={() => setContactOpen(true)}>
             COORDINAR REUNIÓN
-          </a>
+          </button>
         </div>
       </nav>
 
@@ -143,12 +125,12 @@ export default function Overlay({
         </p>
       </header>
 
-      <section className="block block-left" data-window="0.16,0.3">
+      <section className="block block-center" data-window="0.16,0.3">
         <span className="kicker">RED DE SENSORES</span>
         <h2>Todo el establecimiento, una sola red.</h2>
         <p>
-          Cada sensor en silos y depósitos transmite a un núcleo central. Nada se mueve sin
-          medirse.
+          Temperatura, humedad, CO₂, conductividad y pH: cada variable, en cada punto,
+          transmitiendo a un núcleo central.
         </p>
       </section>
 
@@ -176,11 +158,11 @@ export default function Overlay({
       </section>
 
       <section className="block block-left" data-window="0.64,0.85">
-        <span className="kicker">CONVERGENCIA</span>
+        <span className="kicker">MEDIR · CONTROLAR · TRAZAR</span>
         <h2>Todo converge en Growcast.</h2>
         <p>
-          El dato sube por nuestra electrónica —del sensor al silicio— y se convierte en una sola
-          fuente de verdad.
+          Medimos cada variable, controlamos riego y clima, y trazamos cada lote —del sensor a la
+          decisión, en una sola fuente de verdad.
         </p>
       </section>
 
@@ -188,12 +170,14 @@ export default function Overlay({
         <span className="finale-word">
           GROWCAST<span className="finale-sub">AGRO</span>
         </span>
-        <span className="finale-tag">MEDIR · PREDECIR · DECIDIR</span>
-        <a className="cta" href={SCHEDULE_URL} id="agenda">
+        <span className="finale-tag">MEDIR · CONTROLAR · TRAZAR</span>
+        <button type="button" className="cta" onClick={() => setContactOpen(true)}>
           Coordinar una reunión
-        </a>
+        </button>
         <span className="finale-fine">GROWCAST AGRO © 2026 — INTELIGENCIA AGRÍCOLA</span>
       </footer>
+
+      <ContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />
 
       <div className="hint" data-hint>
         <span>DESPLAZÁ PARA EXPLORAR</span>

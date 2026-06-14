@@ -1,16 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Scene from './scene/Scene'
 import Overlay from './ui/Overlay'
-import { bindScroll, scrollState } from './lib/scroll'
+import { bindScroll } from './lib/scroll'
 
 function App() {
-  const [freeCam, setFreeCam] = useState(false)
-
   useEffect(() => bindScroll(), [])
-  useEffect(() => {
-    scrollState.freeCam = freeCam
-  }, [freeCam])
 
   return (
     <div className="app">
@@ -20,10 +15,10 @@ function App() {
           dpr={[1, 1.75]}
           gl={{ antialias: false, powerPreference: 'high-performance' }}
         >
-          <Scene freeCam={freeCam} />
+          <Scene />
         </Canvas>
       </div>
-      <Overlay freeCam={freeCam} onToggleFreeCam={() => setFreeCam((v) => !v)} />
+      <Overlay />
       <div className="scroll-track" aria-hidden />
     </div>
   )
