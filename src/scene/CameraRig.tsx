@@ -17,9 +17,9 @@ const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 const POSITIONS = [
   V(-1, 6.2, 24), //   0.000  far, high, wide farm landscape
   V(6.5, 5.8, 18), //  0.111  drift right toward the warehouse
-  V(3.5, 8.5, 9), //   0.222  descent toward the elevator
-  V(0.3, 5.2, 1.1), // 0.333  into the stream
-  V(0, 4.2, 1.0), //   0.444  inside the stream
+  V(-1.5, 8.0, 5.5), //0.222  descent toward the (relocated) elevator
+  V(-3.0, 5.2, 0.8), //0.333  into the stream
+  V(-3.6, 4.2, -1.0), //0.444 inside the stream
   V(0, 3.0, 12.5), //  0.556  pull back to the structured rows
   V(0, 3.6, 12), //    0.667  rows settle, the riser begins
   V(0, 5.0, 11.5), //  0.778  follow the data rising up the lanes
@@ -30,10 +30,10 @@ const POSITIONS = [
 const TARGETS = [
   V(0, 2.8, 0),
   V(1.5, 3.2, 0),
-  V(0, 6.5, 0),
-  V(0, 8, 0),
-  V(0, 10, 0),
-  V(0, 1.8, 0),
+  V(-3.6, 7.0, -2), // look at the relocated tower
+  V(-3.6, 8.5, -2),
+  V(-3.6, 10.0, -2),
+  V(0, 1.8, 0), // pan back to the data field at origin
   V(0, 2.6, 0),
   V(0, 4.2, 0),
   V(0, 6.0, 0),

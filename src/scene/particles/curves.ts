@@ -14,7 +14,8 @@ import * as THREE from 'three'
 
 const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
-export const ELEVATOR = { width: 1.6, height: 11.5 }
+// the grain-elevator tower — moved in close to the silo cluster
+export const ELEVATOR = { pos: v(-3.6, 0, -2), width: 1.6, height: 11.5 }
 
 // grain storage — left cluster, spread + set back from the hero copy
 export const SILOS = [
@@ -39,42 +40,42 @@ const WAREHOUSE_FRONT = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos
 const WAREHOUSE_BACK = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos.z - WAREHOUSE.d / 2)
 const GROUND_SENSOR = v(-8.5, 0.4, 8.5)
 
-const HUB = v(0, 6.4, 0)
-const RISE_A = v(0, 10.8, 0)
-const RISE_B = v(0, 10.4, 0)
+const HUB = v(ELEVATOR.pos.x, 6.4, ELEVATOR.pos.z)
+const RISE_A = v(ELEVATOR.pos.x, 10.8, ELEVATOR.pos.z)
+const RISE_B = v(ELEVATOR.pos.x, 10.4, ELEVATOR.pos.z)
 
 // each flow curve starts at a sensor source → tower hub → rises up the shaft
 export const FLOW_CURVES = [
   // warehouse (right) → hub
   new THREE.CatmullRomCurve3(
-    [WAREHOUSE_FRONT, v(3.0, 5.6, 4.2), v(1.2, 6.2, 1.4), HUB, RISE_A],
+    [WAREHOUSE_FRONT, v(1.2, 6.0, 3.0), v(-1.6, 6.3, 0.2), HUB, RISE_A],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [WAREHOUSE_BACK, v(2.6, 5.8, -0.4), v(0.9, 6.4, -0.1), HUB, RISE_B],
+    [WAREHOUSE_BACK, v(0.8, 6.0, -1.2), v(-2.0, 6.3, -1.8), HUB, RISE_B],
     false,
     'centripetal',
   ),
   // silos (left) → hub
   new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[0], v(-3.4, 6.6, -1.4), v(-1.0, 6.8, -0.4), HUB, RISE_A],
+    [SILO_SENSORS[0], v(-5.6, 6.4, -3.2), HUB, RISE_A],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[1], v(-4.6, 6.2, -0.3), v(-1.4, 6.6, -0.1), HUB, RISE_B],
+    [SILO_SENSORS[1], v(-7.0, 6.0, -2.1), HUB, RISE_B],
     false,
     'centripetal',
   ),
   new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[2], v(-3.6, 5.6, 0.7), v(-1.0, 6.4, 0.2), HUB, RISE_A],
+    [SILO_SENSORS[2], v(-5.8, 6.0, -1.0), HUB, RISE_A],
     false,
     'centripetal',
   ),
   // ground / field sensor → hub
   new THREE.CatmullRomCurve3(
-    [GROUND_SENSOR, v(-4.5, 1.9, 4.5), v(-1.2, 3.6, 1.2), v(0, 5.4, 0), RISE_B],
+    [GROUND_SENSOR, v(-6.5, 1.9, 4.5), v(-4.8, 3.8, 0.4), HUB, RISE_B],
     false,
     'centripetal',
   ),
@@ -124,5 +125,5 @@ export const SENSOR_POINTS: THREE.Vector3[] = [
   v(WAREHOUSE.pos.x - 1.6, WAREHOUSE.wall * 0.7, WAREHOUSE.pos.z),
   v(WAREHOUSE.pos.x + 1.6, WAREHOUSE.wall * 0.5, WAREHOUSE.pos.z - 1.2),
   GROUND_SENSOR,
-  v(0, ELEVATOR.height + 0.4, 0),
+  v(ELEVATOR.pos.x, ELEVATOR.height + 0.4, ELEVATOR.pos.z),
 ]
