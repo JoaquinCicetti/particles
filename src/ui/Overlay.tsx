@@ -172,7 +172,8 @@ export default function Overlay() {
         </span>
         <span className="finale-tag">MEDIR · CONTROLAR · TRAZAR</span>
         <button type="button" className="cta" onClick={() => setContactOpen(true)}>
-          Coordinar una reunión
+          <span className="cta-label">Coordinar una reunión</span>
+          <span className="cta-arrow" aria-hidden>→</span>
         </button>
         <span className="finale-fine">GROWCAST AGRO © 2026 — INTELIGENCIA AGRÍCOLA</span>
       </footer>

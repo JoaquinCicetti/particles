@@ -18,9 +18,10 @@ const POSITIONS = [
   V(-1, 6.2, 24), //   0.000  far, high, wide farm landscape
   V(6.5, 5.8, 18), //  0.111  drift right toward the warehouse
   V(-1.5, 8.0, 5.5), //0.222  descent toward the (relocated) elevator
-  V(-3.0, 5.2, 0.8), //0.333  into the stream
-  V(-3.6, 4.2, -1.0), //0.444 inside the stream
-  V(0, 3.0, 12.5), //  0.556  pull back to the structured rows
+  V(-3.0, 5.2, 0.8), //into the stream
+  V(-3.6, 4.2, -1.0), //inside the stream, descending
+  V(-3.6, 2.2, -1.4), //deeper down inside the vortex (extra dwell)
+  V(0, 3.0, 12.5), //  pull back to the structured rows
   V(0, 3.6, 12), //    0.667  rows settle, the riser begins
   V(0, 5.0, 11.5), //  0.778  follow the data rising up the lanes
   V(0, 6.2, 10), //    0.889  frame the brand mark forming
@@ -33,6 +34,7 @@ const TARGETS = [
   V(-3.6, 7.0, -2), // look at the relocated tower
   V(-3.6, 8.5, -2),
   V(-3.6, 10.0, -2),
+  V(-3.6, 11.5, -2), // keep looking up the vortex while descending
   V(0, 1.8, 0), // pan back to the data field at origin
   V(0, 2.6, 0),
   V(0, 4.2, 0),
