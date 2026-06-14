@@ -54,10 +54,17 @@ export default function CameraRig() {
   )
 
   useFrame(({ camera, pointer, clock }, delta) => {
-    // single authority for scroll smoothing
+    // single authority for scroll smoothing — runs even in free-cam mode so
+    // the particle choreography still tracks scroll while you orbit
     const k = 1 - Math.exp(-delta * 3.2)
     scrollState.smooth += (scrollState.target - scrollState.smooth) * k
     const p = THREE.MathUtils.clamp(scrollState.smooth, 0, 1)
+
+    // dev free-cam: OrbitControls owns the camera; just keep DOF sane
+    if (scrollState.freeCam) {
+      scrollState.focusDist = camera.position.distanceTo(vTgt.current)
+      return
+    }
 
     posCurve.getPoint(p, vPos.current)
     tgtCurve.getPoint(p, vTgt.current)

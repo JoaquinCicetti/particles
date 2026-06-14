@@ -21,7 +21,13 @@ const PHASES: Array<[number, string]> = [
   [0.88, '06 / GROWCAST'],
 ]
 
-export default function Overlay() {
+export default function Overlay({
+  freeCam,
+  onToggleFreeCam,
+}: {
+  freeCam: boolean
+  onToggleFreeCam: () => void
+}) {
   const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -104,9 +110,24 @@ export default function Overlay() {
           <span className="wordmark">GROWCAST</span>
           <span className="brand-sub">AGRO</span>
         </a>
-        <a className="nav-cta" href={SCHEDULE_URL}>
-          COORDINAR REUNIÓN
-        </a>
+        <div className="nav-right">
+          {/* temporary dev switch — free-fly camera for inspection */}
+          <button
+            type="button"
+            className={`freecam-toggle${freeCam ? ' is-on' : ''}`}
+            onClick={onToggleFreeCam}
+            aria-pressed={freeCam}
+            title="Cámara libre — orbitá con el mouse (dev)"
+          >
+            <span className="freecam-track">
+              <span className="freecam-knob" />
+            </span>
+            CÁM. LIBRE
+          </button>
+          <a className="nav-cta" href={SCHEDULE_URL}>
+            COORDINAR REUNIÓN
+          </a>
+        </div>
       </nav>
 
       <header className="hero" data-hero>

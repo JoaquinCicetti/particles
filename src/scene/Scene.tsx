@@ -1,15 +1,18 @@
+import { OrbitControls } from '@react-three/drei'
 import ParticleEngine from './particles/ParticleEngine'
 import Structures from './Structures'
 import Network from './Network'
 import CameraRig from './CameraRig'
 import Effects from './Effects'
 
-export default function Scene() {
+export default function Scene({ freeCam = false }: { freeCam?: boolean }) {
   return (
     <>
       <color attach="background" args={['#050302']} />
       <fogExp2 attach="fog" args={['#050302', 0.03]} />
       <CameraRig />
+      {/* dev: free inspection camera (mouse orbit/pan/zoom) */}
+      {freeCam && <OrbitControls makeDefault enableDamping target={[0, 3, 0]} />}
       <Structures />
       <Network />
       <ParticleEngine />
