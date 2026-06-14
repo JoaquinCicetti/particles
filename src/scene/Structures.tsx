@@ -155,14 +155,14 @@ function buildWarehouseLines(wh: typeof WAREHOUSE) {
 function buildHydroInterior(wh: typeof WAREHOUSE, grow: number[]) {
   const out: number[] = []
   const { pos, w, d } = wh
-  const rackRows = 4
-  const shelves = 4
-  const zr0 = pos.z - d / 2 + 0.7
-  const zr1 = pos.z + d / 2 - 0.7
-  const topY = wh.wall * 0.9
+  const rackRows = 5
+  const shelves = 5
+  const zr0 = pos.z - d / 2 + 0.6
+  const zr1 = pos.z + d / 2 - 0.6
+  const topY = wh.wall * 0.95
   const rackX: number[] = []
   for (let r = 0; r < rackRows; r++) {
-    const x = pos.x - w / 2 + w * ((r + 0.7) / (rackRows + 0.4))
+    const x = pos.x - w / 2 + w * ((r + 0.6) / (rackRows + 0.2))
     rackX.push(x)
     // vertical posts at both ends of the rack
     pushLine(out, V(x, 0, zr0), V(x, topY, zr0))
@@ -170,21 +170,38 @@ function buildHydroInterior(wh: typeof WAREHOUSE, grow: number[]) {
     for (let s = 1; s <= shelves; s++) {
       const y = (topY * s) / shelves
       // tray rails (two close lines) running the rack length
-      pushLine(out, V(x - 0.12, y, zr0), V(x - 0.12, y, zr1))
-      pushLine(out, V(x + 0.12, y, zr0), V(x + 0.12, y, zr1))
-      // grow nodes (plants) along the tray
-      const n = 9
+      pushLine(out, V(x - 0.14, y, zr0), V(x - 0.14, y, zr1))
+      pushLine(out, V(x + 0.14, y, zr0), V(x + 0.14, y, zr1))
+      // dense grow nodes (plants) along the tray — bright so it reads
+      const n = 12
       for (let i = 0; i < n; i++) {
         const z = zr0 + (zr1 - zr0) * (i / (n - 1))
-        grow.push(x, y + 0.07, z)
+        grow.push(x - 0.14, y + 0.08, z)
+        grow.push(x + 0.14, y + 0.08, z)
       }
     }
     // vertical nutrient feed pipe at the front of each rack
-    pushLine(out, V(x + 0.2, 0, zr1), V(x + 0.2, topY, zr1))
+    pushLine(out, V(x + 0.22, 0, zr1), V(x + 0.22, topY, zr1))
   }
-  // nutrient header manifold connecting all racks along the front and back
+  // nutrient header manifolds connecting all racks (front + back)
   pushLine(out, V(rackX[0], 0.12, zr0), V(rackX[rackX.length - 1], 0.12, zr0))
   pushLine(out, V(rackX[0], 0.12, zr1), V(rackX[rackX.length - 1], 0.12, zr1))
+
+  // two A-frame vertical grow towers near the front gable for a clear read
+  for (const tx of [pos.x - w * 0.22, pos.x + w * 0.22]) {
+    const tz = zr1 - 0.6
+    const th = wh.wall * 1.05
+    const spread = 0.5
+    pushLine(out, V(tx - spread, 0, tz), V(tx, th, tz))
+    pushLine(out, V(tx + spread, 0, tz), V(tx, th, tz))
+    const n = 9
+    for (let i = 0; i < n; i++) {
+      const t = i / (n - 1)
+      const off = spread * (1 - t)
+      grow.push(tx - off, th * t, tz)
+      grow.push(tx + off, th * t, tz)
+    }
+  }
   return out
 }
 
