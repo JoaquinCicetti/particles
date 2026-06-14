@@ -66,10 +66,17 @@ export default function CameraRig() {
       return
     }
 
-    // skip the first 5% of the path so it opens a bit closer to the warehouse
-    const cp = 0.05 + p * 0.95
+    // skip the first 6% of the path so it opens a bit closer to the warehouse
+    const cp = 0.06 + p * 0.94
     posCurve.getPoint(cp, vPos.current)
     tgtCurve.getPoint(cp, vTgt.current)
+
+    // translate the whole scene to the right (pan the camera left); ease the
+    // pan out toward the finale so the brand mark lands centred
+    const SCENE_SHIFT = 1.4
+    const pan = SCENE_SHIFT * (1 - THREE.MathUtils.smoothstep(p, 0.86, 1.0))
+    vPos.current.x -= pan
+    vTgt.current.x -= pan
 
     // pointer parallax + idle breathing, tapered to nothing at the finale
     const calm = 1 - THREE.MathUtils.smoothstep(p, 0.88, 1.0)

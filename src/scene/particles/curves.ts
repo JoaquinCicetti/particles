@@ -43,10 +43,10 @@ const GROUND_SENSOR = v(-8.5, 0.4, 8.5)
 // the tower axis around which the telemetry spirals up like a tornado
 const tx = ELEVATOR.pos.x
 const tz = ELEVATOR.pos.z
-const SPIRAL_TOP = 10.8
+const SPIRAL_TOP = 16.0 // continues up past the tower into the sky
 const SPIRAL_BASE = 2.6
 const R_BASE = 0.72 // narrow — fits inside the tower lattice
-const R_TOP = 0.28 // converges tight near the top
+const R_TOP = 0.12 // converges to a thin thread as it rises into the sky
 const TWIST = 1.15 // radians of swirl per world unit of height (tight spiral)
 
 const radiusAt = (y: number) =>
