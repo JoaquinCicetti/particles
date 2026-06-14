@@ -16,11 +16,11 @@ const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 export const ELEVATOR = { width: 1.6, height: 11.5 }
 
-// grain storage — left, spread wide and set back from the hero copy
+// grain storage — left cluster, spread + set back from the hero copy
 export const SILOS = [
-  { pos: v(-7.8, 0, -5.4), radius: 1.7, height: 6.0 },
-  { pos: v(-11.6, 0, -3.2), radius: 1.5, height: 5.2 },
-  { pos: v(-9.4, 0, -0.8), radius: 1.4, height: 4.6 },
+  { pos: v(-7.4, 0, -4.2), radius: 1.7, height: 6.0 },
+  { pos: v(-10.2, 0, -2.2), radius: 1.5, height: 5.2 },
+  { pos: v(-8.0, 0, -0.2), radius: 1.4, height: 4.6 },
 ]
 
 // the main building (priority) — hydroponic warehouse, gable faces camera,
