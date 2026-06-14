@@ -120,7 +120,7 @@ void main() {
 
   float blur = clamp(abs(dist - uFocus) * 0.07, 0.0, 1.6);
 
-  float size = (1.2 + aRand.y * 1.6) * (1.0 - wFlow * 0.3 + inLogo * 0.35 + pulse * 1.4);
+  float size = (1.2 + aRand.y * 1.6) * (1.0 - wFlow * 0.42 + inLogo * 0.35 + pulse * 1.4);
   gl_PointSize = size * uPixelRatio * (9.0 / dist) * (1.0 + blur * 0.8);
 
   vec3 deep   = vec3(0.42, 0.20, 0.07);
@@ -131,10 +131,13 @@ void main() {
   vColor = mix(deep, bright, m) * (0.8 + wTun * (0.15 + core * 0.5) + rising * 0.25);
   vColor = mix(vColor, white, pulse * 0.85);
 
-  float density = wFlow * 0.28 + wTun * 0.3 + base * 0.42;
+  float density = wFlow * 0.15 + wTun * 0.3 + base * 0.42;
   vAlpha = (0.5 + 0.5 * aRand.z) * density * (1.0 + pulse * 0.9);
   vAlpha *= smoothstep(0.8, 2.6, dist);
   vAlpha /= (1.0 + blur * blur * 1.6);
+  // the vortex thins out as it rises into the sky (fading the amount)
+  float skyFade = 1.0 - smoothstep(9.0, 15.5, pos.y);
+  vAlpha *= mix(1.0, skyFade, wFlow);
 }
 `
   .replace(/LOGO_CENTER_Y_C/g, LOGO_CENTER_Y.toFixed(2))
