@@ -14,6 +14,8 @@ import { scrollState } from '../lib/scroll'
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
+const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+
 const POSITIONS = [
   V(-1, 6.2, 24), //   0.000  far, high, wide farm landscape
   V(6.5, 5.8, 18), //  0.111  drift right toward the warehouse
@@ -38,22 +40,30 @@ const TARGETS = [
   V(0, 1.8, 0), // pan back to the data field at origin
   V(0, 2.6, 0),
   V(0, 4.2, 0),
-  V(0, 6.0, 0),
-  V(0, 6.2, 0),
+  V(0, 4.9, 0), // tilt down so the brand mark frames above center
+  V(0, 5.0, 0), // logo sits a bit above the middle, clear of the finale text
 ]
 
-export default function CameraRig() {
+export default function CameraRig({ started }: { started: boolean }) {
   const parallax = useRef(new THREE.Vector2())
   const vPos = useRef(new THREE.Vector3())
   const vTgt = useRef(new THREE.Vector3())
+  const intro = useRef(0)
 
-  const { posCurve, tgtCurve } = useMemo(
-    () => ({
-      posCurve: new THREE.CatmullRomCurve3(POSITIONS, false, 'centripetal'),
-      tgtCurve: new THREE.CatmullRomCurve3(TARGETS, false, 'centripetal'),
-    }),
-    [],
-  )
+  const { posCurve, tgtCurve } = useMemo(() => {
+    // mobile (portrait) crops the wide establishing shot, so reframe the
+    // opening onto the silo cluster (left of the tower) before the descent
+    const positions = isMobile
+      ? [V(-3.4, 5.2, 16.5), V(1.5, 5.6, 16), ...POSITIONS.slice(2)]
+      : POSITIONS
+    const targets = isMobile
+      ? [V(-7.2, 3.0, -3), V(-2.5, 3.2, -1), ...TARGETS.slice(2)]
+      : TARGETS
+    return {
+      posCurve: new THREE.CatmullRomCurve3(positions, false, 'centripetal'),
+      tgtCurve: new THREE.CatmullRomCurve3(targets, false, 'centripetal'),
+    }
+  }, [])
 
   useFrame(({ camera, pointer, clock }, delta) => {
     // single authority for scroll smoothing — runs even in free-cam mode so
@@ -74,6 +84,13 @@ export default function CameraRig() {
     const pan = SCENE_SHIFT * (1 - THREE.MathUtils.smoothstep(p, 0.16, 0.30))
     vPos.current.x -= pan
     vTgt.current.x -= pan
+
+    // intro reveal: once started, ease a gentle push-in (dolly + slight drop)
+    // over ~1.7s so the scene opens with motion instead of a hard cut
+    if (started) intro.current = Math.min(1, intro.current + delta / 1.7)
+    const introE = THREE.MathUtils.smoothstep(intro.current, 0, 1)
+    vPos.current.z += (1 - introE) * 5.5
+    vPos.current.y += (1 - introE) * 1.4
 
     // pointer parallax + idle breathing, tapered to nothing at the finale
     const calm = 1 - THREE.MathUtils.smoothstep(p, 0.88, 1.0)
