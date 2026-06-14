@@ -80,39 +80,39 @@ void main() {
   // ── act 4: the brand mark (raised, the destination) ──
   vec3 logoPos = aLogo;
 
-  // ── riser: rows → vertical circuit lanes → merge into a WIDE stratified
-  //    data column (each depth-row settles at its own height) → resolve into
-  //    the logo. The merge target is a wide column, never a single point. ──
-  float laneStep = 1.1;
+  // ── riser: the parallel planes flow into VERTICAL PCB paths (vertical
+  //    copper traces with right-angle jogs) that climb and end on the logo.
+  //    No wide stratified grid — just vertical routing converging to the mark. ──
+  float laneStep = 0.9;
   float laneX = floor(aGrid.x / laneStep + 0.5) * laneStep;
   float panelZ = 0.0;
-  float zrow = clamp((aGrid.z + 3.2) / 6.4, 0.0, 1.0); // 0..1 across the rows
-  float bandY = 3.2 + zrow * 4.3;                       // stratified 3.2 .. 7.5
-  float colX = aGrid.x * 0.64;                          // wide column (±~5)
+  // per-lane PCB character: a right-angle jog at a pseudo-random height, and a
+  // sideways step that nudges the trace toward the logo column
+  float laneHash = fract(sin(laneX * 12.9898) * 43758.5453);
+  float jogY = 3.4 + laneHash * 3.2;                 // where this trace jogs
+  float jogX = mix(laneX, aLogo.x, 0.45 + laneHash * 0.2); // step toward the logo
 
-  float order = zrow; // back→front sweep
-  float rstart = 0.58 + order * 0.10;
-  float rp = smoothstep(rstart, rstart + 0.22, pp);
-  float la = smoothstep(0.0, 0.34, rp);  // gather onto a vertical lane
-  float lb = smoothstep(0.28, 0.66, rp); // rise to this row's band height
-  float lc = smoothstep(0.58, 1.0, rp);  // spread out into the wide column
+  float order = clamp((aGrid.x + 8.0) / 16.0, 0.0, 1.0); // left→right sweep
+  float rstart = 0.58 + order * 0.08;
+  float rp = smoothstep(rstart, rstart + 0.24, pp);
+  float la = smoothstep(0.00, 0.22, rp);  // planes purge onto vertical lanes
+  float lb = smoothstep(0.18, 0.46, rp);  // climb the vertical trace
+  float lc = smoothstep(0.42, 0.58, rp);  // right-angle jog toward the logo
+  float ld = smoothstep(0.54, 1.0, rp);   // climb on, ending on the logo
 
   vec3 P = gridPos;
   P = mix(P, vec3(laneX, gridPos.y, panelZ), la);
-  P = mix(P, vec3(laneX, bandY, panelZ), lb);
-  P = mix(P, vec3(colX, bandY, panelZ), lc);
-  vec3 columnPos = P;
-
-  // the wide stratified column finally resolves into the brand mark
-  float logoT = smoothstep(0.86, 0.96, pp + (aRand.y - 0.5) * 0.04);
-  vec3 riserPos = mix(columnPos, logoPos, logoT);
+  P = mix(P, vec3(laneX, jogY, panelZ), lb);
+  P = mix(P, vec3(jogX, jogY, panelZ), lc);
+  P = mix(P, aLogo, ld);
+  vec3 riserPos = P;
 
   vec3 pos = wFlow * flowPos + wTun * tunnelPos + base * riserPos;
 
-  // energy pulse travelling up the lanes while rising
-  float rising = lb * (1.0 - lc);
-  float pulse = pow(0.5 + 0.5 * sin(P.y * 1.3 - uTime * 2.2 + laneX), 8.0) * rising;
-  float inLogo = logoT;
+  // bright signal pulse travelling up the vertical traces
+  float rising = (lb + lc) * (1.0 - ld);
+  float pulse = pow(0.5 + 0.5 * sin(P.y * 1.6 - uTime * 2.4 + laneX), 8.0) * rising;
+  float inLogo = ld;
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;
