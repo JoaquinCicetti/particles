@@ -103,13 +103,11 @@ export function bakePcbTexture() {
   const random = createRandom(778899)
   const rows = 13
   const data = new Float32Array(TRACE_SAMPLES * TRACE_COUNT * 4)
-  const centroidX = new Float32Array(TRACE_COUNT)
   for (let c = 0; c < TRACE_COUNT; c++) {
     const roll = c / TRACE_COUNT
     const pts =
       roll < 0.6 ? routingTrace(random, rows) : roll < 0.82 ? busTrace(random, rows) : padTrace(random)
     const rs = resample(pts, TRACE_SAMPLES)
-    let sx = 0
     for (let s = 0; s < TRACE_SAMPLES; s++) {
       const p = rs[s]
       const i = (c * TRACE_SAMPLES + s) * 4
@@ -117,18 +115,11 @@ export function bakePcbTexture() {
       data[i + 1] = p.y
       data[i + 2] = p.z
       data[i + 3] = 1
-      sx += p.x
     }
-    centroidX[c] = sx / TRACE_SAMPLES
   }
   const tex = new THREE.DataTexture(data, TRACE_SAMPLES, TRACE_COUNT, THREE.RGBAFormat, THREE.FloatType)
   tex.magFilter = THREE.NearestFilter
   tex.minFilter = THREE.NearestFilter
   tex.needsUpdate = true
-
-  // reveal order 0..1 by horizontal position → PCB draws in left→right
-  const order = new Float32Array(TRACE_COUNT)
-  for (let c = 0; c < TRACE_COUNT; c++) order[c] = (centroidX[c] + HALF_W) / (2 * HALF_W)
-
-  return { tex, order }
+  return tex
 }
