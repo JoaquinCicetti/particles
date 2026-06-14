@@ -60,12 +60,6 @@ export default function CameraRig() {
     scrollState.smooth += (scrollState.target - scrollState.smooth) * k
     const p = THREE.MathUtils.clamp(scrollState.smooth, 0, 1)
 
-    // dev free-cam: OrbitControls owns the camera; just keep DOF sane
-    if (scrollState.freeCam) {
-      scrollState.focusDist = camera.position.distanceTo(vTgt.current)
-      return
-    }
-
     // skip the first 6% of the path so it opens a bit closer to the warehouse
     const cp = 0.06 + p * 0.94
     posCurve.getPoint(cp, vPos.current)
