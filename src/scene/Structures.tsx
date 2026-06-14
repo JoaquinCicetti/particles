@@ -152,16 +152,18 @@ function buildWarehouseLines(wh: typeof WAREHOUSE) {
 // hydroponic interior: rows of stacked grow racks (trays running along z) with
 // vertical posts and nutrient channels. Tray nodes (plants/sensors) are pushed
 // into `nodes` so they glow as points.
-function buildHydroInterior(wh: typeof WAREHOUSE, nodes: number[]) {
+function buildHydroInterior(wh: typeof WAREHOUSE, grow: number[]) {
   const out: number[] = []
   const { pos, w, d } = wh
   const rackRows = 4
   const shelves = 4
   const zr0 = pos.z - d / 2 + 0.7
   const zr1 = pos.z + d / 2 - 0.7
-  const topY = wh.wall * 0.86
+  const topY = wh.wall * 0.9
+  const rackX: number[] = []
   for (let r = 0; r < rackRows; r++) {
     const x = pos.x - w / 2 + w * ((r + 0.7) / (rackRows + 0.4))
+    rackX.push(x)
     // vertical posts at both ends of the rack
     pushLine(out, V(x, 0, zr0), V(x, topY, zr0))
     pushLine(out, V(x, 0, zr1), V(x, topY, zr1))
@@ -170,14 +172,19 @@ function buildHydroInterior(wh: typeof WAREHOUSE, nodes: number[]) {
       // tray rails (two close lines) running the rack length
       pushLine(out, V(x - 0.12, y, zr0), V(x - 0.12, y, zr1))
       pushLine(out, V(x + 0.12, y, zr0), V(x + 0.12, y, zr1))
-      // plant / sensor nodes along the tray
-      const n = 7
+      // grow nodes (plants) along the tray
+      const n = 9
       for (let i = 0; i < n; i++) {
         const z = zr0 + (zr1 - zr0) * (i / (n - 1))
-        nodes.push(x, y + 0.06, z)
+        grow.push(x, y + 0.07, z)
       }
     }
+    // vertical nutrient feed pipe at the front of each rack
+    pushLine(out, V(x + 0.2, 0, zr1), V(x + 0.2, topY, zr1))
   }
+  // nutrient header manifold connecting all racks along the front and back
+  pushLine(out, V(rackX[0], 0.12, zr0), V(rackX[rackX.length - 1], 0.12, zr0))
+  pushLine(out, V(rackX[0], 0.12, zr1), V(rackX[rackX.length - 1], 0.12, zr1))
   return out
 }
 
@@ -278,15 +285,16 @@ function linesGeometry(positions: number[]) {
 export default function Structures() {
   const groupRef = useRef<THREE.Group>(null)
 
-  const { lineGeo, shellGeo, sensorGeo, gridGeo } = useMemo(() => {
+  const { lineGeo, shellGeo, growGeo, sensorGeo, gridGeo } = useMemo(() => {
     const random = createRandom(424242)
 
     const lines: number[] = []
     const shellPts: number[] = []
+    const growPts: number[] = []
     for (const s of SILOS) lines.push(...buildSiloLines(s.pos, s.radius, s.height))
     lines.push(...buildTowerLines(ELEVATOR.width, ELEVATOR.height))
     lines.push(...buildWarehouseLines(WAREHOUSE))
-    lines.push(...buildHydroInterior(WAREHOUSE, shellPts)) // rack tray nodes → glow
+    lines.push(...buildHydroInterior(WAREHOUSE, growPts)) // rack grow nodes
 
     // shimmering particle shells on silo + warehouse surfaces
     for (const s of SILOS) {
@@ -340,6 +348,7 @@ export default function Structures() {
     return {
       lineGeo: linesGeometry(lines),
       shellGeo: linesGeometry(shellPts),
+      growGeo: linesGeometry(growPts),
       sensorGeo: linesGeometry(sensors),
       gridGeo: linesGeometry(grid),
     }
@@ -378,7 +387,17 @@ export default function Structures() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    return { line, grid, shell, sensor }
+    // hydroponic grow nodes — brighter than shells, gently pulsing
+    const grow = new THREE.PointsMaterial({
+      color: '#e8a85c',
+      size: 0.06,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    return { line, grid, shell, sensor, grow }
   }, [])
 
   useFrame(({ clock }) => {
@@ -390,6 +409,8 @@ export default function Structures() {
     materials.shell.opacity = 0.42 * fade
     // sensors pulse like live data sources
     materials.sensor.opacity = (0.7 + 0.3 * Math.sin(clock.elapsedTime * 2.6)) * fade
+    // grow nodes breathe slowly
+    materials.grow.opacity = (0.6 + 0.25 * Math.sin(clock.elapsedTime * 1.3 + 1.0)) * fade
   })
 
   return (
@@ -397,6 +418,7 @@ export default function Structures() {
       <lineSegments geometry={lineGeo} material={materials.line} />
       <lineSegments geometry={gridGeo} material={materials.grid} />
       <points geometry={shellGeo} material={materials.shell} />
+      <points geometry={growGeo} material={materials.grow} />
       <points geometry={sensorGeo} material={materials.sensor} />
     </group>
   )
