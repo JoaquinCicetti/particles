@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
+import { FormattedMessage, useIntl } from 'react-intl'
+import { M } from '../i18n/messages'
 
 // Growcast Agro WhatsApp line (Rosario, +54 9 341 …)
 const WHATSAPP = '5493412753179'
-const DEFAULT_MSG = 'Hola Growcast, me gustaría coordinar una reunión para conocer la plataforma.'
 
 export default function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const intl = useIntl()
   const [name, setName] = useState('')
-  const [msg, setMsg] = useState(DEFAULT_MSG)
+  const [msg, setMsg] = useState(() => intl.formatMessage(M.dialogDefaultMsg))
   const firstRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -25,7 +27,8 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
   if (!open) return null
 
   const send = () => {
-    const text = (name.trim() ? `Soy ${name.trim()}. ` : '') + msg.trim()
+    const prefix = name.trim() ? intl.formatMessage(M.dialogNamePrefix, { name: name.trim() }) : ''
+    const text = prefix + msg.trim()
     const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`
     window.open(url, '_blank', 'noopener,noreferrer')
     onClose()
@@ -37,36 +40,46 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
         className="dialog"
         role="dialog"
         aria-modal="true"
-        aria-label="Coordinar una reunión"
+        aria-label={intl.formatMessage(M.dialogAria)}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="dialog-close" onClick={onClose} aria-label="Cerrar">
+        <button className="dialog-close" onClick={onClose} aria-label={intl.formatMessage(M.dialogClose)}>
           ×
         </button>
-        <span className="kicker">COORDINEMOS</span>
-        <h3 className="dialog-title">Hablemos de tu campo</h3>
+        <span className="kicker">
+          <FormattedMessage {...M.dialogKicker} />
+        </span>
+        <h3 className="dialog-title">
+          <FormattedMessage {...M.dialogTitle} />
+        </h3>
         <p className="dialog-sub">
-          Te respondemos por WhatsApp. Dejanos tu nombre y un mensaje y abrimos la conversación.
+          <FormattedMessage {...M.dialogSub} />
         </p>
 
         <label className="dialog-field">
-          <span>Nombre</span>
+          <span>
+            <FormattedMessage {...M.dialogNameLabel} />
+          </span>
           <input
             ref={firstRef}
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Tu nombre o establecimiento"
+            placeholder={intl.formatMessage(M.dialogNamePlaceholder)}
           />
         </label>
 
         <label className="dialog-field">
-          <span>Mensaje</span>
+          <span>
+            <FormattedMessage {...M.dialogMsgLabel} />
+          </span>
           <textarea value={msg} onChange={(e) => setMsg(e.target.value)} rows={3} />
         </label>
 
         <button type="button" className="cta dialog-send" onClick={send}>
-          <span className="cta-label">Enviar por WhatsApp</span>
+          <span className="cta-label">
+            <FormattedMessage {...M.dialogSend} />
+          </span>
         </button>
       </div>
     </div>

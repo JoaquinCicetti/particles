@@ -4,12 +4,12 @@ import Network from './Network'
 import CameraRig from './CameraRig'
 import Effects from './Effects'
 
-export default function Scene() {
+export default function Scene({ started }: { started: boolean }) {
   return (
     <>
       <color attach="background" args={['#050302']} />
       <fogExp2 attach="fog" args={['#050302', 0.03]} />
-      <CameraRig />
+      <CameraRig started={started} />
       <Structures />
       <Network />
       <ParticleEngine />

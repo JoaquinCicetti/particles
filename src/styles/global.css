@@ -305,9 +305,9 @@ body {
 .metric {
   position: absolute;
   top: 50%;
-  margin-top: -4.5rem;
-  min-width: 15rem;
-  padding: 1.3rem 1.5rem 1.4rem;
+  margin-top: -5.2rem;
+  min-width: 18rem;
+  padding: 1.6rem 1.9rem 1.7rem;
   /* solid translucent panel (no backdrop-filter — it re-blurs the live canvas
      every frame and tanked perf when all 6 cards appeared at once) */
   background: rgba(11, 6, 3, 0.82);
@@ -350,25 +350,25 @@ body {
 
 .metric-label {
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   letter-spacing: 0.34em;
   color: var(--copper);
 }
 
 .metric-value {
-  margin-top: 0.7rem;
+  margin-top: 0.8rem;
   font-family: var(--body);
   font-weight: 200;
-  font-size: 2.9rem;
+  font-size: 3.5rem;
   line-height: 1;
   color: var(--copper-bright);
 }
 
 .metric-unit {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   letter-spacing: 0.2em;
-  margin-left: 0.5rem;
+  margin-left: 0.55rem;
   color: var(--fg-dim);
 }
 
@@ -387,9 +387,9 @@ body {
 
 .metric-note {
   display: block;
-  margin-top: 0.8rem;
+  margin-top: 0.9rem;
   font-family: var(--mono);
-  font-size: 0.58rem;
+  font-size: 0.66rem;
   letter-spacing: 0.26em;
   color: var(--fg-dim);
 }
@@ -633,9 +633,10 @@ body {
     padding: 0.5rem 0.8rem;
   }
 
-  .wordmark {
-    font-size: 0.72rem;
-    letter-spacing: 0.28em;
+  /* mobile header: logo mark only — wordmark/badge crowd the CTA */
+  .wordmark,
+  .brand-sub {
+    display: none;
   }
 
   .block-right,
@@ -644,6 +645,28 @@ body {
     right: 1.5rem;
     text-align: left;
     max-width: none;
+  }
+
+  /* drop the left narrative blocks to the bottom so the busy central
+     particle motion stays clear and the copy reads */
+  .block-left {
+    top: auto;
+    bottom: calc(9vh + env(safe-area-inset-bottom));
+    translate: 0;
+  }
+
+  /* lower the sensor-card band so its fade-in clears the
+     "RED DE SENSORES" heading; keep the enlarged cards within the viewport */
+  .metric {
+    top: auto;
+    margin-top: 0;
+    bottom: 24vh;
+    min-width: 0;
+    width: min(20rem, 84vw);
+  }
+
+  .metric-value {
+    font-size: 2.9rem;
   }
 
   .metric-left,
@@ -793,4 +816,172 @@ body {
     opacity: 0;
     transform: translateY(12px) scale(0.98);
   }
+}
+
+/* ── loading screen ─────────────────────────────────────────── */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  transition:
+    opacity 0.75s ease,
+    visibility 0.75s ease;
+}
+
+.loader.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.05rem;
+  padding: 2rem;
+}
+
+.loader-mark {
+  width: 3.4rem;
+  height: 3.4rem;
+  background: var(--copper);
+  -webkit-mask: url('/logo.svg') center / contain no-repeat;
+  mask: url('/logo.svg') center / contain no-repeat;
+  animation: loader-pulse 1.8s ease-in-out infinite;
+}
+
+.loader.is-done .loader-mark {
+  animation: none;
+  opacity: 0;
+  transform: scale(1.18);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.loader-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.4em;
+  color: var(--fg);
+}
+
+.loader-sub {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  color: var(--copper);
+  border: 1px solid var(--copper-dim);
+  border-radius: calc(var(--radius) - 0.25rem);
+  padding: 0.12rem 0.4rem;
+}
+
+.loader-bar {
+  margin-top: 0.5rem;
+  width: 11rem;
+  height: 2px;
+  background: var(--copper-faint);
+  overflow: hidden;
+}
+
+.loader-bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--copper), var(--copper-bright));
+  box-shadow: 0 0 8px rgba(255, 217, 160, 0.55);
+}
+
+.loader-pct {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  color: var(--fg-dim);
+}
+
+@keyframes loader-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+/* the nav eases in once the intro reveal hands off */
+.nav {
+  opacity: 0;
+  transition: opacity 0.8s ease 0.15s;
+}
+
+.app.is-started .nav {
+  opacity: 1;
+}
+
+/* ── language picker (bottom-right, auto-hides mid-scroll) ───── */
+.lang {
+  position: fixed;
+  right: calc(1.1rem + env(safe-area-inset-right));
+  bottom: calc(1.1rem + env(safe-area-inset-bottom));
+  z-index: 30;
+  pointer-events: auto;
+  transition: opacity 0.4s ease;
+}
+
+.lang-track {
+  position: relative;
+  display: inline-flex;
+  padding: 0.2rem;
+  border: 1px solid var(--copper-dim);
+  border-radius: 999px;
+  background: rgba(11, 6, 3, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.lang-thumb {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 2.6rem;
+  height: calc(100% - 0.4rem);
+  border-radius: 999px;
+  background: var(--copper);
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.lang-opt {
+  position: relative;
+  z-index: 1;
+  width: 2.6rem;
+  padding: 0.32rem 0;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--fg-dim);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.lang-opt:hover {
+  color: var(--fg);
+}
+
+.lang-opt.is-active {
+  color: var(--bg);
 }
