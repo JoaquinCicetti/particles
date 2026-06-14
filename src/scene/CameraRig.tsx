@@ -6,34 +6,30 @@ import { scrollState } from '../lib/scroll'
 /**
  * Scroll-driven cinematic camera. Position and look-target each follow a
  * CatmullRom path keyed to scroll progress:
- *   wide farm establishing → lateral drift → descent onto the elevator →
- *   inside the particle stream → pull back to the data field → settle facing
- *   the flat 2-D PCB → push in to the Growcast brand mark.
+ *   wide farm establishing → lateral drift → descent to the data columns →
+ *   columns view → settle facing the flat PCB → push in to the brand mark.
+ * No dive into a swirl — the progression stays ordered and legible.
  * Subtle pointer parallax and idle breathing keep static moments alive.
  */
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 const POSITIONS = [
-  V(-1, 6.2, 24), //   0.000  far, high, wide farm landscape
-  V(6.5, 5.8, 18), //  0.111  drift right toward the warehouse
-  V(3.5, 8.5, 9), //   0.222  descent toward the elevator
-  V(0.3, 5.2, 1.1), // 0.333  into the stream
-  V(0, 4.2, 1.0), //   0.444  inside the stream
-  V(0, 3.1, 11), //    0.556  pull back to the data field
-  V(0.9, 2.9, 9.3), // 0.667  PCB face-on
-  V(-0.7, 2.9, 9.0), //0.778  PCB face-on (gentle drift, still flat)
-  V(0, 2.9, 8.0), //   0.889  ease toward the mark
-  V(0, 2.9, 7.2), //   1.000  face the brand mark
+  V(-1, 6.2, 24), //    0.000  far, high, wide farm landscape
+  V(6.5, 5.6, 18), //   0.143  drift right toward the warehouse
+  V(0, 5.2, 14), //     0.286  descend toward the data field
+  V(0, 3.6, 12), //     0.429  data columns view
+  V(0.6, 2.9, 10.5), // 0.571  approach the PCB
+  V(-0.5, 2.9, 9.2), // 0.714  PCB face-on
+  V(0, 2.9, 8.2), //    0.857  ease toward the mark
+  V(0, 2.9, 7.2), //    1.000  face the brand mark
 ]
 
 const TARGETS = [
   V(0, 2.8, 0),
-  V(1.5, 3.2, 0),
-  V(0, 6.5, 0),
-  V(0, 8, 0),
-  V(0, 10, 0),
-  V(0, 2.7, 0),
+  V(1.5, 3.0, 0),
+  V(0, 3.2, 0),
+  V(0, 2.6, 0),
   V(0, 2.9, 0),
   V(0, 2.9, 0),
   V(0, 2.9, 0),

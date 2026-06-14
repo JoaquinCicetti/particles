@@ -6,19 +6,18 @@ import { fadeWindow, lerp, smoothstep } from '../lib/math'
 const SCHEDULE_URL = '#agenda'
 
 const METRICS = [
-  { label: 'TEMPERATURA', value: '18.4', unit: '°C', note: 'Δ −0.3 / 24H', bar: 0.42, range: [0.3, 0.38], side: 'left' },
-  { label: 'HUMEDAD', value: '61.2', unit: '%HR', note: 'ESTABLE', bar: 0.61, range: [0.34, 0.42], side: 'right' },
-  { label: 'CO₂', value: '412', unit: 'PPM', note: 'NOMINAL', bar: 0.28, range: [0.38, 0.46], side: 'left' },
-  { label: 'FLUJO DE AIRE', value: '1.8', unit: 'M/S', note: 'ÓPTIMO', bar: 0.74, range: [0.42, 0.5], side: 'right' },
+  { label: 'TEMPERATURA', value: '18.4', unit: '°C', note: 'Δ −0.3 / 24H', bar: 0.42, range: [0.17, 0.25], side: 'left' },
+  { label: 'HUMEDAD', value: '61.2', unit: '%HR', note: 'ESTABLE', bar: 0.61, range: [0.21, 0.29], side: 'right' },
+  { label: 'CO₂', value: '412', unit: 'PPM', note: 'NOMINAL', bar: 0.28, range: [0.25, 0.33], side: 'left' },
+  { label: 'FLUJO DE AIRE', value: '1.8', unit: 'M/S', note: 'ÓPTIMO', bar: 0.74, range: [0.29, 0.37], side: 'right' },
 ] as const
 
 const PHASES: Array<[number, string]> = [
   [0, '01 / EL ESTABLECIMIENTO'],
   [0.16, '02 / RED DE SENSORES'],
-  [0.32, '03 / FLUJO DE DATOS'],
-  [0.5, '04 / SÍNTESIS'],
-  [0.62, '05 / INGENIERÍA'],
-  [0.88, '06 / GROWCAST'],
+  [0.34, '03 / SÍNTESIS DE DATOS'],
+  [0.56, '04 / INGENIERÍA'],
+  [0.86, '05 / GROWCAST'],
 ]
 
 export default function Overlay() {
@@ -72,7 +71,7 @@ export default function Overlay() {
       })
 
       if (finale) {
-        const o = smoothstep(0.93, 0.985, p)
+        const o = smoothstep(0.9, 0.97, p)
         finale.style.opacity = String(o)
         finale.style.pointerEvents = o > 0.5 ? 'auto' : 'none'
         finale.style.visibility = o < 0.01 ? 'hidden' : 'visible'
@@ -122,7 +121,7 @@ export default function Overlay() {
         </p>
       </header>
 
-      <section className="block block-right" data-window="0.16,0.3">
+      <section className="block block-right" data-window="0.13,0.27">
         <span className="kicker">RED DE SENSORES</span>
         <h2>Todo el establecimiento, una sola red.</h2>
         <p>
@@ -145,7 +144,7 @@ export default function Overlay() {
         </div>
       ))}
 
-      <section className="block block-left" data-window="0.5,0.6">
+      <section className="block block-left" data-window="0.37,0.5">
         <span className="kicker">DE LA SEÑAL A LA DECISIÓN</span>
         <h2>Datos crudos, información accionable.</h2>
         <p>
@@ -154,7 +153,7 @@ export default function Overlay() {
         </p>
       </section>
 
-      <section className="block block-left" data-window="0.64,0.84">
+      <section className="block block-left" data-window="0.58,0.78">
         <span className="kicker">INGENIERÍA PROPIA</span>
         <h2>Diseñamos la electrónica.</h2>
         <p>
