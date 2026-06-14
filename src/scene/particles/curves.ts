@@ -40,50 +40,49 @@ const WAREHOUSE_FRONT = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos
 const WAREHOUSE_BACK = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos.z - WAREHOUSE.d / 2)
 const GROUND_SENSOR = v(-8.5, 0.4, 8.5)
 
-// a point on the tower's vertical data column (slight x/z variation so the
-// column reads with width, not as a single line)
+// the tower axis around which the telemetry spirals up like a tornado
 const tx = ELEVATOR.pos.x
 const tz = ELEVATOR.pos.z
-const shaft = (y: number, dx = 0, dz = 0) => v(tx + dx, y, tz + dz)
+const SPIRAL_TOP = 10.8
+const SPIRAL_BASE = 2.6
+const R_BASE = 2.9 // wide at the bottom
+const R_TOP = 0.6 // converges tight near the top
+const TWIST = 0.95 // radians of swirl per world unit of height
 
-// each flow curve starts at a sensor source and JOINS the central rising
-// column at its own height (joinY differs per sensor), then climbs to the
-// top — so streams merge into the column in different places, not one point.
+const radiusAt = (y: number) =>
+  R_BASE + (R_TOP - R_BASE) * Math.min(1, Math.max(0, (y - SPIRAL_BASE) / (SPIRAL_TOP - SPIRAL_BASE)))
+
+// a smooth helix: the sensor stream eases in, then spirals up the tower axis,
+// tapering inward — entering the vortex at its own angle + height
+function spiral(sensor: THREE.Vector3, angle0: number, yEntry: number) {
+  const r0 = radiusAt(yEntry)
+  const entry = v(tx + Math.cos(angle0) * r0, yEntry, tz + Math.sin(angle0) * r0)
+  const mid = v(
+    (sensor.x + entry.x) / 2,
+    (sensor.y + entry.y) / 2 + 0.3,
+    (sensor.z + entry.z) / 2,
+  )
+  const pts = [sensor, mid, entry]
+  const segs = Math.max(8, Math.round((SPIRAL_TOP - yEntry) * 2.4))
+  for (let i = 1; i <= segs; i++) {
+    const t = i / segs
+    const y = yEntry + (SPIRAL_TOP - yEntry) * t
+    const ang = angle0 + (y - yEntry) * TWIST
+    const r = radiusAt(y)
+    pts.push(v(tx + Math.cos(ang) * r, y, tz + Math.sin(ang) * r))
+  }
+  return new THREE.CatmullRomCurve3(pts, false, 'centripetal')
+}
+
+// every sensor stream feeds the same vortex, entering at a different angle and
+// height, then spirals up and converges toward the tight top — a smooth tornado
 export const FLOW_CURVES = [
-  // warehouse front → joins high
-  new THREE.CatmullRomCurve3(
-    [WAREHOUSE_FRONT, v(1.2, 6.2, 3.0), v(-1.8, 6.7, 0.0), shaft(6.8, 0.3, 0.2), shaft(10.4, -0.2, -0.2)],
-    false,
-    'centripetal',
-  ),
-  // warehouse back → joins highest
-  new THREE.CatmullRomCurve3(
-    [WAREHOUSE_BACK, v(0.8, 6.6, -1.2), v(-2.2, 7.2, -1.8), shaft(7.4, -0.3, 0.0), shaft(11.0, 0.2, -0.2)],
-    false,
-    'centripetal',
-  ),
-  // silos (left) → each joins at a different mid height
-  new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[0], v(-5.6, 6.0, -3.2), shaft(5.6, -0.2, -0.3), shaft(10.6, 0.1, 0.1)],
-    false,
-    'centripetal',
-  ),
-  new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[1], v(-7.0, 5.2, -2.1), shaft(4.8, 0.3, -0.1), shaft(10.2, -0.2, 0.2)],
-    false,
-    'centripetal',
-  ),
-  new THREE.CatmullRomCurve3(
-    [SILO_SENSORS[2], v(-5.8, 4.6, -1.0), shaft(4.2, -0.1, 0.3), shaft(10.8, 0.2, -0.1)],
-    false,
-    'centripetal',
-  ),
-  // ground / field sensor → joins lowest
-  new THREE.CatmullRomCurve3(
-    [GROUND_SENSOR, v(-6.0, 1.6, 4.0), v(-4.6, 2.8, 0.4), shaft(3.4, 0.2, 0.2), shaft(9.8, -0.1, -0.2)],
-    false,
-    'centripetal',
-  ),
+  spiral(WAREHOUSE_FRONT, 0.0, 6.6),
+  spiral(WAREHOUSE_BACK, Math.PI * 0.33, 7.2),
+  spiral(SILO_SENSORS[0], Math.PI * 0.66, 5.4),
+  spiral(SILO_SENSORS[1], Math.PI, 4.6),
+  spiral(SILO_SENSORS[2], Math.PI * 1.33, 4.0),
+  spiral(GROUND_SENSOR, Math.PI * 1.66, 2.8),
   // faint perimeter sweep (atmosphere)
   new THREE.CatmullRomCurve3(
     [v(-10, 1.2, -6), v(0, 2, -8), v(9, 1.6, -5), v(10.5, 2.4, 2), v(4, 1.4, 9), v(-6, 2.0, 9.5)],
