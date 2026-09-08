@@ -4,6 +4,8 @@ import type { MessageDescriptor } from 'react-intl'
 import { M } from '../i18n/messages'
 import { setSection } from '../lib/scroll'
 import SiloFigure from './SiloFigure'
+import GrowRoomFigure from './GrowRoomFigure'
+import CuringRoomFigure from './CuringRoomFigure'
 
 /**
  * In-flow content that follows the 3D story: one section per solution plus a
@@ -120,28 +122,10 @@ const SOLUTIONS: Solution[] = [
   },
 ]
 
-/** Placeholder connection schema: sensors → node → core → actuators. */
-function FigurePlaceholder() {
-  return (
-    <svg className="sol-schema" viewBox="0 0 320 150" aria-hidden>
-      <g fill="none" stroke="currentColor" strokeWidth="1">
-        {[28, 60, 92, 124].map((y) => (
-          <path key={y} d={`M24 ${y} H88 Q104 ${y} 104 ${y > 76 ? y - 8 : y + 8} V68 Q104 76 116 76 H150`} />
-        ))}
-        <path d="M188 76 H222 Q236 76 236 64 V44 Q236 36 248 36 H296" />
-        <path d="M188 76 H222 Q236 76 236 88 V108 Q236 116 248 116 H296" />
-      </g>
-      <g fill="currentColor">
-        {[28, 60, 92, 124].map((y) => (
-          <circle key={y} cx="20" cy={y} r="3.5" />
-        ))}
-        <circle cx="296" cy="36" r="3.5" />
-        <circle cx="296" cy="116" r="3.5" />
-      </g>
-      <rect x="150" y="60" width="38" height="32" rx="2" fill="none" stroke="currentColor" strokeWidth="1" />
-      <rect x="160" y="70" width="18" height="12" rx="1" fill="currentColor" opacity="0.7" />
-    </svg>
-  )
+const FIGURES: Record<string, React.ReactNode> = {
+  cultivo: <GrowRoomFigure />,
+  silos: <SiloFigure />,
+  maduracion: <CuringRoomFigure />,
 }
 
 export default function Solutions({ onContact }: { onContact: () => void }) {
@@ -266,9 +250,9 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
           </div>
 
           <div className="sol-side">
-            <figure className={`sol-figure panel${s.id === 'silos' ? ' silo-figure' : ''}`}>
+            <figure className="sol-figure panel fig-panel">
               <span className="metric-label">{intl.formatMessage(M.solFigureTag)}</span>
-              {s.id === 'silos' ? <SiloFigure /> : <FigurePlaceholder />}
+              {FIGURES[s.id]}
               <figcaption className="metric-note">{intl.formatMessage(s.figure)}</figcaption>
             </figure>
             <div className="sol-steps">

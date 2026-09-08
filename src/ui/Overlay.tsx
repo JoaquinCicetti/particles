@@ -4,16 +4,20 @@ import { scrollState } from '../lib/scroll'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
 import { M } from '../i18n/messages'
 import SideNav from './SideNav'
+import SensorIcon from './SensorIcon'
 import { onAnchorClick } from './nav'
 
+// sensor chips — all bubble up together over one window (staggered a touch),
+// then drift down as the camera climbs; positions are set per chip in CSS
 const METRICS = [
-  { label: M.mTempLabel, value: '18.4', unit: '°C', note: M.mTempNote, bar: 0.42, range: [0.16, 0.24], side: 'left' },
-  { label: M.mHumLabel, value: '61.2', unit: '%HR', note: M.mHumNote, bar: 0.61, range: [0.2, 0.28], side: 'right' },
-  { label: M.mCo2Label, value: '412', unit: 'PPM', note: M.mCo2Note, bar: 0.28, range: [0.24, 0.32], side: 'left' },
-  { label: M.mEcLabel, value: '1.9', unit: 'mS/cm', note: M.mEcNote, bar: 0.55, range: [0.28, 0.36], side: 'right' },
-  { label: M.mPhLabel, value: '6.3', unit: '', note: M.mPhNote, bar: 0.63, range: [0.32, 0.4], side: 'left' },
-  { label: M.mAirLabel, value: '1.8', unit: 'M/S', note: M.mAirNote, bar: 0.74, range: [0.36, 0.44], side: 'right' },
+  { icon: 'temp', label: M.mTempLabel, value: '18.4', unit: '°C' },
+  { icon: 'hum', label: M.mHumLabel, value: '61.2', unit: '%HR' },
+  { icon: 'co2', label: M.mCo2Label, value: '412', unit: 'PPM' },
+  { icon: 'ec', label: M.mEcLabel, value: '1.9', unit: 'mS/cm' },
+  { icon: 'ph', label: M.mPhLabel, value: '6.3', unit: 'pH' },
+  { icon: 'air', label: M.mAirLabel, value: '1.8', unit: 'm/s' },
 ] as const
+const METRIC_WINDOW: [number, number] = [0.17, 0.46]
 
 const PHASE_AT = [0, 0.16, 0.32, 0.5, 0.62, 0.88] as const
 const PHASE_MSG = [M.phase1, M.phase2, M.phase3, M.phase4, M.phase5, M.phase6] as const
@@ -81,12 +85,13 @@ export default function Overlay({ onContact, onMenu }: Props) {
       }
 
       cards.forEach((c, i) => {
-        const [a, b] = METRICS[i].range
-        const o = fadeWindow(p, a, b, 0.3)
+        const [a0, b] = METRIC_WINDOW
+        const a = a0 + i * 0.012 // bubble up one after another, quickly
+        const o = fadeWindow(p, a, b, 0.22)
         const t = Math.min(1, Math.max(0, (p - a) / (b - a)))
-        // la cámara sube por el flujo → las tarjetas pasan hacia abajo
+        // la cámara sube por el flujo → los chips derivan hacia abajo
         c.style.opacity = String(o)
-        c.style.transform = `translateY(${lerp(-30, 30, t)}vh)`
+        c.style.transform = `translateY(${lerp(-8, 10, t)}vh) scale(${0.7 + 0.3 * o})`
         c.style.visibility = o < 0.01 ? 'hidden' : 'visible'
       })
 
@@ -170,17 +175,16 @@ export default function Overlay({ onContact, onMenu }: Props) {
         </p>
       </section>
 
-      {METRICS.map((m) => (
-        <div key={m.label.id} className={`metric panel metric-${m.side}`} data-metric>
-          <span className="metric-label">{intl.formatMessage(m.label)}</span>
-          <div className="metric-value">
-            {m.value}
-            <span className="metric-unit">{m.unit}</span>
+      {METRICS.map((m, i) => (
+        <div key={m.icon} className={`metric metric-${i + 1}`} data-metric>
+          <div className="metric-float" style={{ animationDelay: `${-i * 0.7}s` }}>
+            <SensorIcon name={m.icon} />
+            <span className="metric-value">
+              {m.value}
+              <span className="metric-unit">{m.unit}</span>
+            </span>
+            <span className="metric-label">{intl.formatMessage(m.label)}</span>
           </div>
-          <div className="metric-bar">
-            <i style={{ width: `${m.bar * 100}%` }} />
-          </div>
-          <span className="metric-note">{intl.formatMessage(m.note)}</span>
         </div>
       ))}
 

@@ -22,14 +22,14 @@ export default function SiloFigure() {
   const pulse = (path: string, d: string, delay: string, cmd = false) => (
     <circle
       key={`${path}-${delay}`}
-      className={`silo-pulse${cmd ? ' cmd' : ''}`}
+      className={`fig-pulse${cmd ? ' cmd' : ''}`}
       r="2.2"
       style={{ offsetPath: `path('${path}')`, ['--d' as string]: d, ['--delay' as string]: delay }}
     />
   )
 
   return (
-    <svg className="silo" viewBox="0 0 364 246" role="img" aria-label={intl.formatMessage(M.siloAria)}>
+    <svg className="fig" viewBox="0 0 364 246" role="img" aria-label={intl.formatMessage(M.siloAria)}>
       <defs>
         <pattern id="silo-grain" width="6" height="6" patternUnits="userSpaceOnUse">
           <circle cx="3" cy="3" r="0.75" fill="currentColor" opacity="0.45" />
@@ -41,12 +41,12 @@ export default function SiloFigure() {
         <path d="M46 132 L98 112 L150 132 V200 H46 Z" fill="url(#silo-grain)" />
 
         {/* silo body, roof, hopper, legs */}
-        <g className="silo-rings">
+        <g className="fig-rings">
           {[84, 98, 112, 126, 140, 154, 168, 182].map((y) => (
             <line key={y} x1="46" y1={y} x2="150" y2={y} />
           ))}
         </g>
-        <g className="silo-struct">
+        <g className="fig-struct">
           <rect x="46" y="70" width="104" height="130" />
           <path d="M40 70 L98 34 L156 70" />
           <path d="M46 200 L84 226 H112 L150 200" />
@@ -55,64 +55,64 @@ export default function SiloFigure() {
         </g>
 
         {/* headspace CO₂ sensor */}
-        <rect x="88" y="44" width="20" height="9" rx="1" className="silo-node" />
-        <text x="98" y="51" textAnchor="middle" className="silo-lbl" fontSize="6.2">
+        <rect x="88" y="44" width="20" height="9" rx="1" className="fig-node" />
+        <text x="98" y="51" textAnchor="middle" className="fig-lbl" fontSize="7">
           CO₂
         </text>
 
         {/* thermometry cables + sensor nodes */}
-        <path d="M74 49 V190 M122 49 V190" className="silo-cable" />
-        <path d="M74 49 L98 34 L122 49" className="silo-wire" />
+        <path d="M74 49 V190 M122 49 V190" className="fig-cable" />
+        <path d="M74 49 L98 34 L122 49" className="fig-wire" />
         {[74, 122].map((x) =>
           NODES_Y.map((y) => (
-            <circle key={`${x}-${y}`} cx={x} cy={y} r="2.6" className={`silo-node${y > GRAIN_TOP_AT(x) ? ' in-grain' : ''}`} />
+            <circle key={`${x}-${y}`} cx={x} cy={y} r="2.6" className={`fig-node${y > GRAIN_TOP_AT(x) ? ' in-grain' : ''}`} />
           )),
         )}
         {/* hot spot on the left cable */}
-        <circle cx="74" cy="152" r="3" className="silo-hot" />
-        <circle cx="74" cy="152" r="3" className="silo-hot late" />
-        <path d="M70 152 H40" className="silo-wire" strokeDasharray="2 2" />
-        <text x="36" y="148" textAnchor="end" className="silo-lbl silo-lbl-accent">
+        <circle cx="74" cy="152" r="3" className="fig-hot" />
+        <circle cx="74" cy="152" r="3" className="fig-hot late" />
+        <path d="M70 152 H40" className="fig-wire" strokeDasharray="2 2" />
+        <text x="36" y="148" textAnchor="end" className="fig-lbl fig-lbl-accent">
           {intl.formatMessage(M.siloLblHot)}
         </text>
-        <text x="36" y="157" textAnchor="end" className="silo-lbl">
+        <text x="36" y="157" textAnchor="end" className="fig-lbl">
           24.1 °C
         </text>
 
         {/* roof → node → core, node → fan */}
-        <path d="M98 34 V22 H200 V52" className="silo-wire" />
-        <path d={TO_CORE} className="silo-wire" />
-        <path d={TO_FAN} className="silo-wire" />
+        <path d="M98 34 V22 H200 V52" className="fig-wire" />
+        <path d={TO_CORE} className="fig-wire" />
+        <path d={TO_FAN} className="fig-wire" />
 
         {/* node box */}
-        <rect x="186" y="52" width="28" height="22" rx="2" className="silo-node" />
+        <rect x="186" y="52" width="28" height="22" rx="2" className="fig-node" />
         <rect x="192" y="59" width="16" height="8" rx="1" fill="currentColor" opacity="0.75" />
-        <text x="200" y="86" textAnchor="middle" className="silo-lbl">
+        <text x="200" y="86" textAnchor="middle" className="fig-lbl">
           {intl.formatMessage(M.siloLblNode)}
         </text>
 
         {/* growcast core */}
-        <rect x="268" y="50" width="48" height="26" rx="2" className="silo-node" />
+        <rect x="268" y="50" width="48" height="26" rx="2" className="fig-node" />
         <path d="M280 63 h24 M292 55 v16" stroke="currentColor" strokeWidth="1" opacity="0.8" />
         <circle cx="292" cy="63" r="3" fill="currentColor" />
-        <text x="292" y="88" textAnchor="middle" className="silo-lbl silo-lbl-accent">
+        <text x="292" y="88" textAnchor="middle" className="fig-lbl fig-lbl-accent">
           {intl.formatMessage(M.siloLblCore)}
         </text>
 
         {/* aeration fan */}
-        <circle cx="170" cy="212" r="11" className="silo-node" />
-        <g className="silo-fan-blades" fill="currentColor" opacity="0.9">
+        <circle cx="170" cy="212" r="11" className="fig-node" />
+        <g className="fig-fan-blades" fill="currentColor" opacity="0.9">
           <path d="M170 212 L170 203 Q176 206 172 212 Z" />
           <path d="M170 212 L178 217 Q173 220 170 216 Z" />
           <path d="M170 212 L162 217 Q162 210 168 210 Z" />
         </g>
         <circle cx="170" cy="212" r="1.6" fill="currentColor" />
-        <text x="170" y="234" textAnchor="middle" className="silo-lbl">
+        <text x="170" y="234" textAnchor="middle" className="fig-lbl">
           {intl.formatMessage(M.siloLblFan)}
         </text>
 
         {/* probes label under the silo */}
-        <text x="98" y="243" textAnchor="middle" className="silo-lbl">
+        <text x="98" y="243" textAnchor="middle" className="fig-lbl">
           {intl.formatMessage(M.siloLblProbes)}
         </text>
 

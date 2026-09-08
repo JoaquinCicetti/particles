@@ -335,24 +335,58 @@ body {
   border-width: 0 1px 1px 0;
 }
 
-/* sensor metric cards (story) */
+/* sensor chips (story) — icon + value + unit, bubbling around the stream */
 .metric {
   position: absolute;
-  top: 50%;
-  margin-top: -5.2rem;
-  min-width: 18rem;
-  padding: 1.6rem 1.9rem 1.7rem;
   opacity: 0;
   z-index: 2; /* behind the narrative text */
   will-change: transform, opacity;
 }
 
-.metric-left {
-  left: clamp(1.5rem, 12vw, 16rem);
+.metric-float {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.9rem 0.45rem 0.7rem;
+  border: 1px solid var(--copper-dim);
+  border-radius: 999px;
+  background: rgba(11, 6, 3, 0.72);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+  animation: chip-float 4.2s ease-in-out infinite;
 }
 
-.metric-right {
-  right: clamp(1.5rem, 12vw, 16rem);
+@keyframes chip-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.sensor-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+  color: var(--copper);
+}
+
+.metric-value {
+  font-family: var(--body);
+  font-weight: 300;
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--copper-bright);
+  white-space: nowrap;
+}
+
+.metric-unit {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  margin-left: 0.35rem;
+  color: var(--fg-dim);
 }
 
 .metric-label {
@@ -362,36 +396,23 @@ body {
   color: var(--copper);
 }
 
-.metric-value {
-  margin-top: 0.8rem;
-  font-family: var(--body);
-  font-weight: 200;
-  font-size: 3.5rem;
-  line-height: 1;
-  color: var(--copper-bright);
+.metric .metric-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  margin-left: 0.2rem;
+  padding-left: 0.6rem;
+  border-left: 1px solid var(--copper-faint);
 }
 
-.metric-unit {
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.2em;
-  margin-left: 0.55rem;
-  color: var(--fg-dim);
-}
+/* scattered around the central stream, off the narrative copy */
+.metric-1 { left: 12%; top: 34%; }
+.metric-2 { right: 12%; top: 30%; }
+.metric-3 { left: 18%; top: 56%; }
+.metric-4 { right: 16%; top: 52%; }
+.metric-5 { left: 30%; top: 74%; }
+.metric-6 { right: 28%; top: 72%; }
 
-.metric-bar {
-  margin-top: 1rem;
-  height: 2px;
-  background: var(--copper-faint);
-}
-
-.metric-bar i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--copper), var(--copper-bright));
-  box-shadow: 0 0 8px rgba(255, 217, 160, 0.55);
-}
-
+/* the metric-* type styles are also used by the in-flow solution stats */
 .metric-note {
   display: block;
   margin-top: 0.9rem;
@@ -1166,26 +1187,25 @@ body {
     translate: 0;
   }
 
-  /* lower the sensor-card band so its fade-in clears the
-     "RED DE SENSORES" heading; keep the enlarged cards within the viewport */
-  .metric {
-    top: auto;
-    margin-top: 0;
-    bottom: 24vh;
-    min-width: 0;
-    width: min(20rem, 84vw);
+  /* chips gather in the lower half, clear of the "RED DE SENSORES" heading */
+  .metric-float {
+    padding: 0.4rem 0.7rem 0.4rem 0.55rem;
   }
 
   .metric-value {
-    font-size: 2.9rem;
+    font-size: 1.2rem;
   }
 
-  .metric-left,
-  .metric-right {
-    left: 50%;
-    right: auto;
-    translate: -50% 0;
+  .metric .metric-label {
+    display: none;
   }
+
+  .metric-1 { left: 6%; top: 44%; }
+  .metric-2 { right: 6%; top: 50%; }
+  .metric-3 { left: 10%; top: 58%; }
+  .metric-4 { right: 10%; top: 64%; }
+  .metric-5 { left: 8%; top: 72%; }
+  .metric-6 { right: 8%; top: 78%; }
 
   .rail,
   .sidenav {
@@ -1230,7 +1250,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .grain,
   .hint i,
-  .finale-more i {
+  .finale-more i,
+  .metric-float {
     animation: none;
   }
 
@@ -1665,12 +1686,13 @@ body {
   font-size: 0.66rem;
 }
 
-/* ── silo illustration (silos section) ───────────────────────── */
-.silo-figure {
+/* ── schematic illustrations (silo / grow room / curing rack) ── */
+.silo-figure,
+.fig-panel {
   padding: 1.2rem 1.2rem 1rem;
 }
 
-.silo {
+.fig {
   display: block;
   width: 100%;
   height: auto;
@@ -1679,69 +1701,69 @@ body {
   overflow: visible;
 }
 
-.silo-lbl {
-  font-size: 7.5px;
+.fig-lbl {
+  font-size: 8.5px;
   letter-spacing: 0.12em;
   fill: var(--fg-dim);
 }
 
-.silo-lbl-accent {
+.fig-lbl-accent {
   fill: var(--copper-bright);
 }
 
-.silo-struct {
+.fig-struct {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.1;
   stroke-linejoin: round;
 }
 
-.silo-rings {
+.fig-rings {
   fill: none;
   stroke: currentColor;
   stroke-width: 0.6;
   opacity: 0.28;
 }
 
-.silo-wire {
+.fig-wire {
   fill: none;
   stroke: currentColor;
   stroke-width: 1;
   opacity: 0.85;
 }
 
-.silo-cable {
+.fig-cable {
   fill: none;
   stroke: var(--copper-bright);
   stroke-width: 1.2;
   opacity: 0.9;
 }
 
-.silo-node {
+.fig-node {
   fill: #0b0705;
   stroke: currentColor;
   stroke-width: 1;
 }
 
-.silo-node.in-grain {
+.fig-node.in-grain {
   fill: var(--copper);
   stroke: var(--copper-bright);
 }
 
-.silo-pulse {
+.fig-pulse {
   fill: var(--copper-bright);
   filter: drop-shadow(0 0 3px rgba(255, 217, 160, 0.9));
   offset-rotate: 0deg;
-  animation: silo-travel var(--d, 4s) linear infinite;
+  animation: fig-travel var(--d, 4s) linear infinite;
   animation-delay: var(--delay, 0s);
   opacity: 0;
 }
 
-.silo-pulse.cmd {
+.fig-pulse.cmd {
   fill: var(--copper);
 }
 
-@keyframes silo-travel {
+@keyframes fig-travel {
   0% {
     offset-distance: 0%;
     opacity: 0;
@@ -1758,20 +1780,20 @@ body {
   }
 }
 
-.silo-hot {
+.fig-hot {
   fill: none;
   stroke: var(--copper-bright);
   stroke-width: 1;
   transform-box: fill-box;
   transform-origin: center;
-  animation: silo-hot 2.4s ease-out infinite;
+  animation: fig-hot 2.4s ease-out infinite;
 }
 
-.silo-hot.late {
+.fig-hot.late {
   animation-delay: 1.2s;
 }
 
-@keyframes silo-hot {
+@keyframes fig-hot {
   0% {
     transform: scale(1);
     opacity: 0.9;
@@ -1782,27 +1804,124 @@ body {
   }
 }
 
-.silo-fan-blades {
+.fig-fan-blades {
   transform-box: fill-box;
   transform-origin: center;
-  animation: silo-spin 2.2s linear infinite;
+  animation: fig-spin 2.2s linear infinite;
 }
 
-@keyframes silo-spin {
+@keyframes fig-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .silo-pulse {
+  .fig-pulse {
     animation: none;
     opacity: 0.9;
     offset-distance: 55%;
   }
 
-  .silo-hot,
-  .silo-fan-blades {
+  .fig-hot,
+  .fig-fan-blades {
     animation: none;
+  }
+}
+
+/* grow-room: breathing light cones, blinking controller LEDs; curing: mist */
+.fig-cone {
+  fill: var(--copper-bright);
+  animation: fig-breathe 4s ease-in-out infinite;
+}
+
+@keyframes fig-breathe {
+  0%,
+  100% {
+    opacity: 0.06;
+  }
+  50% {
+    opacity: 0.16;
+  }
+}
+
+.fig-lamp {
+  fill: var(--copper-bright);
+  filter: drop-shadow(0 0 4px rgba(255, 217, 160, 0.8));
+}
+
+.fig-led {
+  fill: var(--copper-bright);
+  animation: fig-blink 1.8s steps(1) infinite;
+}
+
+.fig-led:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.fig-led:nth-child(3) {
+  animation-delay: 1.2s;
+}
+
+@keyframes fig-blink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+.fig-plant {
+  fill: none;
+  stroke: var(--copper-bright);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.9;
+}
+
+.fig-cheese {
+  fill: rgba(255, 217, 160, 0.16);
+  stroke: var(--copper-bright);
+  stroke-width: 0.9;
+}
+
+.fig-mist {
+  fill: var(--copper-bright);
+  opacity: 0;
+  animation: fig-mist 2.6s ease-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes fig-mist {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-18px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fig-cone,
+  .fig-led,
+  .fig-mist {
+    animation: none;
+  }
+
+  .fig-cone {
+    opacity: 0.1;
+  }
+
+  .fig-mist {
+    opacity: 0.5;
+    transform: translateY(-8px);
   }
 }

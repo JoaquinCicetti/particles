@@ -47,17 +47,11 @@ export const M = defineMessages({
 
   // sensor metric cards
   mTempLabel: { id: 'metric.temp.label', defaultMessage: 'TEMPERATURA' },
-  mTempNote: { id: 'metric.temp.note', defaultMessage: 'Δ −0.3 / 24H' },
   mHumLabel: { id: 'metric.hum.label', defaultMessage: 'HUMEDAD' },
-  mHumNote: { id: 'metric.hum.note', defaultMessage: 'ESTABLE' },
   mCo2Label: { id: 'metric.co2.label', defaultMessage: 'CO₂' },
-  mCo2Note: { id: 'metric.co2.note', defaultMessage: 'NOMINAL' },
   mEcLabel: { id: 'metric.ec.label', defaultMessage: 'CONDUCTIVIDAD' },
-  mEcNote: { id: 'metric.ec.note', defaultMessage: 'EC · ÓPTIMO' },
   mPhLabel: { id: 'metric.ph.label', defaultMessage: 'pH' },
-  mPhNote: { id: 'metric.ph.note', defaultMessage: 'EN RANGO' },
   mAirLabel: { id: 'metric.air.label', defaultMessage: 'FLUJO DE AIRE' },
-  mAirNote: { id: 'metric.air.note', defaultMessage: 'ÓPTIMO' },
 
   // scroll phase ticker
   phase1: { id: 'phase.1', defaultMessage: '01 / EL ESTABLECIMIENTO' },
@@ -221,4 +215,22 @@ export const M = defineMessages({
   siloLblFan: { id: 'silo.lbl.fan', defaultMessage: 'AIREADOR' },
   siloLblHot: { id: 'silo.lbl.hot', defaultMessage: 'FOCO' },
   siloAria: { id: 'silo.aria', defaultMessage: 'Esquema: sondas dentro del silo envían la temperatura al nodo, que la manda a Growcast y comanda el aireador.' },
+  // grow-room illustration labels
+  grLblLights: { id: 'grow.lbl.lights', defaultMessage: 'LUCES · 18/6' },
+  grLblFan: { id: 'grow.lbl.fan', defaultMessage: 'VENTILADOR' },
+  grLblSensor: { id: 'grow.lbl.sensor', defaultMessage: 'T° · HR · CO₂' },
+  grLblIrrig: { id: 'grow.lbl.irrig', defaultMessage: 'RIEGO' },
+  grLblEcph: { id: 'grow.lbl.ecph', defaultMessage: 'EC · pH' },
+  grLblControl: { id: 'grow.lbl.control', defaultMessage: 'CONTROL' },
+  grLblRoom: { id: 'grow.lbl.room', defaultMessage: 'SALA DE CULTIVO' },
+  grAria: { id: 'grow.aria', defaultMessage: 'Esquema: el sensor de la sala envía clima y CO₂ al controlador, que comanda luces, ventilador y riego, y reporta a Growcast.' },
+
+  // curing-room illustration labels
+  crLblSensor: { id: 'cure.lbl.sensor', defaultMessage: 'T° · HR' },
+  crLblCo2: { id: 'cure.lbl.co2', defaultMessage: 'CO₂' },
+  crLblCold: { id: 'cure.lbl.cold', defaultMessage: 'FRÍO' },
+  crLblHum: { id: 'cure.lbl.hum', defaultMessage: 'HUMIDIFICADOR' },
+  crLblScale: { id: 'cure.lbl.scale', defaultMessage: 'PESO' },
+  crLblRack: { id: 'cure.lbl.rack', defaultMessage: 'ESTANTERÍA DE MADURACIÓN' },
+  crAria: { id: 'cure.aria', defaultMessage: 'Esquema: sensores en la estantería de quesos envían temperatura y humedad al nodo, que comanda el frío y el humidificador y reporta a Growcast.' },
 })
