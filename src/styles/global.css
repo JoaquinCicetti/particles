@@ -46,7 +46,7 @@
 :root {
   --bg: #050302;
   --fg: #f6efe4;
-  --fg-dim: rgba(244, 236, 224, 0.78);
+  --fg-dim: rgba(244, 236, 224, 0.86);
   --copper: #c87f3d;
   --copper-bright: #ffd9a0;
   --copper-hover: #b3702f; /* plain copper, a touch darker — no gold */
@@ -79,8 +79,10 @@ body {
   position: relative;
 }
 
+/* length of the 3D story in scroll distance — every story threshold is a
+   fraction of this, so tuning it only changes the pacing */
 .scroll-track {
-  height: 1100vh;
+  height: 800vh;
 }
 
 .canvas-layer {
@@ -301,25 +303,18 @@ body {
   text-align: center;
 }
 
-/* holographic metric cards */
-.metric {
-  position: absolute;
-  top: 50%;
-  margin-top: -5.2rem;
-  min-width: 18rem;
-  padding: 1.6rem 1.9rem 1.7rem;
-  /* solid translucent panel (no backdrop-filter — it re-blurs the live canvas
-     every frame and tanked perf when all 6 cards appeared at once) */
+/* holographic panel — shared by the sensor metric cards and the solution
+   cards. Solid translucent (no backdrop-filter — it re-blurs the live canvas
+   every frame and tanked perf when all 6 cards appeared at once) */
+.panel {
+  position: relative;
   background: rgba(11, 6, 3, 0.82);
   border: 1px solid var(--copper-dim);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
-  opacity: 0;
-  z-index: 2; /* behind the narrative text */
-  will-change: transform, opacity;
 }
 
-.metric::before,
-.metric::after {
+.panel::before,
+.panel::after {
   content: '';
   position: absolute;
   width: 0.85rem;
@@ -328,16 +323,28 @@ body {
   border-style: solid;
 }
 
-.metric::before {
+.panel::before {
   top: -1px;
   left: -1px;
   border-width: 1px 0 0 1px;
 }
 
-.metric::after {
+.panel::after {
   bottom: -1px;
   right: -1px;
   border-width: 0 1px 1px 0;
+}
+
+/* sensor metric cards (story) */
+.metric {
+  position: absolute;
+  top: 50%;
+  margin-top: -5.2rem;
+  min-width: 18rem;
+  padding: 1.6rem 1.9rem 1.7rem;
+  opacity: 0;
+  z-index: 2; /* behind the narrative text */
+  will-change: transform, opacity;
 }
 
 .metric-left {
@@ -515,6 +522,34 @@ body {
   color: var(--fg-dim);
 }
 
+/* "see solutions" — invites the scroll past the logo */
+.finale-more {
+  pointer-events: auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.4em;
+  color: var(--copper);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.finale-more:hover {
+  color: var(--copper-bright);
+}
+
+.finale-more i {
+  width: 1px;
+  height: 2.2rem;
+  background: linear-gradient(to bottom, var(--copper), transparent);
+  animation: hint-drop 2.2s ease-in-out infinite;
+  transform-origin: top;
+}
+
 /* scroll hint */
 .hint {
   position: absolute;
@@ -597,6 +632,482 @@ body {
   color: var(--fg-dim);
 }
 
+/* section index — sits left of the rail, mirrors its vertical centring */
+.sidenav {
+  position: absolute;
+  right: calc(clamp(1.2rem, 2.6vw, 2.4rem) + 1.4rem + env(safe-area-inset-right));
+  top: 50%;
+  translate: 0 -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.85rem;
+  pointer-events: auto;
+}
+
+.sidenav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.34em;
+  color: var(--fg-dim);
+  opacity: 0.55;
+  text-decoration: none;
+  transition:
+    opacity 0.25s ease,
+    color 0.25s ease;
+}
+
+.sidenav-item i {
+  width: 0.55rem;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s ease;
+}
+
+.sidenav-item:hover,
+.sidenav-item.is-active {
+  opacity: 1;
+  color: var(--copper-bright);
+}
+
+.sidenav-item.is-active i {
+  width: 1.1rem;
+  box-shadow: 0 0 8px rgba(255, 217, 160, 0.6);
+}
+
+/* ☰ — mobile only */
+.nav-menu {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.32rem;
+  width: 2.3rem;
+  height: 2.3rem;
+  background: transparent;
+  border: 1px solid var(--copper-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 0 0.6rem;
+}
+
+.nav-menu i {
+  display: block;
+  height: 1px;
+  background: var(--copper);
+}
+
+/* mobile sheet — reuses the dialog shell */
+.sheet .kicker {
+  margin-bottom: 1rem;
+}
+
+.sheet-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet-link {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.95rem 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg);
+  text-decoration: none;
+  border-top: 1px solid var(--copper-faint);
+  transition: color 0.2s ease;
+}
+
+.sheet-link:hover,
+.sheet-link:focus-visible {
+  color: var(--copper-bright);
+  outline: none;
+}
+
+.sheet-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  color: var(--copper);
+}
+
+/* ── solutions (in-flow, after the story) ───────────────────── */
+.solutions {
+  position: relative;
+  z-index: 5; /* above the canvas, below the fixed overlay chrome */
+  /* the logo scene shows through the seam, then the ground goes solid */
+  background: linear-gradient(to bottom, rgba(5, 3, 2, 0) 0, var(--bg) 40vh);
+  padding-top: 36vh;
+  padding-left: calc(clamp(1.5rem, 6vw, 6rem) + env(safe-area-inset-left));
+  /* extra room on the right for the fixed side index + rail */
+  padding-right: calc(clamp(1.5rem, 6vw, 6rem) + 8rem + env(safe-area-inset-right));
+  overflow: hidden; /* ghost numerals and glows must not widen the page */
+}
+
+@media (max-width: 720px) {
+  .solutions {
+    padding-right: calc(1.5rem + env(safe-area-inset-right));
+  }
+}
+
+/* fine copper dot grid, fading in below the seam — echoes the circuit board */
+.solutions::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(200, 127, 61, 0.22) 1px, transparent 1.4px);
+  background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 30vh, #000 60vh);
+  mask-image: linear-gradient(to bottom, transparent 30vh, #000 60vh);
+}
+
+.sol-intro {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 0 8vh;
+}
+
+.sol-intro h2,
+.sol h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(1.7rem, 3.2vw, 2.7rem);
+  line-height: 1.18;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow:
+    0 2px 4px rgba(5, 3, 2, 0.92),
+    0 0 10px rgba(5, 3, 2, 0.7);
+}
+
+.sol-intro p,
+.sol p {
+  margin-top: 1.1rem;
+  max-width: 34rem;
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.3vw, 1.2rem);
+  line-height: 1.7;
+  color: var(--fg-dim);
+}
+
+.sol .kicker,
+.sol-intro .kicker {
+  font-size: 0.78rem;
+  letter-spacing: 0.34em;
+}
+
+.sol {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-areas:
+    'head measure'
+    'panels side';
+  gap: clamp(2.4rem, 5vw, 4.5rem) clamp(2rem, 5vw, 5rem);
+  align-items: start;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 12vh 0 14vh;
+  scroll-margin-top: 4vh;
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+
+.sol.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.sol-flip {
+  grid-template-areas:
+    'measure head'
+    'side panels';
+}
+
+/* hairline between sections */
+.sol + .sol::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--copper-dim) 30%, var(--copper-dim) 70%, transparent);
+}
+
+/* soft copper glow behind the panels side of each section */
+.sol::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 30%;
+  left: -10%;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(200, 127, 61, 0.16), rgba(200, 127, 61, 0));
+  pointer-events: none;
+}
+
+.sol-flip::before {
+  left: auto;
+  right: -10%;
+}
+
+/* ghost numeral */
+.sol-num {
+  position: absolute;
+  z-index: -1;
+  top: 2vh;
+  left: -0.06em;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(9rem, 22vw, 20rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(200, 127, 61, 0.13);
+  pointer-events: none;
+  user-select: none;
+}
+
+.sol-flip .sol-num {
+  left: auto;
+  right: -0.06em;
+}
+
+.sol-head {
+  grid-area: head;
+}
+
+.sol-lede {
+  font-size: clamp(1.1rem, 1.4vw, 1.28rem);
+}
+
+.sol-who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.6rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--copper);
+  color: var(--fg);
+}
+
+.sol-measure {
+  grid-area: measure;
+  padding-top: 0.4rem;
+}
+
+.sol-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.sol-chips li {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 0.98rem;
+  color: var(--fg);
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--copper-dim);
+  border-radius: 999px;
+  background: rgba(200, 127, 61, 0.08);
+}
+
+.sol-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6rem 2.6rem;
+  margin-top: 2.2rem;
+}
+
+.sol-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.sol-stat .metric-value {
+  margin-top: 0.4rem;
+  font-size: 2.4rem;
+}
+
+.sol-stat .metric-unit {
+  font-size: 0.72rem;
+}
+
+.sol-panels {
+  grid-area: panels;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.sol-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4rem;
+}
+
+.sol-panel {
+  padding: 1.6rem 1.8rem 1.7rem;
+}
+
+.sol h3.metric-label {
+  font-size: 0.74rem;
+  font-weight: 400;
+  color: var(--copper-bright);
+}
+
+.sol-list {
+  list-style: none;
+  margin-top: 1.1rem;
+}
+
+.sol-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.95rem;
+  padding: 0.7rem 0;
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--fg);
+  border-top: 1px solid var(--copper-faint);
+}
+
+.sol-list li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* icon slot — a copper tick for now; the client's sensor SVGs get masked in
+   per key, e.g. .sol-icon[data-icon='probe'] { mask-image: url(...) } */
+.sol-icon {
+  flex: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.3rem;
+  background: var(--copper);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.sol-icon[data-icon='check'] {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center / contain no-repeat;
+  background: var(--copper-bright);
+}
+
+/* 3-step process */
+.sol-steps ol {
+  list-style: none;
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.sol-steps li {
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
+}
+
+.sol-step-n {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-top: 0.1rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--copper-bright);
+  border: 1px solid var(--copper);
+  border-radius: 50%;
+  background: rgba(200, 127, 61, 0.1);
+}
+
+.sol-steps strong {
+  display: block;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.12rem;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+}
+
+.sol-steps p {
+  margin-top: 0.4rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* schema slot — replace <FigurePlaceholder/> with the real connection diagram */
+.sol-figure {
+  padding: 1.2rem 1.4rem 1.1rem;
+  color: var(--copper);
+}
+
+.sol-figure .metric-note {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+}
+
+.sol-schema {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.9rem 0 0.6rem;
+}
+
+/* closing contact block — centred like the finale */
+.sol-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 80vh;
+  text-align: center;
+  padding-bottom: calc(6vh + env(safe-area-inset-bottom));
+}
+
+.sol-contact p {
+  margin: 0.4rem auto 1.8rem;
+}
+
+.contact-line {
+  margin-top: 2rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--copper);
+}
+
+.sol-contact .finale-fine {
+  margin-top: 3rem;
+}
+
 /* film grain — normal blend (overlay blend forced a full-screen recomposite
    over the live canvas every frame), small overscan, static */
 .grain {
@@ -676,19 +1187,57 @@ body {
     translate: -50% 0;
   }
 
-  .rail {
+  .rail,
+  .sidenav {
     display: none;
   }
 
   .hint {
     display: none;
   }
+
+  .nav-menu {
+    display: flex;
+  }
+
+  .solutions {
+    padding-top: 30vh;
+  }
+
+  .sol,
+  .sol-flip {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'head'
+      'measure'
+      'panels'
+      'side';
+    gap: 2.2rem;
+    padding: 9vh 0 10vh;
+  }
+
+  .sol-num {
+    font-size: 8rem;
+    top: 2vh;
+  }
+
+  .sol-stat .metric-value {
+    font-size: 2rem;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
   .grain,
-  .hint i {
+  .hint i,
+  .finale-more i {
     animation: none;
+  }
+
+  .sol {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
@@ -984,4 +1533,276 @@ body {
 
 .lang-opt.is-active {
   color: var(--bg);
+}
+
+/* ── accessibility: large targets, visible focus, readable sizes ── */
+:focus-visible {
+  outline: 3px solid var(--copper-bright);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.nav-cta,
+.cta,
+.nav-menu,
+.lang-opt,
+.dialog-close,
+.sheet-link,
+.sidenav-item,
+.finale-more {
+  min-height: 3rem; /* ≥ 48px tap target */
+}
+
+.nav-cta {
+  font-size: 0.82rem;
+  padding: 0.7rem 1.3rem;
+}
+
+.cta {
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  padding: 1rem 2.1rem;
+}
+
+.nav-menu {
+  width: auto;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.95rem;
+  color: var(--copper);
+  font-family: var(--body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.nav-menu i {
+  width: 1.1rem;
+}
+
+.nav-menu-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.sidenav {
+  gap: 0.3rem;
+}
+
+.sidenav-item {
+  font-size: 0.72rem;
+  padding: 0.35rem 0;
+  opacity: 0.75;
+}
+
+.sidenav-item:hover span,
+.sidenav-item:focus-visible span {
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.sheet-link {
+  padding: 1.1rem 0.4rem;
+  font-size: 1.5rem;
+}
+
+.lang-opt {
+  width: 3rem;
+  font-size: 0.72rem;
+}
+
+.lang-thumb {
+  width: 3rem;
+}
+
+.dialog-title {
+  font-size: 1.6rem;
+}
+
+.dialog-sub,
+.dialog-field input,
+.dialog-field textarea {
+  font-size: 1.05rem;
+}
+
+.dialog-field span {
+  font-size: 0.7rem;
+}
+
+.dialog-field input,
+.dialog-field textarea {
+  padding: 0.85rem 1rem;
+}
+
+.dialog-close {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.6rem;
+}
+
+.dialog-send {
+  min-height: 3.25rem;
+  font-size: 1.02rem;
+}
+
+.finale-tag,
+.contact-line {
+  font-size: 0.74rem;
+}
+
+.finale-more {
+  font-size: 0.7rem;
+}
+
+.finale-fine {
+  font-size: 0.66rem;
+}
+
+.phase {
+  font-size: 0.66rem;
+}
+
+/* ── silo illustration (silos section) ───────────────────────── */
+.silo-figure {
+  padding: 1.2rem 1.2rem 1rem;
+}
+
+.silo {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.6rem 0 0.4rem;
+  font-family: var(--mono);
+  overflow: visible;
+}
+
+.silo-lbl {
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  fill: var(--fg-dim);
+}
+
+.silo-lbl-accent {
+  fill: var(--copper-bright);
+}
+
+.silo-struct {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+
+.silo-rings {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.6;
+  opacity: 0.28;
+}
+
+.silo-wire {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.85;
+}
+
+.silo-cable {
+  fill: none;
+  stroke: var(--copper-bright);
+  stroke-width: 1.2;
+  opacity: 0.9;
+}
+
+.silo-node {
+  fill: #0b0705;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.silo-node.in-grain {
+  fill: var(--copper);
+  stroke: var(--copper-bright);
+}
+
+.silo-pulse {
+  fill: var(--copper-bright);
+  filter: drop-shadow(0 0 3px rgba(255, 217, 160, 0.9));
+  offset-rotate: 0deg;
+  animation: silo-travel var(--d, 4s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+.silo-pulse.cmd {
+  fill: var(--copper);
+}
+
+@keyframes silo-travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.silo-hot {
+  fill: none;
+  stroke: var(--copper-bright);
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: silo-hot 2.4s ease-out infinite;
+}
+
+.silo-hot.late {
+  animation-delay: 1.2s;
+}
+
+@keyframes silo-hot {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+.silo-fan-blades {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: silo-spin 2.2s linear infinite;
+}
+
+@keyframes silo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .silo-pulse {
+    animation: none;
+    opacity: 0.9;
+    offset-distance: 55%;
+  }
+
+  .silo-hot,
+  .silo-fan-blades {
+    animation: none;
+  }
 }

@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { scrollState } from '../lib/scroll'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
 import { M } from '../i18n/messages'
-import ContactDialog from './ContactDialog'
+import SideNav from './SideNav'
+import { onAnchorClick } from './nav'
 
 const METRICS = [
   { label: M.mTempLabel, value: '18.4', unit: '°C', note: M.mTempNote, bar: 0.42, range: [0.16, 0.24], side: 'left' },
@@ -17,15 +18,18 @@ const METRICS = [
 const PHASE_AT = [0, 0.16, 0.32, 0.5, 0.62, 0.88] as const
 const PHASE_MSG = [M.phase1, M.phase2, M.phase3, M.phase4, M.phase5, M.phase6] as const
 
-export default function Overlay() {
+type Props = { onContact: () => void; onMenu: () => void }
+
+export default function Overlay({ onContact, onMenu }: Props) {
   const intl = useIntl()
   const root = useRef<HTMLDivElement>(null)
-  const [contactOpen, setContactOpen] = useState(false)
 
   // localized phase labels, kept in a ref so the rAF loop reads the current
   // language without re-binding the animation each render
   const phasesRef = useRef<Array<[number, string]>>([])
-  phasesRef.current = PHASE_AT.map((at, i) => [at, intl.formatMessage(PHASE_MSG[i])])
+  useEffect(() => {
+    phasesRef.current = PHASE_AT.map((at, i) => [at, intl.formatMessage(PHASE_MSG[i])])
+  }, [intl])
 
   useEffect(() => {
     const el = root.current
@@ -43,9 +47,21 @@ export default function Overlay() {
 
     let raf = 0
     let lastPhase = ''
+    let last = 0
+    // locally smoothed "past the story" and whole-page fractions (the story's
+    // own `smooth` is advanced by CameraRig; these only matter to the DOM)
+    let over = 0
+    let page = 0
 
-    const tick = () => {
+    const tick = (now: number) => {
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0
+      last = now
+      const k = 1 - Math.exp(-dt * 4)
+      over += (scrollState.over - over) * k
+      page += (scrollState.page - page) * k
       const p = scrollState.smooth
+      // story chrome fades as the solutions slide over the finale
+      const stay = 1 - smoothstep(0.05, 0.4, over)
 
       if (hero) {
         const o = 1 - smoothstep(0.05, 0.13, p)
@@ -75,14 +91,15 @@ export default function Overlay() {
       })
 
       if (finale) {
-        const o = smoothstep(0.92, 0.98, p)
+        const o = smoothstep(0.92, 0.98, p) * stay
         finale.style.opacity = String(o)
         finale.style.pointerEvents = o > 0.5 ? 'auto' : 'none'
         finale.style.visibility = o < 0.01 ? 'hidden' : 'visible'
       }
 
-      if (railFill) railFill.style.transform = `scaleY(${p})`
-      if (railDot) railDot.style.transform = `translateY(${p * 38}vh)`
+      // the rail is a map of the whole page (story + solutions)
+      if (railFill) railFill.style.transform = `scaleY(${page})`
+      if (railDot) railDot.style.transform = `translateY(${page * 38}vh)`
 
       if (phaseEl) {
         const phases = phasesRef.current
@@ -92,6 +109,8 @@ export default function Overlay() {
           lastPhase = label
           phaseEl.textContent = label
         }
+        // the side index takes over as narrator once the solutions are up
+        phaseEl.style.opacity = String(stay)
       }
 
       raf = requestAnimationFrame(tick)
@@ -103,14 +122,23 @@ export default function Overlay() {
   return (
     <div className="overlay" ref={root}>
       <nav className="nav">
-        <a className="brand" href="#top" aria-label={intl.formatMessage(M.brandAria)}>
+        <a className="brand" href="#top" onClick={onAnchorClick} aria-label={intl.formatMessage(M.brandAria)}>
           <span className="brand-mark" aria-hidden />
           <span className="wordmark">GROWCAST</span>
           <span className="brand-sub">AGRO</span>
         </a>
         <div className="nav-right">
-          <button type="button" className="nav-cta" onClick={() => setContactOpen(true)}>
+          <button type="button" className="nav-cta" onClick={onContact}>
             <FormattedMessage {...M.navCta} />
+          </button>
+          <button type="button" className="nav-menu" onClick={onMenu} aria-label={intl.formatMessage(M.navMenu)}>
+            <span className="nav-menu-lines" aria-hidden>
+              <i />
+              <i />
+            </span>
+            <span>
+              <FormattedMessage {...M.navMenu} />
+            </span>
           </button>
         </div>
       </nav>
@@ -143,7 +171,7 @@ export default function Overlay() {
       </section>
 
       {METRICS.map((m) => (
-        <div key={m.label.id} className={`metric metric-${m.side}`} data-metric>
+        <div key={m.label.id} className={`metric panel metric-${m.side}`} data-metric>
           <span className="metric-label">{intl.formatMessage(m.label)}</span>
           <div className="metric-value">
             {m.value}
@@ -187,18 +215,17 @@ export default function Overlay() {
         <span className="finale-tag">
           <FormattedMessage {...M.tagline} />
         </span>
-        <button type="button" className="cta" onClick={() => setContactOpen(true)}>
+        <button type="button" className="cta" onClick={onContact}>
           <span className="cta-label">
             <FormattedMessage {...M.finaleCta} />
           </span>
           <span className="cta-arrow" aria-hidden>→</span>
         </button>
-        <span className="finale-fine">
-          <FormattedMessage {...M.finaleFine} />
-        </span>
+        <a className="finale-more" href="#cultivo" onClick={onAnchorClick}>
+          <FormattedMessage {...M.finaleMore} />
+          <i aria-hidden />
+        </a>
       </footer>
-
-      <ContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />
 
       <div className="hint" data-hint>
         <span>
@@ -206,6 +233,8 @@ export default function Overlay() {
         </span>
         <i />
       </div>
+
+      <SideNav />
 
       <div className="rail" aria-hidden>
         <div className="rail-track">

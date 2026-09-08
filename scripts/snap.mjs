@@ -1,8 +1,14 @@
-// dev-only: capture the scroll story at several progress points
+// dev-only: capture the scroll story at several progress points, then each
+// in-flow solution section, on desktop and on a phone viewport
 import puppeteer from 'puppeteer-core'
 
 const URL = process.env.URL ?? 'http://localhost:5174/'
-const STOPS = [0, 0.3, 0.55, 0.66, 0.74, 0.82, 0.9, 1.0]
+const STORY_STOPS = [0, 0.3, 0.55, 0.66, 0.74, 0.82, 0.9, 1.0]
+const SECTIONS = ['cultivo', 'silos', 'maduracion', 'contacto']
+const VIEWPORTS = [
+  { name: 'desktop', width: 1440, height: 810 },
+  { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true, deviceScaleFactor: 2 },
+]
 
 const browser = await puppeteer.launch({
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -10,27 +16,50 @@ const browser = await puppeteer.launch({
   args: ['--hide-scrollbars', '--force-color-profile=srgb'],
 })
 
-const page = await browser.newPage()
-await page.setViewport({ width: 1440, height: 810 })
-
 const logs = []
-page.on('console', (m) => {
-  if (['error', 'warning'].includes(m.type())) logs.push(`${m.type()}: ${m.text()}`)
-})
-page.on('pageerror', (e) => logs.push(`pageerror: ${e.message}`))
+const wait = (ms) => new Promise((r) => setTimeout(r, ms))
 
-await page.goto(URL, { waitUntil: 'networkidle0', timeout: 30000 })
-await new Promise((r) => setTimeout(r, 2500))
+for (const vp of VIEWPORTS) {
+  const page = await browser.newPage()
+  await page.setViewport(vp)
+  page.on('console', (m) => {
+    if (['error', 'warning'].includes(m.type())) logs.push(`[${vp.name}] ${m.type()}: ${m.text()}`)
+  })
+  page.on('pageerror', (e) => logs.push(`[${vp.name}] pageerror: ${e.message}`))
 
-for (const p of STOPS) {
-  await page.evaluate((prog) => {
-    const max = document.documentElement.scrollHeight - window.innerHeight
-    window.scrollTo(0, max * prog)
-  }, p)
-  // let the smoothed camera catch up
-  await new Promise((r) => setTimeout(r, 2600))
-  await page.screenshot({ path: `scripts/shot-${String(p).replace('.', '_')}.png` })
-  console.log(`captured p=${p}`)
+  await page.goto(URL, { waitUntil: 'networkidle0', timeout: 30000 })
+  await wait(2500)
+
+  const stops = vp.name === 'desktop' ? STORY_STOPS : [0, 1.0]
+  for (const p of stops) {
+    await page.evaluate((prog) => {
+      const track = document.querySelector('.scroll-track')
+      const max = track.offsetHeight - window.innerHeight
+      window.scrollTo({ top: max * prog, behavior: 'instant' })
+    }, p)
+    await wait(2600) // let the smoothed camera catch up
+    await page.screenshot({ path: `scripts/shot-${vp.name}-${String(p).replace('.', '_')}.png` })
+    console.log(`[${vp.name}] captured p=${p}`)
+  }
+
+  for (const id of SECTIONS) {
+    await page.evaluate((sid) => {
+      document.getElementById(sid).scrollIntoView({ behavior: 'instant', block: 'start' })
+    }, id)
+    await wait(1400)
+    await page.screenshot({ path: `scripts/shot-${vp.name}-${id}.png` })
+    console.log(`[${vp.name}] captured #${id}`)
+  }
+
+  if (vp.name === 'mobile') {
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+    await wait(800)
+    await page.click('.nav-menu')
+    await wait(500)
+    await page.screenshot({ path: 'scripts/shot-mobile-menu.png' })
+    console.log('[mobile] captured menu sheet')
+  }
+  await page.close()
 }
 
 console.log(logs.length ? `\nCONSOLE:\n${logs.join('\n')}` : '\nCONSOLE: clean')

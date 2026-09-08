@@ -21,8 +21,13 @@ export default function LangPicker() {
     let raf = 0
     const tick = () => {
       const p = scrollState.smooth
-      // visible near the top and again at the finale, hidden in between
-      const vis = Math.max(1 - smoothstep(0.02, 0.06, p), smoothstep(0.9, 0.96, p))
+      // visible near the top and again at the finale, hidden in between —
+      // and hidden while reading the solutions (it would sit on the content)
+      // until the closing contact section
+      const story = Math.max(1 - smoothstep(0.02, 0.06, p), smoothstep(0.9, 0.96, p))
+      const past = smoothstep(0.05, 0.4, scrollState.over)
+      const contact = scrollState.section === 'contacto' ? 1 : 0
+      const vis = Math.max(story * (1 - past), contact)
       el.style.opacity = String(vis)
       el.style.pointerEvents = vis > 0.5 ? 'auto' : 'none'
       el.style.visibility = vis < 0.01 ? 'hidden' : 'visible'
