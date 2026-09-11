@@ -62,6 +62,8 @@
   "sol.cultivo.stat.2": "HUMIDITY",
   "sol.cultivo.stat.3": "EC",
   "sol.cultivo.figure": "Room sensors → node → Growcast core → irrigation and climate actuators",
+  "sol.cultivo.designCta": "Design your room",
+  "sol.cultivo.designNote": "BUILD IT IN 3D AND GET A QUOTE · FREE, NO SIGN-UP",
   "sol.silos.kicker": "02 / SILOS & STORAGE",
   "sol.silos.title": "Grain, watched around the clock.",
   "sol.silos.lede": "Grain temperature and moisture monitoring in silos, bins and silo bags, with automatic aeration and early spoilage alerts.",

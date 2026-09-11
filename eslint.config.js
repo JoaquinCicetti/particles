@@ -25,7 +25,7 @@ export default defineConfig([
     // react-three-fiber scene code mutates Three.js objects (uniforms,
     // material opacity) inside useFrame — the imperative escape hatch the
     // immutability rule doesn't model.
-    files: ['src/scene/**/*.{ts,tsx}'],
+    files: ['src/scene/**/*.{ts,tsx}', 'src/designer/scene/**/*.{ts,tsx}'],
     rules: {
       'react-hooks/immutability': 'off',
     },

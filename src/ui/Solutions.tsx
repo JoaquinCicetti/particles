@@ -4,6 +4,7 @@ import type { MessageDescriptor } from 'react-intl'
 import { M } from '../i18n/messages'
 import { setSection } from '../lib/scroll'
 import { WHATSAPP_DISPLAY } from '../lib/contact'
+import { DESIGNER_PATH, loadDesigner, onNavClick } from '../lib/route'
 import ContactCta from './ContactCta'
 import SiloFigure from './SiloFigure'
 import GrowRoomFigure from './GrowRoomFigure'
@@ -204,6 +205,21 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
               <span className="metric-label">{intl.formatMessage(M.solWhoTitle)}</span>
               {intl.formatMessage(s.who)}
             </p>
+            {s.id === 'cultivo' && (
+              <div className="sol-design">
+                <a
+                  className="cta"
+                  href={DESIGNER_PATH}
+                  onClick={onNavClick}
+                  onPointerEnter={() => void loadDesigner()}
+                  onFocus={() => void loadDesigner()}
+                >
+                  <span className="cta-label">{intl.formatMessage(M.cultivoDesignCta)}</span>
+                  <span className="cta-arrow" aria-hidden>→</span>
+                </a>
+                <span className="metric-note">{intl.formatMessage(M.cultivoDesignNote)}</span>
+              </div>
+            )}
           </div>
 
           <div className="sol-measure">

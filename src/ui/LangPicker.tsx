@@ -9,15 +9,16 @@ const LABELS: Record<Locale, string> = { es: 'ES', en: 'EN', pt: 'PT' }
  * Smooth segmented language switcher pinned to the bottom-right. It only shows
  * at the start (hero) and at the finale — fading out of the way while the user
  * is travelling through the scene so it never distracts mid-experience.
+ * `inline` renders it static (always visible) inside other chrome.
  */
-export default function LangPicker() {
+export default function LangPicker({ inline = false }: { inline?: boolean }) {
   const { locale, setLocale } = useLocale()
   const root = useRef<HTMLDivElement>(null)
   const index = LOCALES.indexOf(locale)
 
   useEffect(() => {
     const el = root.current
-    if (!el) return
+    if (!el || inline) return
     let raf = 0
     const tick = () => {
       const p = scrollState.smooth
@@ -35,10 +36,10 @@ export default function LangPicker() {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [])
+  }, [inline])
 
   return (
-    <div className="lang" role="group" aria-label="Language" ref={root}>
+    <div className={`lang${inline ? ' lang-inline' : ''}`} role="group" aria-label="Language" ref={root}>
       <div className="lang-track">
         <span
           className="lang-thumb"

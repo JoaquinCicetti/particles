@@ -860,6 +860,20 @@ body {
   color: var(--fg);
 }
 
+/* "design your room" — the grow-room designer entry point */
+.sol-design {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-top: 2rem;
+}
+
+.sol-design .metric-note {
+  margin-top: 0;
+  letter-spacing: 0.2em;
+}
+
 .sol-measure {
   grid-area: measure;
   padding-top: 0.4rem;
@@ -1482,6 +1496,12 @@ body {
   z-index: 30;
   pointer-events: auto;
   transition: opacity 0.4s ease;
+}
+
+/* static variant, embedded in other chrome (designer top bar) */
+.lang-inline {
+  position: static;
+  z-index: auto;
 }
 
 .lang-track {

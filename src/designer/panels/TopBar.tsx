@@ -1,0 +1,99 @@
+import { useRef } from 'react'
+import { useIntl } from 'react-intl'
+import LangPicker from '../../ui/LangPicker'
+import { onNavClick } from '../../lib/route'
+import { D } from '../i18n/messages'
+import { openDesignFile, useHandoff } from '../actions'
+import { MOD_KEY } from '../labels'
+import { useDesigner, useSaveStatus } from '../store'
+import Glyph from '../ui/Glyph'
+import TabStrip from './TabStrip'
+
+export default function TopBar() {
+  const intl = useIntl()
+  const t = intl.formatMessage
+  const canUndo = useDesigner((s) => (s.history[s.activeId]?.past.length ?? 0) > 0)
+  const canRedo = useDesigner((s) => (s.history[s.activeId]?.future.length ?? 0) > 0)
+  const undo = useDesigner((s) => s.undo)
+  const redo = useDesigner((s) => s.redo)
+  const { exportFile, send } = useHandoff()
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  return (
+    <header className="dz-top">
+      <a className="dz-brand" href="/" onClick={onNavClick} aria-label={t(D.backHome)} title={t(D.backHome)}>
+        <span className="brand-mark" aria-hidden />
+        <span className="dz-brand-text">
+          <span className="dz-wordmark">
+            GROWCAST<span className="brand-sub">AGRO</span>
+          </span>
+          <span className="dz-brand-kicker">{t(D.kicker)}</span>
+        </span>
+      </a>
+
+      <TabStrip />
+
+      <div className="dz-actions">
+        <SaveStatus />
+        <div className="dz-btn-group">
+          <button
+            type="button"
+            className="dz-btn dz-icon-btn"
+            onClick={undo}
+            disabled={!canUndo}
+            aria-label={t(D.undo)}
+            title={`${t(D.undo)} (${MOD_KEY}Z)`}
+          >
+            <Glyph name="undo" />
+          </button>
+          <button
+            type="button"
+            className="dz-btn dz-icon-btn"
+            onClick={redo}
+            disabled={!canRedo}
+            aria-label={t(D.redo)}
+            title={`${t(D.redo)} (${MOD_KEY}⇧Z)`}
+          >
+            <Glyph name="redo" />
+          </button>
+        </div>
+        <button type="button" className="dz-btn" onClick={() => fileRef.current?.click()} title={t(D.importHint)}>
+          <Glyph name="upload" />
+          <span className="dz-btn-label">{t(D.importBtn)}</span>
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".json,application/json"
+          hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            e.target.value = ''
+            if (file) void openDesignFile(file, intl)
+          }}
+        />
+        <button type="button" className="dz-btn" onClick={exportFile} title={t(D.exportHint)}>
+          <Glyph name="download" />
+          <span className="dz-btn-label">{t(D.exportBtn)}</span>
+        </button>
+        <button type="button" className="dz-btn dz-btn-primary" onClick={send} title={t(D.sendHint)}>
+          <Glyph name="send" />
+          <span className="dz-btn-label">{t(D.sendBtn)}</span>
+        </button>
+        <LangPicker inline />
+      </div>
+    </header>
+  )
+}
+
+function SaveStatus() {
+  const intl = useIntl()
+  const state = useSaveStatus((s) => s.state)
+  const label = intl.formatMessage(state === 'pending' ? D.saving : state === 'error' ? D.saveError : D.saved)
+  return (
+    <span className={`dz-save is-${state}`} role="status" title={label}>
+      <i aria-hidden />
+      <span className="dz-save-label">{label}</span>
+    </span>
+  )
+}

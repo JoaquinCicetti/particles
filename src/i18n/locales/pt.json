@@ -62,6 +62,8 @@
   "sol.cultivo.stat.2": "UMIDADE",
   "sol.cultivo.stat.3": "EC",
   "sol.cultivo.figure": "Sensores por sala → nó → núcleo Growcast → atuadores de irrigação e clima",
+  "sol.cultivo.designCta": "Projete sua sala",
+  "sol.cultivo.designNote": "MONTE EM 3D E PEÇA SEU ORÇAMENTO · GRÁTIS, SEM CADASTRO",
   "sol.silos.kicker": "02 / SILOS E ARMAZÉNS",
   "sol.silos.title": "O grão, vigiado 24 horas.",
   "sol.silos.lede": "Monitoramento de temperatura e umidade do grão em silos, células e silo-bolsas, com aeração automática e alertas precoces de deterioração.",

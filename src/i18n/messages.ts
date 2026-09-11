@@ -103,6 +103,11 @@ export const M = defineMessages({
     defaultMessage:
       'Monitoreo y control de clima, riego y nutrición en salas de cultivo indoor e invernaderos. Cada sala con su propio nodo, todas en una misma plataforma.',
   },
+  cultivoDesignCta: { id: 'sol.cultivo.designCta', defaultMessage: 'Diseñá tu sala' },
+  cultivoDesignNote: {
+    id: 'sol.cultivo.designNote',
+    defaultMessage: 'ARMALA EN 3D Y PEDÍ TU COTIZACIÓN · GRATIS, SIN REGISTRO',
+  },
   cultivoImpl1: { id: 'sol.cultivo.impl.1', defaultMessage: 'Nodo por sala: temperatura, humedad, CO₂ y flujo de aire.' },
   cultivoImpl2: { id: 'sol.cultivo.impl.2', defaultMessage: 'Sondas de EC y pH en la solución de riego.' },
   cultivoImpl3: { id: 'sol.cultivo.impl.3', defaultMessage: 'Control de riego, ventilación y clima por umbrales y horarios.' },
