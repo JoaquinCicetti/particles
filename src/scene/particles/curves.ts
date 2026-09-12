@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { createRandom } from '../../lib/random'
 
 /**
  * Farm layout + telemetry flow curves.
@@ -40,96 +41,84 @@ const WAREHOUSE_FRONT = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos
 const WAREHOUSE_BACK = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos.z - WAREHOUSE.d / 2)
 const GROUND_SENSOR = v(-8.5, 0.4, 8.5)
 
-// the tower axis around which the telemetry spirals up like a tornado
 const tx = ELEVATOR.pos.x
 const tz = ELEVATOR.pos.z
-const SPIRAL_TOP = 16.0 // continues up past the tower into the sky
-const SPIRAL_BASE = 2.6
-const R_BASE = 0.72 // narrow — fits inside the tower lattice
-const R_TOP = 0.12 // converges to a thin thread as it rises into the sky
-const TWIST = 1.15 // radians of swirl per world unit of height (tight spiral)
 
-const radiusAt = (y: number) =>
-  R_BASE + (R_TOP - R_BASE) * Math.min(1, Math.max(0, (y - SPIRAL_BASE) / (SPIRAL_TOP - SPIRAL_BASE)))
+/**
+ * The Growcast device: a control board at the foot of the elevator. Every
+ * structure's telemetry runs down to it along a slack cable, and from its
+ * terminal a single condensed bundle fires straight up to the sky — the data
+ * leaving for the platform. No helix, no swirl: one destination, one uplink.
+ */
+export const HUB = v(tx, 1.15, tz)
+export const SKY = 18.0 // where the uplink hands off to the sky
+const SAG = 1.5 // how far each feed cable droops between structure and board
 
-// how the stream gathers before it becomes the vortex. seen from the front
-// (the opening third of the story) the approach is most of what reads, so it
-// must not look like N separate rays converging on the tower: each stream
-// lifts off its sensor, then wraps most of a turn around the axis at a wide
-// radius while it climbs, tightening into the helix. because the last approach
-// points are already circling the axis with a shrinking radius, the stream
-// enters the helix tangentially — no corner where the two meet.
-const GATHER_R = 2.6 // radius of the wide inward swirl
-const PRE_WRAP = 2.1 // radians wrapped around the axis while gathering
-const GATHER_DROP = 1.7 // how far below its entry the gather starts
-
-// a smooth helix: the sensor stream swirls in, then spirals up the tower axis,
-// tapering inward — entering the vortex at its own angle + height
-function spiral(sensor: THREE.Vector3, angle0: number, yEntry: number) {
-  const r0 = radiusAt(yEntry)
-  // lift out of the structure first, angled slightly toward the axis, so the
-  // stream reads as rising off the sensor rather than aimed at the tower
-  const pts = [
-    sensor,
-    v(
-      sensor.x + (tx - sensor.x) * 0.14,
-      sensor.y + 0.9,
-      sensor.z + (tz - sensor.z) * 0.14,
-    ),
-  ]
-  const preSegs = 5
-  for (let i = 0; i <= preSegs; i++) {
-    const t = i / preSegs
-    // ease the wrap so it opens wide and tightens late — the gather stays
-    // diffuse for most of its length and only resolves near the axis
-    const e = t * t * (3 - 2 * t)
-    const ang = angle0 - PRE_WRAP * (1 - e)
-    const r = GATHER_R + (r0 - GATHER_R) * e
-    const y = yEntry - GATHER_DROP * (1 - e)
-    // blend out of the sensor's own position so the first part of the gather
-    // still belongs to its source, then hands over to the shared swirl
-    const w = Math.pow(t, 0.55)
+// a feed: sensor → wandering drift → the board's edge. A direct line from each
+// sensor reads as a laser pointed at the tower, so the waypoints are scattered
+// off the straight path by a seeded wander that is zero at both ends and widest
+// in the middle: it leaves the sensor and arrives at the pad, but takes its own
+// meandering way there. Centripetal CatmullRom keeps the result smooth.
+const WANDER = 3.1 // world units the path may stray off the straight line
+function feed(sensor: THREE.Vector3, pad: THREE.Vector3, seed: number) {
+  const rnd = createRandom(seed)
+  const pts: THREE.Vector3[] = [sensor]
+  const segs = 8
+  for (let i = 1; i < segs; i++) {
+    const t = i / segs
+    // envelope: pinned at the sensor and the pad, loosest at mid-span
+    const env = Math.sin(Math.PI * t)
+    const w = WANDER * env
     pts.push(
       v(
-        sensor.x + (tx + Math.cos(ang) * r - sensor.x) * w,
-        sensor.y + (y - sensor.y) * w,
-        sensor.z + (tz + Math.sin(ang) * r - sensor.z) * w,
+        sensor.x + (pad.x - sensor.x) * t + (rnd() * 2 - 1) * w,
+        sensor.y + (pad.y - sensor.y) * t - SAG * env + (rnd() * 2 - 1) * w * 0.5,
+        sensor.z + (pad.z - sensor.z) * t + (rnd() * 2 - 1) * w,
       ),
     )
   }
-  const segs = Math.max(8, Math.round((SPIRAL_TOP - yEntry) * 2.4))
-  for (let i = 1; i <= segs; i++) {
+  pts.push(pad)
+  return new THREE.CatmullRomCurve3(pts, false, 'centripetal')
+}
+
+// where each cable lands on the board, spread around its edge
+const PAD_R = 0.62
+const pad = (angle: number) => v(tx + Math.cos(angle) * PAD_R, HUB.y + 0.12, tz + Math.sin(angle) * PAD_R)
+
+// the uplink: dead straight out of the board's terminal into the sky. Several
+// near-identical strands so it reads as one condensed bundle rather than a
+// single thread — they fan very slightly as they climb and leave.
+const UPLINK_R = 0.13
+function uplink(strand: number, of: number) {
+  const a = (strand / of) * Math.PI * 2
+  const pts: THREE.Vector3[] = []
+  const segs = 16
+  for (let i = 0; i <= segs; i++) {
     const t = i / segs
-    const y = yEntry + (SPIRAL_TOP - yEntry) * t
-    const ang = angle0 + (y - yEntry) * TWIST
-    const r = radiusAt(y)
-    pts.push(v(tx + Math.cos(ang) * r, y, tz + Math.sin(ang) * r))
+    // emerge from the terminal as one point, separate into the bundle, then
+    // open a little at the very top as the data disperses
+    const r = UPLINK_R * Math.min(1, t / 0.06) * (1 + Math.pow(t, 3) * 2.2)
+    pts.push(v(tx + Math.cos(a) * r, HUB.y + (SKY - HUB.y) * t, tz + Math.sin(a) * r))
   }
   return new THREE.CatmullRomCurve3(pts, false, 'centripetal')
 }
 
-// every sensor stream feeds the same vortex. the angles stay spread all the way
-// round the axis — that is what gives the gather its body — but the entry
-// heights sit in a narrow band, so from the front the streams resolve into one
-// flow at one place instead of joining at six different altitudes.
+// four wandering feeds — one per structure — and a four-strand uplink.
+// particles are spread evenly across curves, so the strand count is also the
+// density dial: half the flow rides the uplink, which is what makes it read as
+// condensed while the feeds stay thin and drifting.
+const UPLINK_STRANDS = 4
 export const FLOW_CURVES = [
-  spiral(WAREHOUSE_FRONT, 0.0, 5.8),
-  spiral(WAREHOUSE_BACK, Math.PI * 0.33, 6.2),
-  spiral(SILO_SENSORS[0], Math.PI * 0.66, 5.4),
-  spiral(SILO_SENSORS[1], Math.PI, 5.0),
-  spiral(SILO_SENSORS[2], Math.PI * 1.33, 5.2),
-  spiral(GROUND_SENSOR, Math.PI * 1.66, 4.6),
-  // faint perimeter sweep (atmosphere)
-  new THREE.CatmullRomCurve3(
-    [v(-10, 1.2, -6), v(0, 2, -8), v(9, 1.6, -5), v(10.5, 2.4, 2), v(4, 1.4, 9), v(-6, 2.0, 9.5)],
-    false,
-    'centripetal',
-  ),
+  feed(WAREHOUSE_FRONT, pad(0.15), 1301),
+  feed(SILO_SENSORS[0], pad(Math.PI * 0.8), 4177),
+  feed(SILO_SENSORS[1], pad(Math.PI * 1.05), 9043),
+  feed(SILO_SENSORS[2], pad(Math.PI * 1.35), 6211),
+  ...Array.from({ length: UPLINK_STRANDS }, (_, i) => uplink(i, UPLINK_STRANDS)),
 ]
 
 export const CURVE_COUNT = FLOW_CURVES.length
-// the gather now takes up much more of each curve's length, so raise the
-// sample count to keep the helix above it crisply defined
+// the feeds wander, so they need enough samples that the meander stays smooth
+// rather than reading as a polyline
 export const CURVE_SAMPLES = 96
 
 export function bakeCurveTexture() {

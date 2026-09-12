@@ -64,7 +64,7 @@ void main() {
   // ── act 1: telemetry flowing along the farm curves (soft, tight) ──
   float ct = fract(aFlow.x + uTime * 0.02 * aFlow.y);
   vec3 jitter = (aRand.xyz * 2.0 - 1.0);
-  vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * mix(0.10, 0.05, ct);
+  vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * mix(0.16, 0.05, ct);
 
   // ── act 2: calm upward stream inside the elevator (centred on the tower) ──
   float ang = aRand.x * 6.28318 + uTime * (0.15 + aRand.y * 0.28);
@@ -131,12 +131,15 @@ void main() {
   vColor = mix(deep, bright, m) * (0.8 + wTun * (0.15 + core * 0.5) + rising * 0.25);
   vColor = mix(vColor, white, pulse * 0.85);
 
-  float density = wFlow * 0.15 + wTun * 0.3 + base * 0.42;
+  // the farm flow is deliberately the sparsest act: a few legible cables into
+  // the board and one condensed uplink out of it, not a haze
+  float density = wFlow * 0.095 + wTun * 0.3 + base * 0.42;
   vAlpha = (0.5 + 0.5 * aRand.z) * density * (1.0 + pulse * 0.9);
   vAlpha *= smoothstep(0.8, 2.6, dist);
   vAlpha /= (1.0 + blur * blur * 1.6);
-  // the vortex thins out as it rises into the sky (fading the amount)
-  float skyFade = 1.0 - smoothstep(9.0, 15.5, pos.y);
+  // the uplink dissolves as it leaves — the data going out to the platform.
+  // starts high enough that the wire out of the board still reads as solid.
+  float skyFade = 1.0 - smoothstep(12.0, 17.8, pos.y);
   vAlpha *= mix(1.0, skyFade, wFlow);
 }
 `

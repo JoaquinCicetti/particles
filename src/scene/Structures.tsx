@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { SILOS, ELEVATOR, WAREHOUSE, SENSOR_POINTS } from './particles/curves'
+import { SILOS, ELEVATOR, WAREHOUSE, SENSOR_POINTS, HUB, SKY } from './particles/curves'
 import { createRandom } from '../lib/random'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
@@ -299,6 +299,70 @@ function buildTreeLines(out: number[], cx: number, cz: number, scale: number) {
   }
 }
 
+/**
+ * The Growcast device at the foot of the elevator: a control board the feed
+ * cables land on, and the terminal the uplink bundle leaves from. Drawn flat
+ * and small — it is a destination for the particles, not scenery, so it reads
+ * as a board with pads and traces rather than a building.
+ */
+function buildDeviceLines(out: number[], hub: THREE.Vector3) {
+  const W = 1.5 // half-width  (x)
+  const D = 1.1 // half-depth  (z)
+  const y = hub.y
+  const c0 = V(hub.x - W, y, hub.z - D)
+  const c1 = V(hub.x + W, y, hub.z - D)
+  const c2 = V(hub.x + W, y, hub.z + D)
+  const c3 = V(hub.x - W, y, hub.z + D)
+
+  // board outline, plus a chamfered inner edge so it reads as a PCB
+  pushLine(out, c0, c1)
+  pushLine(out, c1, c2)
+  pushLine(out, c2, c3)
+  pushLine(out, c3, c0)
+  const i = 0.16
+  pushLine(out, V(c0.x + i, y, c0.z + i), V(c1.x - i, y, c1.z + i))
+  pushLine(out, V(c1.x - i, y, c1.z + i), V(c2.x - i, y, c2.z - i))
+  pushLine(out, V(c2.x - i, y, c2.z - i), V(c3.x + i, y, c3.z - i))
+  pushLine(out, V(c3.x + i, y, c3.z - i), V(c0.x + i, y, c0.z + i))
+
+  // legs down to the ground so it stands on the pad rather than floating
+  for (const c of [c0, c1, c2, c3]) pushLine(out, c, V(c.x, 0.02, c.z))
+
+  // routing: right-angle traces running in from the edges toward the terminal
+  const trace = (sx: number, sz: number, mx: number) => {
+    pushLine(out, V(hub.x + sx * W * 0.86, y, hub.z + sz * D * 0.86), V(hub.x + mx, y, hub.z + sz * D * 0.86))
+    pushLine(out, V(hub.x + mx, y, hub.z + sz * D * 0.86), V(hub.x + mx, y, hub.z))
+    pushLine(out, V(hub.x + mx, y, hub.z), V(hub.x + mx * 0.2, y, hub.z))
+  }
+  trace(-1, -1, -0.72)
+  trace(1, -1, 0.62)
+  trace(1, 1, 0.86)
+  trace(-1, 1, -0.5)
+
+  // solder pads around the rim, where the feed cables terminate
+  const PAD = 0.09
+  for (let k = 0; k < 8; k++) {
+    const a = (k / 8) * Math.PI * 2 + 0.15
+    const px = hub.x + Math.cos(a) * 0.62
+    const pz = hub.z + Math.sin(a) * 0.62
+    pushLine(out, V(px - PAD, y, pz - PAD), V(px + PAD, y, pz - PAD))
+    pushLine(out, V(px + PAD, y, pz - PAD), V(px + PAD, y, pz + PAD))
+    pushLine(out, V(px + PAD, y, pz + PAD), V(px - PAD, y, pz + PAD))
+    pushLine(out, V(px - PAD, y, pz + PAD), V(px - PAD, y, pz - PAD))
+  }
+
+  // the terminal the uplink fires from, and the wire itself: a bare vertical
+  // run with periodic ties, so the condensed particle bundle has something to
+  // travel along instead of hanging in empty air
+  pushRing(out, hub.x, y + 0.02, hub.z, 0.2, 20)
+  pushRing(out, hub.x, y + 0.16, hub.z, 0.12, 16)
+  pushLine(out, V(hub.x, y + 0.16, hub.z), V(hub.x, SKY, hub.z))
+  for (let k = 1; k < 12; k++) {
+    const wy = y + ((SKY - y) * k) / 12
+    pushRing(out, hub.x, wy, hub.z, 0.07, 10)
+  }
+}
+
 function linesGeometry(positions: number[]) {
   const geo = new THREE.BufferGeometry()
   geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3))
@@ -318,6 +382,7 @@ export default function Structures() {
     lines.push(...buildTowerLines(ELEVATOR.pos, ELEVATOR.width, ELEVATOR.height))
     lines.push(...buildWarehouseLines(WAREHOUSE))
     lines.push(...buildHydroInterior(WAREHOUSE, growPts)) // rack grow nodes
+    buildDeviceLines(lines, HUB) // the Growcast board + its uplink wire
 
     // shimmering particle shells on silo + warehouse surfaces
     for (const s of SILOS) {
