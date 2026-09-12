@@ -21,7 +21,6 @@
   "metric.co2.label": "CO₂",
   "metric.ec.label": "CONDUTIVIDADE",
   "metric.ph.label": "pH",
-  "metric.air.label": "FLUXO DE AR",
   "phase.1": "01 / A PROPRIEDADE",
   "phase.2": "02 / REDE DE SENSORES",
   "phase.3": "03 / FLUXO DE DADOS",

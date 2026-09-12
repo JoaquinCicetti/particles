@@ -53,7 +53,6 @@ export const M = defineMessages({
   mCo2Label: { id: 'metric.co2.label', defaultMessage: 'CO₂' },
   mEcLabel: { id: 'metric.ec.label', defaultMessage: 'CONDUCTIVIDAD' },
   mPhLabel: { id: 'metric.ph.label', defaultMessage: 'pH' },
-  mAirLabel: { id: 'metric.air.label', defaultMessage: 'FLUJO DE AIRE' },
 
   // scroll phase ticker
   phase1: { id: 'phase.1', defaultMessage: '01 / EL ESTABLECIMIENTO' },

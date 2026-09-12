@@ -21,9 +21,11 @@ const LOGO_CENTER_Y = 6.2
 
 /**
  * Final act follows one idea: the data converges into Growcast. Once particles
- * are sorted into the structured 3D rows, they gather onto vertical circuit
- * "lanes", flow UP through those PCB-style paths, and converge into the logo —
- * an ordered, staggered left→right sweep, never a disordered cloud.
+ * are sorted into the structured 3D rows they gather onto circuit lanes and
+ * route UP through them — climbing, breaking to 45 degrees, stepping sideways,
+ * picking up another vertical, each lane taking its own route the way copper on
+ * a real board does — then converge into the logo. An ordered, staggered
+ * left→right sweep, never a disordered cloud.
  */
 const vertexShader = /* glsl */ `
 uniform float uTime;
@@ -90,39 +92,60 @@ void main() {
   // ── act 4: the brand mark (raised, the destination) ──
   vec3 logoPos = aLogo;
 
-  // ── riser: the parallel planes flow into VERTICAL PCB paths (vertical
-  //    copper traces with right-angle jogs) that climb and end on the logo.
-  //    No wide stratified grid — just vertical routing converging to the mark. ──
+  // ── riser: the columns route up like copper on a board. Real routing is not
+  //    all verticals — a run climbs, breaks to 45 degrees, steps sideways,
+  //    picks up another vertical, and different lanes visibly take different
+  //    routes. Each lane derives its own pattern from a hash of its x, and the
+  //    diagonals are true 45s (dy == |dx|) so they read as routed traces rather
+  //    than drift. Particles still start on exactly the same columns as before. ──
   float laneStep = 0.9;
   float laneX = floor(aGrid.x / laneStep + 0.5) * laneStep;
-  float panelZ = 0.0;
-  // per-lane PCB character: a right-angle jog at a pseudo-random height, and a
-  // sideways step that nudges the trace toward the logo column
-  float laneHash = fract(sin(laneX * 12.9898) * 43758.5453);
-  float jogY = 3.4 + laneHash * 3.2;                 // where this trace jogs
-  float jogX = mix(laneX, aLogo.x, 0.45 + laneHash * 0.2); // step toward the logo
+  float h1 = fract(sin(laneX * 12.9898) * 43758.5453);
+  float h2 = fract(sin(laneX * 78.2330 + 1.7) * 24634.6345);
+  float h3 = fract(sin(laneX * 45.1640 + 9.1) * 13758.5453);
+
+  // roughly a quarter of the lanes run straight through — a real board has
+  // those too, and they keep the field from looking uniformly zig-zagged
+  float bend = step(0.28, h2);
+  float dx1 = (h2 - 0.5) * 2.6 * bend; // sideways step, up to ~1.3 either way
+
+  float yA = 1.3 + h1 * 1.0; // first vertical run tops out here
+  float xB = laneX + dx1;
+  float yB = yA + abs(dx1); // after the 45: dy matches |dx| exactly
+  float yC = yB + 0.5 + h3 * 0.9; // second vertical run
+  // second 45 heads for the logo column, but capped — an uncapped run at 45
+  // from the outer lanes would climb far past the mark
+  float step2 = clamp((aLogo.x - xB) * (0.45 + h1 * 0.3), -1.6, 1.6);
+  float xC = xB + step2;
+  float yD = yC + abs(step2);
+  // a hair of layer separation, so crossing routes read as a stack of layers
+  float panelZ = (h3 - 0.5) * 0.5;
 
   float order = clamp((aGrid.x + 8.0) / 16.0, 0.0, 1.0); // left→right sweep
   float rstart = 0.58 + order * 0.08;
   float rp = smoothstep(rstart, rstart + 0.24, pp);
-  float la = smoothstep(0.00, 0.22, rp);  // planes purge onto vertical lanes
-  float lb = smoothstep(0.18, 0.46, rp);  // climb the vertical trace
-  float lc = smoothstep(0.42, 0.58, rp);  // right-angle jog toward the logo
-  float ld = smoothstep(0.54, 1.0, rp);   // climb on, ending on the logo
+  float la = smoothstep(0.00, 0.15, rp); // planes purge onto the lane
+  float lb = smoothstep(0.11, 0.32, rp); // first vertical run
+  float lc = smoothstep(0.28, 0.46, rp); // break to 45
+  float ld = smoothstep(0.42, 0.60, rp); // second vertical run
+  float le = smoothstep(0.56, 0.74, rp); // 45 into the logo column
+  float lf = smoothstep(0.70, 1.00, rp); // lift onto the mark
 
   vec3 P = gridPos;
   P = mix(P, vec3(laneX, gridPos.y, panelZ), la);
-  P = mix(P, vec3(laneX, jogY, panelZ), lb);
-  P = mix(P, vec3(jogX, jogY, panelZ), lc);
-  P = mix(P, aLogo, ld);
+  P = mix(P, vec3(laneX, yA, panelZ), lb);
+  P = mix(P, vec3(xB, yB, panelZ), lc);
+  P = mix(P, vec3(xB, yC, panelZ), ld);
+  P = mix(P, vec3(xC, yD, panelZ), le);
+  P = mix(P, aLogo, lf);
   vec3 riserPos = P;
 
   vec3 pos = wFlow * flowPos + wTun * tunnelPos + base * riserPos;
 
-  // bright signal pulse travelling up the vertical traces
-  float rising = (lb + lc) * (1.0 - ld);
+  // bright signal pulse travelling along the traces, over every routed stage
+  float rising = clamp(lb + lc + ld + le, 0.0, 1.0) * (1.0 - lf);
   float pulse = pow(0.5 + 0.5 * sin(P.y * 1.6 - uTime * 2.4 + laneX), 8.0) * rising;
-  float inLogo = ld;
+  float inLogo = lf;
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;

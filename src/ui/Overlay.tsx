@@ -9,15 +9,14 @@ import ContactCta from './ContactCta'
 import SensorIcon from './SensorIcon'
 import { onAnchorClick } from './nav'
 
-// sensor chips — all bubble up together over one window (staggered a touch),
-// then drift down as the camera climbs; positions are set per chip in CSS
+// sensor chips. Airflow is gone — the label was the only thing distinguishing
+// it and the chips no longer carry labels. Positions are set per chip in CSS.
 const METRICS = [
   { icon: 'temp', label: M.mTempLabel, value: '18.4', unit: '°C' },
   { icon: 'hum', label: M.mHumLabel, value: '61.2', unit: '%HR' },
   { icon: 'co2', label: M.mCo2Label, value: '412', unit: 'PPM' },
   { icon: 'ec', label: M.mEcLabel, value: '1.9', unit: 'mS/cm' },
   { icon: 'ph', label: M.mPhLabel, value: '6.3', unit: 'pH' },
-  { icon: 'air', label: M.mAirLabel, value: '1.8', unit: 'm/s' },
 ] as const
 // hold the chips back until the particle wall is building behind them — the
 // dense field is what gives the small mono type enough contrast to read
@@ -247,7 +246,7 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
               {m.value}
               <span className="metric-unit">{m.unit}</span>
             </span>
-            <span className="metric-label">{intl.formatMessage(m.label)}</span>
+            <span className="sr-only">{intl.formatMessage(m.label)}</span>
           </div>
         </div>
       ))}
