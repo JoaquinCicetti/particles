@@ -114,7 +114,8 @@ export const ACTS: readonly Act[] = [
       align: 'left',
       span: [0.6, 0.86],
     },
-    camera: { pos: [0, 3.15, 12.5], target: [0, 1.9, 0] },
+    // framed on the board (pcb.ts centres it at y 3.2), not below it
+    camera: { pos: [0, 3.5, 12.2], target: [0, 3.1, 0] },
   },
   {
     // 0.80 → 1.00 — everything has landed on the brand mark; the finale lockup

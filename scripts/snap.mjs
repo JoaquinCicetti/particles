@@ -5,7 +5,9 @@ import puppeteer from 'puppeteer-core'
 const URL = process.env.URL ?? 'http://localhost:5174/'
 // act boundaries + each act's midpoint (see src/lib/acts.ts — five acts at
 // 0 / 0.2 / 0.4 / 0.6 / 0.8), so every stop lands on a settle or a transition
-const STORY_STOPS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+// plus 0.85/0.95: the board-to-logo hand-off has been reverted twice, so the
+// harness always looks at it
+const STORY_STOPS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]
 const MOBILE_STOPS = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
 const SECTIONS = ['cultivo', 'silos', 'maduracion', 'contacto']
 const VIEWPORTS = [

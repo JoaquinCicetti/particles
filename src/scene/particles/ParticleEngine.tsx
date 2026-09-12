@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { bakeCurveTexture, CURVE_COUNT, CURVE_SAMPLES, ELEVATOR } from './curves'
+import { bakePcbTexture, TRACE_COUNT, TRACE_SAMPLES } from './pcb'
 import { sampleSvgPoints } from './svgSampler'
 import { createRandom } from '../../lib/random'
 import { scrollState } from '../../lib/scroll'
@@ -13,18 +14,24 @@ const IS_MOBILE =
 
 const COUNT = IS_MOBILE ? 36000 : 110000
 
-// structured data field — sorted into 3D rows (act 4)
-const BARS_X = 48
-const BARS_Z = 22
-
-// the brand mark sits high above the rows so the data visibly flows UP into it
+// the brand mark sits high above the board so the data visibly flows UP into it
 const LOGO_CENTER_Y = 6.2
 
 /**
- * Final act follows one idea: the data converges into Growcast. Once particles
- * are sorted into the structured 3D rows, they gather onto vertical circuit
- * "lanes", flow UP through those PCB-style paths, and converge into the logo —
- * an ordered, staggered left→right sweep, never a disordered cloud.
+ * Final act follows one idea: the data converges into Growcast.
+ *
+ * The structured field is a real PCB — traces routed by pcb.ts (bus rows,
+ * right-angle branches, pads snapped to a 0.3 grid) and baked into a
+ * DataTexture. Each particle owns one point on one trace and HOLDS it: the
+ * board is static copper, and only a brightness pulse travels along it. That
+ * stillness is what makes it read as etched metal rather than moving noise.
+ *
+ * Then the hand-off. This board was built and deleted twice before because it
+ * read as a flat wall and lost the "data rises into Growcast" metaphor. So once
+ * it is lit, every trace lifts from ITS OWN PAD — the pad's baked position, not
+ * a per-lane hash — climbs vertically, jogs at a right angle toward the mark's
+ * column, and finishes the climb onto the logo. Board = substrate, logo =
+ * destination above it, with visible upward flow in between.
  */
 const vertexShader = /* glsl */ `
 ACTS_DEFINES
@@ -36,10 +43,13 @@ uniform float uFocus;
 uniform sampler2D uCurveTex;
 uniform float uCurveCount;
 uniform float uCurveSamples;
+uniform sampler2D uPcbTex;
+uniform float uPcbCount;
+uniform float uPcbSamples;
 
 attribute vec4 aRand;
 attribute vec3 aFlow;   // offset, speed multiplier, curve index
-attribute vec3 aGrid;   // x, unit height, z
+attribute vec4 aPcb;    // trace index, t along trace, left→right order, pad flag
 attribute vec3 aLogo;   // world-space brand-mark target
 
 varying float vAlpha;
@@ -57,12 +67,14 @@ vec3 sampleTex(sampler2D tex, float count, float samples, float idx, float t) {
 void main() {
   float pp = clamp(uProgress + (aRand.w - 0.5) * 0.04, 0.0, 1.0);
 
-  // flow → elevator stream → structured rows → (riser up into the logo)
+  // flow → elevator stream → PCB → (riser up into the logo)
   float toTun  = smoothstep(GC_STREAM_IN, GC_STREAM_FULL, pp);
-  float toGrid = smoothstep(GC_BOARD_IN, GC_BOARD_FULL, pp);
+  // the board draws in left→right: each trace waits its turn by its own order
+  float bStart = GC_BOARD_IN + aPcb.z * 0.02;
+  float toGrid = smoothstep(bStart, bStart + (GC_BOARD_FULL - GC_BOARD_IN), pp);
   float wFlow = 1.0 - toTun;
   float wTun  = toTun * (1.0 - toGrid);
-  float base  = toGrid; // weight of the rows→riser→logo branch
+  float base  = toGrid; // weight of the board→riser→logo branch
 
   // ── act 1: telemetry flowing along the farm curves (soft, tight) ──
   float ct = fract(aFlow.x + uTime * 0.02 * aFlow.y);
@@ -76,46 +88,42 @@ void main() {
   vec3 tunnelPos = vec3(TOWER_X_C + cos(ang) * rad, ty * 15.0 - 2.0, TOWER_Z_C + sin(ang) * rad);
   float core = max(0.0, 1.7 - rad * 0.6);
 
-  // ── act 3: structured 3D rows (crisp, gently alive) ──
-  float breathe = 0.04 * sin(uTime * 1.1 + aGrid.x * 0.7);
-  vec3 gridPos = vec3(aGrid.x, 0.45 + aGrid.y * 3.0 + breathe, aGrid.z);
+  // ── act 3: the board. STATIC copper — the particle holds its routed point ──
+  vec3 boardPos = sampleTex(uPcbTex, uPcbCount, uPcbSamples, aPcb.x, aPcb.y);
+  // this trace's pad: the end of its own routed path
+  vec3 pad = sampleTex(uPcbTex, uPcbCount, uPcbSamples, aPcb.x, 1.0);
 
-  // ── act 4: the brand mark (raised, the destination) ──
-  vec3 logoPos = aLogo;
+  // ── the hand-off: pad → straight up → right-angle jog → onto the mark ──
+  float h = fract(sin(aPcb.x * 91.7317) * 43758.5453);
+  // climb high enough to clear the board, but stop under this particle's own
+  // landing point so the last move is always upward
+  float jogY = max(pad.y + 0.55 + h * 0.5, aLogo.y - 0.45 - h * 0.5);
 
-  // ── riser: the parallel planes flow into VERTICAL PCB paths (vertical
-  //    copper traces with right-angle jogs) that climb and end on the logo.
-  //    No wide stratified grid — just vertical routing converging to the mark. ──
-  float laneStep = 0.9;
-  float laneX = floor(aGrid.x / laneStep + 0.5) * laneStep;
-  float panelZ = 0.0;
-  // per-lane PCB character: a right-angle jog at a pseudo-random height, and a
-  // sideways step that nudges the trace toward the logo column
-  float laneHash = fract(sin(laneX * 12.9898) * 43758.5453);
-  float jogY = 3.4 + laneHash * 3.2;                 // where this trace jogs
-  float jogX = mix(laneX, aLogo.x, 0.45 + laneHash * 0.2); // step toward the logo
+  float rStart = GC_RISE_AT + aPcb.z * GC_RISE_STAGGER;
+  float rp = smoothstep(rStart, rStart + GC_RISE_SPAN, pp);
+  float ra = smoothstep(0.00, 0.28, rp);  // gather down the trace onto the pad
+  float rb = smoothstep(0.22, 0.55, rp);  // rise vertically off the pad
+  float rc = smoothstep(0.50, 0.74, rp);  // right-angle jog into the logo column
+  float rd = smoothstep(0.68, 1.0, rp);   // last climb, landing on the mark
 
-  float order = clamp((aGrid.x + 8.0) / 16.0, 0.0, 1.0); // left→right sweep
-  float rstart = GC_RISE_AT + order * GC_RISE_STAGGER;
-  float rp = smoothstep(rstart, rstart + GC_RISE_SPAN, pp);
-  float la = smoothstep(0.00, 0.22, rp);  // planes purge onto vertical lanes
-  float lb = smoothstep(0.18, 0.46, rp);  // climb the vertical trace
-  float lc = smoothstep(0.42, 0.58, rp);  // right-angle jog toward the logo
-  float ld = smoothstep(0.54, 1.0, rp);   // climb on, ending on the logo
-
-  vec3 P = gridPos;
-  P = mix(P, vec3(laneX, gridPos.y, panelZ), la);
-  P = mix(P, vec3(laneX, jogY, panelZ), lb);
-  P = mix(P, vec3(jogX, jogY, panelZ), lc);
-  P = mix(P, aLogo, ld);
+  vec3 P = boardPos;
+  P = mix(P, pad, ra);
+  P = mix(P, vec3(pad.x, jogY, pad.z), rb);
+  P = mix(P, vec3(aLogo.x, jogY, aLogo.z), rc);
+  P = mix(P, aLogo, rd);
   vec3 riserPos = P;
 
   vec3 pos = wFlow * flowPos + wTun * tunnelPos + base * riserPos;
 
-  // bright signal pulse travelling up the vertical traces
-  float rising = (lb + lc) * (1.0 - ld);
-  float pulse = pow(0.5 + 0.5 * sin(P.y * 1.6 - uTime * 2.4 + laneX), 8.0) * rising;
-  float inLogo = ld;
+  // a bright head running along each trace toward its pad — the only thing
+  // moving while the board is still
+  float travel = fract(aPcb.y - uTime * 0.32 + h);
+  float trace = pow(1.0 - travel, 16.0) * (1.0 - ra);
+  // pads sit lit the whole time
+  float padGlow = aPcb.w * 0.5;
+  float rising = (rb + rc) * (1.0 - rd);
+  float pulse = max(trace, rising * 0.35) * base;
+  float inLogo = rd;
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -123,7 +131,7 @@ void main() {
 
   float blur = clamp(abs(dist - uFocus) * 0.07, 0.0, 1.6);
 
-  float size = (1.2 + aRand.y * 1.6) * (1.0 - wFlow * 0.42 + inLogo * 0.35 + pulse * 1.4);
+  float size = (1.2 + aRand.y * 1.6) * (1.0 - wFlow * 0.42 + inLogo * 0.35 + pulse * 1.4 + padGlow);
   gl_PointSize = size * uPixelRatio * (9.0 / dist) * (1.0 + blur * 0.8);
 
   vec3 deep   = vec3(0.42, 0.20, 0.07);
@@ -131,7 +139,7 @@ void main() {
   vec3 white  = vec3(1.0, 0.92, 0.78);
   float shimmer = 0.5 + 0.5 * sin(uTime * 0.9 + aRand.x * 6.28318);
   float m = clamp(aRand.y * 0.65 + shimmer * 0.35, 0.0, 1.0);
-  vColor = mix(deep, bright, m) * (0.8 + wTun * (0.15 + core * 0.5) + rising * 0.25);
+  vColor = mix(deep, bright, m) * (0.8 + wTun * (0.15 + core * 0.5) + rising * 0.25 + padGlow);
   vColor = mix(vColor, white, pulse * 0.85);
 
   float density = wFlow * 0.15 + wTun * 0.3 + base * 0.42;
@@ -144,7 +152,6 @@ void main() {
 }
 `
   .replace(/ACTS_DEFINES/, ACTS_GLSL)
-  .replace(/LOGO_CENTER_Y_C/g, LOGO_CENTER_Y.toFixed(2))
   .replace(/TOWER_X_C/g, ELEVATOR.pos.x.toFixed(2))
   .replace(/TOWER_Z_C/g, ELEVATOR.pos.z.toFixed(2))
 
@@ -163,6 +170,8 @@ void main() {
 export default function ParticleEngine() {
   const dpr = useThree((s) => s.viewport.dpr)
 
+  const pcb = useMemo(() => bakePcbTexture(), [])
+
   const geometry = useMemo(() => {
     const random = createRandom(987654)
     const geo = new THREE.BufferGeometry()
@@ -170,7 +179,7 @@ export default function ParticleEngine() {
     const position = new Float32Array(COUNT * 3)
     const rand = new Float32Array(COUNT * 4)
     const flow = new Float32Array(COUNT * 3)
-    const grid = new Float32Array(COUNT * 3)
+    const pcbAttr = new Float32Array(COUNT * 4)
     const logo = new Float32Array(COUNT * 3)
 
     for (let i = 0; i < COUNT; i++) {
@@ -183,11 +192,12 @@ export default function ParticleEngine() {
       flow[i * 3 + 1] = 0.6 + random() * 0.9
       flow[i * 3 + 2] = Math.floor(random() * CURVE_COUNT)
 
-      // structured rows, 16×6.4 world units
-      const bi = i % (BARS_X * BARS_Z)
-      grid[i * 3] = -8 + (bi % BARS_X) * (16 / (BARS_X - 1)) + (random() - 0.5) * 0.03
-      grid[i * 3 + 1] = Math.pow(random(), 1.4) * 2.6
-      grid[i * 3 + 2] = -3.2 + Math.floor(bi / BARS_X) * (6.4 / (BARS_Z - 1)) + (random() - 0.5) * 0.03
+      // one routed point on one trace, held for the whole board act
+      const ti = i % TRACE_COUNT
+      pcbAttr[i * 4] = ti
+      pcbAttr[i * 4 + 1] = random()
+      pcbAttr[i * 4 + 2] = pcb.order[ti]
+      pcbAttr[i * 4 + 3] = ti / TRACE_COUNT >= 0.82 ? 1 : 0 // pads / vias
 
       // placeholder until the logo SVG is sampled (async): a small halo
       const a = random() * Math.PI * 2
@@ -199,10 +209,10 @@ export default function ParticleEngine() {
     geo.setAttribute('position', new THREE.BufferAttribute(position, 3))
     geo.setAttribute('aRand', new THREE.BufferAttribute(rand, 4))
     geo.setAttribute('aFlow', new THREE.BufferAttribute(flow, 3))
-    geo.setAttribute('aGrid', new THREE.BufferAttribute(grid, 3))
+    geo.setAttribute('aPcb', new THREE.BufferAttribute(pcbAttr, 4))
     geo.setAttribute('aLogo', new THREE.BufferAttribute(logo, 3))
     return geo
-  }, [])
+  }, [pcb])
 
   const material = useMemo(() => {
     return new THREE.ShaderMaterial({
@@ -219,9 +229,12 @@ export default function ParticleEngine() {
         uCurveTex: { value: bakeCurveTexture() },
         uCurveCount: { value: CURVE_COUNT },
         uCurveSamples: { value: CURVE_SAMPLES },
+        uPcbTex: { value: pcb.tex },
+        uPcbCount: { value: TRACE_COUNT },
+        uPcbSamples: { value: TRACE_SAMPLES },
       },
     })
-  }, [])
+  }, [pcb])
 
   // swap the halo placeholder for the sampled Growcast leaf mark (async)
   useEffect(() => {
@@ -250,8 +263,9 @@ export default function ParticleEngine() {
       geometry.dispose()
       material.dispose()
       curveTex.dispose()
+      pcb.tex.dispose()
     }
-  }, [geometry, material])
+  }, [geometry, material, pcb])
 
   useFrame(({ clock }) => {
     material.uniforms.uTime.value = clock.elapsedTime
