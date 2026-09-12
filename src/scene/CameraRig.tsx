@@ -77,7 +77,11 @@ export default function CameraRig({ started }: { started: boolean }) {
     camera.position.copy(vPos.current)
     camera.lookAt(vTgt.current)
 
-    scrollState.focusDist = camera.position.distanceTo(vTgt.current)
+    // The focus plane used to be assigned raw, so it SNAPPED whenever the
+    // camera cut between knots and the whole field popped in and out of focus.
+    // Damp it over ~0.25s instead.
+    const want = camera.position.distanceTo(vTgt.current)
+    scrollState.focusDist += (want - scrollState.focusDist) * (1 - Math.exp(-delta / 0.25))
   })
 
   return null

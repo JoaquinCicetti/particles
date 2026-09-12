@@ -1267,10 +1267,11 @@ body {
   }
 
   /* drop the left narrative blocks to the bottom so the busy central
-     particle motion stays clear and the copy reads */
+     particle motion stays clear and the copy reads — clearing the stepper,
+     which now sits in the bottom-right corner */
   .block-left {
     top: auto;
-    bottom: calc(9vh + env(safe-area-inset-bottom));
+    bottom: calc(17vh + env(safe-area-inset-bottom));
     translate: 0;
   }
 

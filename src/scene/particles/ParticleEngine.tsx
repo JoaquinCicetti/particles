@@ -129,10 +129,17 @@ void main() {
   gl_Position = projectionMatrix * mv;
   float dist = max(0.001, -mv.z);
 
-  float blur = clamp(abs(dist - uFocus) * 0.07, 0.0, 1.6);
+  // Fake DOF. Real lenses defocus much harder in FRONT of the focal plane than
+  // behind it; a symmetric |dist - uFocus| made near particles read as fog
+  // rather than as out-of-focus foreground.
+  float dz = dist - uFocus;
+  float blur = clamp(-min(dz, 0.0) * 0.09 + max(dz, 0.0) * 0.035, 0.0, 1.6);
 
   float size = (1.2 + aRand.y * 1.6) * (1.0 - wFlow * 0.42 + inLogo * 0.35 + pulse * 1.4 + padGlow);
-  gl_PointSize = size * uPixelRatio * (9.0 / dist) * (1.0 + blur * 0.8);
+  // CLAMPED. Unbounded, the 9.0/dist term blew points up into huge overdrawn
+  // quads every time the camera passed through the vortex — the single biggest
+  // cost on a 110k-vertex draw, and what made the field read as smoke.
+  gl_PointSize = clamp(size * uPixelRatio * (9.0 / dist) * (1.0 + blur * 0.4), 0.6, 26.0);
 
   vec3 deep   = vec3(0.42, 0.20, 0.07);
   vec3 bright = vec3(1.0, 0.74, 0.40);
@@ -142,10 +149,18 @@ void main() {
   vColor = mix(deep, bright, m) * (0.8 + wTun * (0.15 + core * 0.5) + rising * 0.25 + padGlow);
   vColor = mix(vColor, white, pulse * 0.85);
 
-  float density = wFlow * 0.15 + wTun * 0.3 + base * 0.42;
+  // the stream used to be the densest of the three states (0.3) — from inside
+  // or beside it that is an opaque curtain, not a column of data
+  float density = wFlow * 0.15 + wTun * 0.17 + base * 0.42;
   vAlpha = (0.5 + 0.5 * aRand.z) * density * (1.0 + pulse * 0.9);
   vAlpha *= smoothstep(0.8, 2.6, dist);
-  vAlpha /= (1.0 + blur * blur * 1.6);
+  // inside the elevator the camera is IN the cloud, so the near wall used to
+  // fill the frame edge to edge. Clear the near field while the stream is up:
+  // the column reads as a column, and the copy over it stays legible.
+  vAlpha *= mix(1.0, smoothstep(1.2, 6.5, dist), wTun);
+  // a defocused point spreads its light over a bigger disc, so it must get
+  // dimmer faster than it grows — otherwise near particles read as blobs
+  vAlpha /= (1.0 + blur * blur * 3.2);
   // the vortex thins out as it rises into the sky (fading the amount)
   float skyFade = 1.0 - smoothstep(9.0, 15.5, pos.y);
   vAlpha *= mix(1.0, skyFade, wFlow);
@@ -161,9 +176,13 @@ varying vec3 vColor;
 
 void main() {
   float d = length(gl_PointCoord - 0.5);
-  float a = smoothstep(0.5, 0.08, d) * vAlpha;
+  // a soft halo plus a sharp centre: the core is what bloom latches onto, and
+  // what makes these read as points of light rather than flat discs of fog
+  float halo = smoothstep(0.5, 0.08, d);
+  float core = pow(max(0.0, 1.0 - d * 2.6), 6.0);
+  float a = (halo * 0.62 + core * 0.85) * vAlpha;
   if (a < 0.003) discard;
-  gl_FragColor = vec4(vColor, a);
+  gl_FragColor = vec4(vColor * (1.0 + core * 0.45), a);
 }
 `
 

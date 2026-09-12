@@ -99,7 +99,11 @@ export const ACTS: readonly Act[] = [
       align: 'left',
       span: [0.4, 0.62],
     },
-    camera: { pos: [-3.65, 3.5, -1.35], target: [-3.6, 10.6, -2.0] },
+    // NOT on the vortex axis. Looking straight up the column from inside it
+    // filled the frame edge to edge and no copy could be read over it; from
+    // alongside, the stream is a bright column to one side with clear air for
+    // the copy.
+    camera: { pos: [1.2, 7.4, 7.5], target: [-6.6, 7.0, -2.0] },
   },
   {
     // 0.60 → 0.80 — the traces lift off the board and climb toward the mark
