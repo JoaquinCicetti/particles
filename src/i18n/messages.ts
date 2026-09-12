@@ -22,7 +22,7 @@ export const M = defineMessages({
   sensorsBody: {
     id: 'sensors.body',
     defaultMessage:
-      'Temperatura, humedad, CO₂, conductividad y pH: cada variable, en cada punto, transmitiendo a un núcleo central.',
+      'Temperatura, humedad, CO₂, VPD, contenido de agua, conductividad y pH: cada variable, en cada punto, transmitiendo a un núcleo central.',
   },
 
   dataKicker: { id: 'data.kicker', defaultMessage: 'DATOS ESTRUCTURADOS' },
@@ -51,7 +51,8 @@ export const M = defineMessages({
   mCo2Label: { id: 'metric.co2.label', defaultMessage: 'CO₂' },
   mEcLabel: { id: 'metric.ec.label', defaultMessage: 'CONDUCTIVIDAD' },
   mPhLabel: { id: 'metric.ph.label', defaultMessage: 'pH' },
-  mAirLabel: { id: 'metric.air.label', defaultMessage: 'FLUJO DE AIRE' },
+  mVpdLabel: { id: 'metric.vpd.label', defaultMessage: 'DÉFICIT DE PRESIÓN DE VAPOR' },
+  mWcLabel: { id: 'metric.wc.label', defaultMessage: 'CONTENIDO DE AGUA' },
 
   // scroll phase ticker — the client's five canonical stages
   phase1: { id: 'phase.1', defaultMessage: '01 / MEDIMOS' },

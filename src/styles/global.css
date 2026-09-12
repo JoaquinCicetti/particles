@@ -413,6 +413,9 @@ body {
 .metric-4 { right: 16%; top: 52%; }
 .metric-5 { left: 30%; top: 74%; }
 .metric-6 { right: 28%; top: 72%; }
+/* the seventh sits high-left, clear of the nav above and the centred copy
+   beside it (the chips drift ±10vh, so it never reaches either) */
+.metric-7 { left: 8%; top: 22%; }
 
 /* the metric-* type styles are also used by the in-flow solution stats */
 .metric-note {
@@ -1202,12 +1205,15 @@ body {
     display: none;
   }
 
-  .metric-1 { left: 6%; top: 44%; }
-  .metric-2 { right: 6%; top: 50%; }
-  .metric-3 { left: 10%; top: 58%; }
-  .metric-4 { right: 10%; top: 64%; }
-  .metric-5 { left: 8%; top: 72%; }
-  .metric-6 { right: 8%; top: 78%; }
+  /* seven chips, alternating sides so the labelless pills never touch —
+     each row is ~6% apart and a chip is under 4% tall at 375px */
+  .metric-1 { left: 5%; top: 50%; }
+  .metric-2 { right: 5%; top: 56%; }
+  .metric-3 { left: 9%; top: 62%; }
+  .metric-4 { right: 9%; top: 68%; }
+  .metric-5 { left: 7%; top: 74%; }
+  .metric-6 { right: 7%; top: 80%; }
+  .metric-7 { left: 12%; top: 86%; }
 
   .rail,
   .sidenav {

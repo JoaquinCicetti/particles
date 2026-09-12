@@ -14,9 +14,10 @@ const METRICS = [
   { icon: 'temp', label: M.mTempLabel, value: '18.4', unit: '°C' },
   { icon: 'hum', label: M.mHumLabel, value: '61.2', unit: '%HR' },
   { icon: 'co2', label: M.mCo2Label, value: '412', unit: 'PPM' },
+  { icon: 'vpd', label: M.mVpdLabel, value: '0.95', unit: 'kPa' },
+  { icon: 'wc', label: M.mWcLabel, value: '62', unit: '%VWC' },
   { icon: 'ec', label: M.mEcLabel, value: '1.9', unit: 'mS/cm' },
   { icon: 'ph', label: M.mPhLabel, value: '6.3', unit: 'pH' },
-  { icon: 'air', label: M.mAirLabel, value: '1.8', unit: 'm/s' },
 ] as const
 
 type Props = { onContact: () => void; onMenu: () => void }
