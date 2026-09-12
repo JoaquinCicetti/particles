@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { bakeCurveTexture, CURVE_COUNT, CURVE_SAMPLES, ELEVATOR } from './curves'
+import { bakeCurveTexture, CURVE_COUNT, CURVE_SAMPLES, ELEVATOR, FEED_COUNT } from './curves'
 import { sampleSvgPoints } from './svgSampler'
 import { createRandom } from '../../lib/random'
 import { scrollState } from '../../lib/scroll'
@@ -61,10 +61,20 @@ void main() {
   float wTun  = toTun * (1.0 - toGrid);
   float base  = toGrid; // weight of the rows→riser→logo branch
 
-  // ── act 1: telemetry flowing along the farm curves (soft, tight) ──
+  // ── act 1: telemetry drifting off the farm and into the enclosure ──
+  // the curve is only a guide: the scatter around it starts very wide, so out
+  // by the sensors this is a cloud floating in the air rather than a line, and
+  // collapses to nothing as it reaches the box — read as being absorbed.
   float ct = fract(aFlow.x + uTime * 0.02 * aFlow.y);
   vec3 jitter = (aRand.xyz * 2.0 - 1.0);
-  vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * mix(0.16, 0.05, ct);
+  // the two kinds of curve want opposite profiles: a sensor drift is a wide
+  // cloud at its source that collapses into the box, while the uplink leaves
+  // the box tight and only opens as it disperses into the sky
+  float isUp = step(FEED_COUNT_C - 0.5, aFlow.z);
+  float spreadFeed = mix(1.15, 0.04, pow(ct, 0.7));
+  float spreadUp   = mix(0.05, 0.45, pow(ct, 2.0));
+  float spread = mix(spreadFeed, spreadUp, isUp);
+  vec3 flowPos = sampleTex(uCurveTex, uCurveCount, uCurveSamples, aFlow.z, ct) + jitter * spread;
 
   // ── act 2: calm upward stream inside the elevator (centred on the tower) ──
   float ang = aRand.x * 6.28318 + uTime * (0.15 + aRand.y * 0.28);
@@ -131,8 +141,8 @@ void main() {
   vColor = mix(deep, bright, m) * (0.8 + wTun * (0.15 + core * 0.5) + rising * 0.25);
   vColor = mix(vColor, white, pulse * 0.85);
 
-  // the farm flow is deliberately the sparsest act: a few legible cables into
-  // the board and one condensed uplink out of it, not a haze
+  // the farm flow is deliberately the sparsest act: drifting motes gathered
+  // into the enclosure and one condensed uplink out of it, not a haze
   float density = wFlow * 0.095 + wTun * 0.3 + base * 0.42;
   vAlpha = (0.5 + 0.5 * aRand.z) * density * (1.0 + pulse * 0.9);
   vAlpha *= smoothstep(0.8, 2.6, dist);
@@ -144,6 +154,7 @@ void main() {
 }
 `
   .replace(/LOGO_CENTER_Y_C/g, LOGO_CENTER_Y.toFixed(2))
+  .replace(/FEED_COUNT_C/g, FEED_COUNT.toFixed(1))
   .replace(/TOWER_X_C/g, ELEVATOR.pos.x.toFixed(2))
   .replace(/TOWER_Z_C/g, ELEVATOR.pos.z.toFixed(2))
 

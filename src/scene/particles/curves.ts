@@ -36,13 +36,54 @@ export const WAREHOUSE = {
 }
 
 // sensor source points that live ON the structures (and a couple on ground)
-const SILO_SENSORS = SILOS.map((s) => v(s.pos.x, s.pos.y + s.height + 0.2, s.pos.z))
+/**
+ * Silo instrumentation, the way it actually works: thermometry hangs from the
+ * roof down INTO the grain, several probes per cable at different depths, plus
+ * one sensor in the head space at the roof vent for the air going out. Nothing
+ * is mounted on the skin — a probe on the outside of a bin measures nothing.
+ */
+const PROBES_PER_CABLE = 3
+const CABLES_PER_SILO = 2
+/** one entry per cable: where it hangs from, and its probes down the grain */
+export const SILO_CABLES = SILOS.flatMap((s, si) =>
+  Array.from({ length: CABLES_PER_SILO }, (_, ci) => {
+    // stagger the cables across the bin's cross-section so the probes end up
+    // distributed through the volume rather than stacked on one axis
+    const a = (si * 1.9 + ci * Math.PI) % (Math.PI * 2)
+    const rr = s.radius * (ci === 0 ? 0.3 : 0.58)
+    const x = s.pos.x + Math.cos(a) * rr
+    const z = s.pos.z + Math.sin(a) * rr
+    const probes = Array.from({ length: PROBES_PER_CABLE }, (_, k) =>
+      // spread down the grain column, none right at the floor or the surface
+      v(x, s.height * (0.7 - (k * 0.46) / PROBES_PER_CABLE), z),
+    )
+    return { top: v(x, s.height * 0.97, z), probes }
+  }),
+)
+/** head-space sensor at each roof vent — the air on its way out */
+const SILO_VENTS = SILOS.map((s) => v(s.pos.x, s.height + s.radius * 0.3, s.pos.z))
 const WAREHOUSE_FRONT = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos.z + WAREHOUSE.d / 2)
 const WAREHOUSE_BACK = v(WAREHOUSE.pos.x, WAREHOUSE.ridge + 0.15, WAREHOUSE.pos.z - WAREHOUSE.d / 2)
 const GROUND_SENSOR = v(-8.5, 0.4, 8.5)
 
 const tx = ELEVATOR.pos.x
 const tz = ELEVATOR.pos.z
+
+// glowing sensor nodes — the data sources on every structure
+export const SENSOR_POINTS: THREE.Vector3[] = [
+  // in-grain thermometry probes, then one head-space sensor per roof vent
+  ...SILO_CABLES.flatMap((c) => c.probes),
+  ...SILO_VENTS,
+  WAREHOUSE_FRONT,
+  WAREHOUSE_BACK,
+  v(WAREHOUSE.pos.x + WAREHOUSE.w / 2, WAREHOUSE.wall, WAREHOUSE.pos.z + 1.5),
+  // hydroponic rack sensors inside the warehouse
+  v(WAREHOUSE.pos.x - 1.6, WAREHOUSE.wall * 0.7, WAREHOUSE.pos.z),
+  v(WAREHOUSE.pos.x + 1.6, WAREHOUSE.wall * 0.5, WAREHOUSE.pos.z - 1.2),
+  GROUND_SENSOR,
+  v(ELEVATOR.pos.x, ELEVATOR.height + 0.4, ELEVATOR.pos.z),
+]
+
 
 /**
  * The Growcast device: an industrial enclosure bolted to the camera-facing wall
@@ -52,10 +93,10 @@ const tz = ELEVATOR.pos.z
  * platform. No helix, no swirl: one destination, one uplink.
  */
 export const BOARD = {
-  w: 1.5, // door width  (x)
-  h: 1.7, // door height (y)
-  d: 0.42, // how far it stands off the wall (z)
-  cy: 3.1, // centre height — low enough to read as wall-mounted kit
+  w: 1.0, // door width  (x)
+  h: 1.15, // door height (y)
+  d: 0.3, // how far it stands off the wall (z)
+  cy: 3.0, // centre height — low enough to read as wall-mounted kit
   wallZ: tz + ELEVATOR.width / 2, // the tower face it hangs on
 }
 /** the door plane, where the logo sits and the camera comes to look */
@@ -63,14 +104,15 @@ export const BOARD_FRONT = v(tx, BOARD.cy, BOARD.wallZ + BOARD.d)
 export const BOARD_TOP = BOARD.cy + BOARD.h / 2
 export const HUB = BOARD_FRONT
 export const SKY = 18.0 // where the uplink hands off to the sky
-const SAG = 1.5 // how far each feed cable droops between structure and board
+const SAG = 0.7 // how far the drift dips on its way to the enclosure
 
-// a feed: sensor → wandering drift → the board's edge. A direct line from each
-// sensor reads as a laser pointed at the tower, so the waypoints are scattered
-// off the straight path by a seeded wander that is zero at both ends and widest
-// in the middle: it leaves the sensor and arrives at the pad, but takes its own
-// meandering way there. Centripetal CatmullRom keeps the result smooth.
-const WANDER = 3.1 // world units the path may stray off the straight line
+// a feed: sensor → slow drift → into the enclosure. These must NOT read as
+// wires. Every sensor gets one, so the same particle budget is split many ways
+// and no single line carries enough to look like a cable; the path itself is
+// only a gentle bow (a hard meander reads as a drawn squiggle), and the real
+// look comes from the wide per-particle scatter the shader adds around it,
+// which collapses to nothing at the box — so the cloud is visibly absorbed.
+const WANDER = 0.7 // world units the path may stray off the straight line
 function feed(sensor: THREE.Vector3, pad: THREE.Vector3, seed: number) {
   const rnd = createRandom(seed)
   const pts: THREE.Vector3[] = [sensor]
@@ -92,13 +134,13 @@ function feed(sensor: THREE.Vector3, pad: THREE.Vector3, seed: number) {
   return new THREE.CatmullRomCurve3(pts, false, 'centripetal')
 }
 
-// cable glands along the underside of the enclosure — where real wiring enters,
-// and it keeps the door face clear for the logo
-export const GLANDS = 4
+// where the drift is taken in, on the underside of the enclosure. Feeds share
+// these few points, so many sources resolve to one destination
+export const GLANDS = 3
 const pad = (i: number) =>
   v(
-    tx + BOARD.w * (-0.34 + (0.68 * i) / (GLANDS - 1)),
-    BOARD.cy - BOARD.h / 2 - 0.06,
+    tx + BOARD.w * (-0.3 + (0.6 * (i % GLANDS)) / (GLANDS - 1)),
+    BOARD.cy - BOARD.h / 2 - 0.04,
     BOARD.wallZ + BOARD.d * 0.5,
   )
 
@@ -126,19 +168,21 @@ function uplink(strand: number, of: number) {
   return new THREE.CatmullRomCurve3(pts, false, 'centripetal')
 }
 
-// four wandering feeds — one per structure — and a four-strand uplink.
-// particles are spread evenly across curves, so the strand count is also the
-// density dial: half the flow rides the uplink, which is what makes it read as
-// condensed while the feeds stay thin and drifting.
-const UPLINK_STRANDS = 4
+// one drift per sensor, plus the uplink bundle. Particles are spread evenly
+// across curves, so the strand count is the density dial: with a feed for every
+// sensor the same budget is divided many more ways and each drift is far
+// thinner, while the uplink keeps roughly a third of the flow so it still reads
+// as one condensed bundle leaving the box.
+const UPLINK_STRANDS = 7
 export const FLOW_CURVES = [
-  feed(WAREHOUSE_FRONT, pad(3), 1301),
-  feed(SILO_SENSORS[0], pad(0), 4177),
-  feed(SILO_SENSORS[1], pad(1), 9043),
-  feed(SILO_SENSORS[2], pad(2), 6211),
+  ...SENSOR_POINTS.map((sensor, i) => feed(sensor, pad(i), 1301 + i * 977)),
   ...Array.from({ length: UPLINK_STRANDS }, (_, i) => uplink(i, UPLINK_STRANDS)),
 ]
 
+/** how many of FLOW_CURVES are sensor drifts — the rest are uplink strands.
+ *  the shader needs this to tell them apart: a drift is widest at its sensor
+ *  and collapses into the box, the uplink is the opposite. */
+export const FEED_COUNT = SENSOR_POINTS.length
 export const CURVE_COUNT = FLOW_CURVES.length
 // the feeds wander, so they need enough samples that the meander stays smooth
 // rather than reading as a polyline
@@ -163,21 +207,3 @@ export function bakeCurveTexture() {
   tex.needsUpdate = true
   return tex
 }
-
-// the fraction [0,1] of each curve a particle should respect as its origin —
-// sensors are the sources, so most particles start near the curve's head.
-
-// glowing sensor nodes — the data sources on every structure
-export const SENSOR_POINTS: THREE.Vector3[] = [
-  ...SILO_SENSORS,
-  // a second sensor partway up each silo body (side-mounted)
-  ...SILOS.map((s) => v(s.pos.x + s.radius, s.pos.y + s.height * 0.55, s.pos.z)),
-  WAREHOUSE_FRONT,
-  WAREHOUSE_BACK,
-  v(WAREHOUSE.pos.x + WAREHOUSE.w / 2, WAREHOUSE.wall, WAREHOUSE.pos.z + 1.5),
-  // hydroponic rack sensors inside the warehouse
-  v(WAREHOUSE.pos.x - 1.6, WAREHOUSE.wall * 0.7, WAREHOUSE.pos.z),
-  v(WAREHOUSE.pos.x + 1.6, WAREHOUSE.wall * 0.5, WAREHOUSE.pos.z - 1.2),
-  GROUND_SENSOR,
-  v(ELEVATOR.pos.x, ELEVATOR.height + 0.4, ELEVATOR.pos.z),
-]

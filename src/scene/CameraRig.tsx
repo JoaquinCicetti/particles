@@ -22,7 +22,7 @@ const POSITIONS = [
   V(-1, 6.2, 24), //   0.000  far, high, wide farm landscape
   V(1.2, 5.4, 14.5), //0.111  in from the front, the enclosure becomes the subject
   V(-2.4, 3.8, 5.6), //0.222  closing on the tower wall
-  V(-3.6, 3.2, 2.3), //0.333  square in front of the door — the brand mark
+  V(-3.6, 3.05, 1.55), //0.333 square in front of the door — the brand mark
   V(-3.6, 6.6, 1.2), //0.444  rise past it, following the conduit up
   V(-3.6, 3.0, -1.7), //0.500 inside the tower, looking up the vortex
   V(0, 3.0, 12.5), //  pull back to the structured rows
@@ -34,9 +34,9 @@ const POSITIONS = [
 
 const TARGETS = [
   V(0, 2.8, 0),
-  V(-2.4, 3.6, -0.8), // the enclosure, still far off
-  V(-3.5, 3.2, -0.78), // settling onto the door
-  V(-3.6, 3.1, -0.78), // the door plane — the logo is dead centre
+  V(-2.4, 3.4, -0.9), // the enclosure, still far off
+  V(-3.5, 3.05, -0.9), // settling onto the door
+  V(-3.6, 3.0, -0.9), // the door plane — the logo is dead centre
   V(-3.6, 10.0, -1.6), // tilt up the conduit as we climb past it
   V(-3.6, 11.5, -2), // keep looking up the vortex while descending
   V(0, 1.8, 0), // pan back to the data field at origin

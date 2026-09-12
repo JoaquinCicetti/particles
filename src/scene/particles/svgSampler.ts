@@ -12,10 +12,6 @@ export interface SvgSampleOptions {
   worldHeight: number
   /** world-space Y the art is centered on */
   centerY: number
-  /** world-space X the art is centered on (default 0) */
-  centerX?: number
-  /** world-space Z the art sits on (default 0) */
-  centerZ?: number
   /** raster resolution (taller = finer sampling of thin strokes) */
   rasterHeight?: number
   /** pixel step when scanning (1 = densest, 2 = default) */
@@ -44,8 +40,6 @@ export async function sampleSvgPoints(
   const {
     worldHeight,
     centerY,
-    centerX = 0,
-    centerZ = 0,
     rasterHeight = 900,
     step = 2,
     threshold = 100,
@@ -104,9 +98,9 @@ export async function sampleSvgPoints(
     const r = worldHeight * 0.55
     for (let i = 0; i < count; i++) {
       const a = random() * Math.PI * 2
-      out[i * 3] = centerX + Math.cos(a) * r
+      out[i * 3] = Math.cos(a) * r
       out[i * 3 + 1] = centerY + Math.sin(a) * r
-      out[i * 3 + 2] = centerZ + (random() - 0.5) * depth
+      out[i * 3 + 2] = (random() - 0.5) * depth
     }
     return out
   }
@@ -124,9 +118,9 @@ export async function sampleSvgPoints(
   const jit = scale * step * 0.5
   for (let i = 0; i < count; i++) {
     const c = order[i % n] * 2
-    out[i * 3] = (candidates[c] - W / 2) * scale + centerX + (random() - 0.5) * jit
+    out[i * 3] = (candidates[c] - W / 2) * scale + (random() - 0.5) * jit
     out[i * 3 + 1] = (H / 2 - candidates[c + 1]) * scale + centerY + (random() - 0.5) * jit
-    out[i * 3 + 2] = centerZ + (random() - 0.5) * depth
+    out[i * 3 + 2] = (random() - 0.5) * depth
   }
   return out
 }

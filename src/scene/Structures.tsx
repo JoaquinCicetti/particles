@@ -1,8 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { SILOS, ELEVATOR, WAREHOUSE, SENSOR_POINTS, BOARD, BOARD_FRONT, GLANDS, SKY } from './particles/curves'
-import { sampleSvgPoints } from './particles/svgSampler'
+import {
+  SILOS,
+  ELEVATOR,
+  WAREHOUSE,
+  SENSOR_POINTS,
+  SILO_CABLES,
+  BOARD,
+  BOARD_FRONT,
+  GLANDS,
+  SKY,
+} from './particles/curves'
+import { loadLogoTexture } from './logoTexture'
 import { createRandom } from '../lib/random'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
@@ -15,6 +25,11 @@ import { smoothstep } from '../lib/math'
  */
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
+
+// the brand mark's height on the enclosure door — a badge, not a billboard.
+// the ink is kept muted on purpose: the scene's bloom threshold is low (0.18),
+// so a bright mark would halo even with additive blending off.
+const MARK_H = BOARD.h * 0.26
 
 function pushLine(out: number[], a: THREE.Vector3, b: THREE.Vector3) {
   out.push(a.x, a.y, a.z, b.x, b.y, b.z)
@@ -410,6 +425,17 @@ export default function Structures() {
     lines.push(...buildHydroInterior(WAREHOUSE, growPts)) // rack grow nodes
     buildEnclosureLines(lines) // the Growcast enclosure + its conduit/riser
 
+    // thermometry cables hanging from each silo roof down into the grain, with
+    // a tick at every probe — so the in-grain sensors read as instrumentation
+    // on a cable rather than dots floating inside a bin
+    for (const c of SILO_CABLES) {
+      const last = c.probes[c.probes.length - 1]
+      pushLine(lines, c.top, V(last.x, last.y - 0.12, last.z))
+      for (const pr of c.probes) {
+        pushLine(lines, V(pr.x - 0.075, pr.y, pr.z), V(pr.x + 0.075, pr.y, pr.z))
+      }
+    }
+
     // shimmering particle shells on silo + warehouse surfaces
     for (const s of SILOS) {
       for (let i = 0; i < 2400; i++) {
@@ -511,46 +537,38 @@ export default function Structures() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    // the brand mark on the enclosure door — brighter than the wireframe so it
-    // reads as a lit badge when the camera comes to look at it
-    const mark = new THREE.PointsMaterial({
-      color: '#ffd9a0',
-      size: 0.035,
-      sizeAttenuation: true,
-      transparent: true,
-      opacity: 0.95,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
-    return { line, grid, shell, sensor, grow, mark }
+    return { line, grid, shell, sensor, grow }
   }, [])
 
-  // the brand mark, sampled from the same logo.svg the finale uses and laid
-  // flat on the enclosure door (a hair in front of it, so it never z-fights)
-  const [markGeo, setMarkGeo] = useState<THREE.BufferGeometry | null>(null)
+  // the brand mark on the enclosure door: a solid, unlit, single-ink plane.
+  // Not particles (stippled) and not additive (a lamp) — printed on the panel.
+  const markRef = useRef<THREE.Mesh>(null)
+  const [mark, setMark] = useState<{ tex: THREE.Texture; aspect: number } | null>(null)
   useEffect(() => {
     let alive = true
-    sampleSvgPoints('/logo.svg', 1400, {
-      worldHeight: BOARD.h * 0.62,
-      centerY: BOARD.cy,
-      centerX: BOARD_FRONT.x,
-      centerZ: BOARD_FRONT.z + 0.012,
-      rasterHeight: 420,
-      step: 1,
-      depth: 0.006,
-      seed: 71129,
-    })
-      .then((pts) => {
-        if (!alive) return
-        const g = new THREE.BufferGeometry()
-        g.setAttribute('position', new THREE.BufferAttribute(pts, 3))
-        setMarkGeo(g)
-      })
+    loadLogoTexture('#8f7a61', 512)
+      .then((r) => alive && setMark(r))
       .catch(() => {})
     return () => {
       alive = false
     }
   }, [])
+  const markMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.NormalBlending,
+        toneMapped: false,
+      }),
+    [],
+  )
+  useEffect(() => {
+    if (mark) {
+      markMat.map = mark.tex
+      markMat.needsUpdate = true
+    }
+  }, [mark, markMat])
 
   useFrame(({ clock }) => {
     const fade = 1 - smoothstep(0.3, 0.44, scrollState.smooth)
@@ -563,7 +581,7 @@ export default function Structures() {
     materials.sensor.opacity = (0.7 + 0.3 * Math.sin(clock.elapsedTime * 2.6)) * fade
     // grow nodes breathe slowly
     materials.grow.opacity = (0.6 + 0.25 * Math.sin(clock.elapsedTime * 1.3 + 1.0)) * fade
-    materials.mark.opacity = (0.85 + 0.15 * Math.sin(clock.elapsedTime * 1.8)) * fade
+    markMat.opacity = fade // static: fades with the scene, never pulses
   })
 
   return (
@@ -573,7 +591,15 @@ export default function Structures() {
       <points geometry={shellGeo} material={materials.shell} />
       <points geometry={growGeo} material={materials.grow} />
       <points geometry={sensorGeo} material={materials.sensor} />
-      {markGeo && <points geometry={markGeo} material={materials.mark} />}
+      {mark && (
+        <mesh
+          ref={markRef}
+          position={[BOARD_FRONT.x, BOARD.cy + BOARD.h * 0.02, BOARD_FRONT.z + 0.006]}
+          material={markMat}
+        >
+          <planeGeometry args={[MARK_H * mark.aspect, MARK_H]} />
+        </mesh>
+      )}
     </group>
   )
 }
