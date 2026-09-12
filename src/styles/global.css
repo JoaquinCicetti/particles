@@ -576,7 +576,7 @@ body {
   transform-origin: top;
 }
 
-/* scroll hint */
+/* scroll hint — a real button: it steps to the next act */
 .hint {
   position: absolute;
   left: 50%;
@@ -590,14 +590,43 @@ body {
   font-size: 0.58rem;
   letter-spacing: 0.4em;
   color: var(--copper);
+  background: none;
+  border: 0;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
-.hint i {
-  width: 1px;
-  height: 3.4rem;
-  background: linear-gradient(to bottom, var(--copper), transparent);
-  animation: hint-drop 2.2s ease-in-out infinite;
+.hint:hover,
+.hint:focus-visible {
+  color: var(--copper-bright);
+}
+
+/* mouse outline with a dot falling inside it */
+.hint-mouse {
+  position: relative;
+  display: block;
+  width: 1rem;
+  height: 1.5rem;
+}
+
+.hint-mouse svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hint-mouse i {
+  position: absolute;
+  left: 50%;
+  top: 0.3rem;
+  translate: -50% 0;
+  width: 2px;
+  height: 0.5rem;
+  border-radius: 1px;
+  background: currentColor;
   transform-origin: top;
+  animation: hint-drop 2.2s ease-in-out infinite;
 }
 
 @keyframes hint-drop {
@@ -611,6 +640,59 @@ body {
     transform: scaleY(1);
     opacity: 0;
   }
+}
+
+/* act stepper — prev / "02 / 05" / next. More useful on touch, not less, so
+   unlike .rail and .sidenav it is never hidden on small screens. */
+.stepper {
+  position: absolute;
+  right: calc(clamp(1.1rem, 2.6vw, 2.4rem) + env(safe-area-inset-right));
+  /* stacked above the language picker, which owns the bottom-right corner */
+  bottom: calc(4.8rem + env(safe-area-inset-bottom));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: auto;
+  border: 1px solid var(--copper-faint);
+  border-radius: 999px;
+  background: rgba(10, 6, 4, 0.6);
+  padding: 0.2rem;
+}
+
+.stepper-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--copper);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.stepper-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.stepper-btn:hover,
+.stepper-btn:focus-visible {
+  color: var(--copper-bright);
+  background: rgba(200, 127, 61, 0.12);
+}
+
+.stepper-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: var(--fg-dim);
+  min-width: 3.6rem;
+  text-align: center;
 }
 
 /* progress rail */
@@ -1224,6 +1306,24 @@ body {
     display: none;
   }
 
+  /* the stepper stays — it is the only stepping affordance left on touch.
+     44px tap targets, a touch smaller overall, above the home indicator. */
+  .stepper {
+    gap: 0.15rem;
+    padding: 0.15rem;
+  }
+
+  .stepper-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .stepper-label {
+    font-size: 0.56rem;
+    letter-spacing: 0.18em;
+    min-width: 3.2rem;
+  }
+
   .nav-menu {
     display: flex;
   }
@@ -1257,7 +1357,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .grain,
-  .hint i,
+  .hint-mouse i,
   .finale-more i,
   .metric-float {
     animation: none;

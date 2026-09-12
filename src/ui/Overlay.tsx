@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { scrollState } from '../lib/scroll'
-import { ACTS, copySpan, FINALE_IN, METRIC_WINDOW } from '../lib/acts'
+import { scrollState, scrollToProgress, scrollToSection, scrollToY } from '../lib/scroll'
+import { ACTS, actIndexAt, copySpan, FINALE_IN, METRIC_WINDOW } from '../lib/acts'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
 import { M } from '../i18n/messages'
 import SideNav from './SideNav'
 import SensorIcon from './SensorIcon'
+import Stepper from './Stepper'
 import { onAnchorClick } from './nav'
 
 // sensor chips — all bubble up together over one window (staggered a touch),
@@ -46,14 +47,80 @@ export default function Overlay({ onContact, onMenu }: Props) {
     const railFill = el.querySelector<HTMLElement>('[data-rail-fill]')
     const railDot = el.querySelector<HTMLElement>('[data-rail-dot]')
     const phaseEl = el.querySelector<HTMLElement>('[data-phase]')
+    const stepper = el.querySelector<HTMLElement>('[data-stepper]')
+    const stepLabel = el.querySelector<HTMLElement>('[data-step-label]')
+    const total = String(ACTS.length).padStart(2, '0')
 
     let raf = 0
     let lastPhase = ''
+    let lastStep = ''
     let last = 0
     // locally smoothed "past the story" and whole-page fractions (the story's
     // own `smooth` is advanced by CameraRig; these only matter to the DOM)
     let over = 0
     let page = 0
+
+    // ── navigation ───────────────────────────────────────────────
+    // Stepping reuses scrollToY/scrollToProgress, which already handle easing,
+    // mid-tween abort and prefers-reduced-motion. `target` (where the user
+    // actually is) drives the decision; `smooth` (what is on screen) drives the
+    // label. Nothing here touches React.
+    const stepTo = (i: number) => scrollToProgress(ACTS[i].at)
+
+    const next = () => {
+      const p = scrollState.target
+      if (p > 0.995) return scrollToSection('cultivo') // past the story
+      const i = actIndexAt(p)
+      if (i < ACTS.length - 1) stepTo(i + 1)
+      else scrollToProgress(1)
+    }
+    const prev = () => {
+      const i = actIndexAt(scrollState.target)
+      stepTo(Math.max(0, i - 1))
+    }
+
+    const onPrev = () => prev()
+    const onNext = (e: Event) => {
+      e.preventDefault()
+      next()
+    }
+    el.querySelector('[data-step-prev]')?.addEventListener('click', onPrev)
+    el.querySelector('[data-step-next]')?.addEventListener('click', onNext)
+    hint?.addEventListener('click', onNext)
+    // the finale's "see solutions" is the same past-the-end branch, not a
+    // second mechanism
+    el.querySelector('[data-finale-more]')?.addEventListener('click', onNext)
+
+    const EDITABLE = 'input, textarea, select, [contenteditable]'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return
+      if ((e.target as HTMLElement | null)?.closest?.(EDITABLE)) return
+      if (document.querySelector('[role="dialog"]')) return // contact / menu is open
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'PageDown':
+        case ' ':
+          e.preventDefault()
+          next()
+          break
+        case 'ArrowUp':
+        case 'PageUp':
+          e.preventDefault()
+          prev()
+          break
+        case 'Home':
+          e.preventDefault()
+          scrollToY(0)
+          break
+        case 'End':
+          e.preventDefault()
+          scrollToProgress(1)
+          break
+        default:
+          return
+      }
+    }
+    window.addEventListener('keydown', onKey)
 
     const tick = (now: number) => {
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 0
@@ -71,7 +138,12 @@ export default function Overlay({ onContact, onMenu }: Props) {
         hero.style.transform = `translateY(${-smoothstep(0.05, 0.13, p) * 48}px)`
         hero.style.visibility = o < 0.01 ? 'hidden' : 'visible'
       }
-      if (hint) hint.style.opacity = String(1 - smoothstep(0.01, 0.05, p))
+      if (hint) {
+        const o = 1 - smoothstep(0.01, 0.05, p)
+        hint.style.opacity = String(o)
+        // it is a real button now — do not leave an invisible tap target
+        hint.style.pointerEvents = o > 0.5 ? 'auto' : 'none'
+      }
 
       for (const s of sections) {
         const [a, b] = (s.dataset.window ?? '0,1').split(',').map(Number)
@@ -104,10 +176,15 @@ export default function Overlay({ onContact, onMenu }: Props) {
       if (railFill) railFill.style.transform = `scaleY(${page})`
       if (railDot) railDot.style.transform = `translateY(${page * 38}vh)`
 
+      // `smooth` only ever approaches its target asymptotically, so a landing
+      // on an act boundary sits a hair short of it. Nudge the index lookup by
+      // ~2vh so stepping to an act actually reads as that act.
+      const pIdx = Math.min(1, p + 0.004)
+
       if (phaseEl) {
         const phases = phasesRef.current
         let label = phases[0]?.[1] ?? ''
-        for (const [at, text] of phases) if (p >= at) label = text
+        for (const [at, text] of phases) if (pIdx >= at) label = text
         if (label !== lastPhase) {
           lastPhase = label
           phaseEl.textContent = label
@@ -116,10 +193,29 @@ export default function Overlay({ onContact, onMenu }: Props) {
         phaseEl.style.opacity = String(stay)
       }
 
+      if (stepper) {
+        // change-guarded exactly like the phase ticker: the DOM is touched only
+        // when the act index actually changes
+        const label = `${String(actIndexAt(pIdx) + 1).padStart(2, '0')} / ${total}`
+        if (label !== lastStep) {
+          lastStep = label
+          if (stepLabel) stepLabel.textContent = label
+        }
+        stepper.style.opacity = String(stay)
+        stepper.style.pointerEvents = stay > 0.5 ? 'auto' : 'none'
+      }
+
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('keydown', onKey)
+      el.querySelector('[data-step-prev]')?.removeEventListener('click', onPrev)
+      el.querySelector('[data-step-next]')?.removeEventListener('click', onNext)
+      hint?.removeEventListener('click', onNext)
+      el.querySelector('[data-finale-more]')?.removeEventListener('click', onNext)
+    }
   }, [])
 
   return (
@@ -209,20 +305,26 @@ export default function Overlay({ onContact, onMenu }: Props) {
           </span>
           <span className="cta-arrow" aria-hidden>→</span>
         </button>
-        <a className="finale-more" href="#cultivo" onClick={onAnchorClick}>
+        <a className="finale-more" href="#cultivo" data-finale-more>
           <FormattedMessage {...M.finaleMore} />
           <i aria-hidden />
         </a>
       </footer>
 
-      <div className="hint" data-hint>
+      <button type="button" className="hint" data-hint>
         <span>
           <FormattedMessage {...M.hint} />
         </span>
-        <i />
-      </div>
+        <span className="hint-mouse" aria-hidden>
+          <svg viewBox="0 0 16 24">
+            <rect x="1" y="1" width="14" height="22" rx="7" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          </svg>
+          <i />
+        </span>
+      </button>
 
       <SideNav />
+      <Stepper />
 
       <div className="rail" aria-hidden>
         <div className="rail-track">

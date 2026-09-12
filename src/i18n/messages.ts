@@ -44,6 +44,8 @@ export const M = defineMessages({
   finaleCta: { id: 'finale.cta', defaultMessage: 'Coordinar una reunión' },
   finaleFine: { id: 'finale.fine', defaultMessage: 'GROWCAST AGRO © 2026 — INTELIGENCIA AGRÍCOLA' },
   hint: { id: 'hint', defaultMessage: 'DESPLAZÁ PARA EXPLORAR' },
+  stepPrev: { id: 'step.prev', defaultMessage: 'Etapa anterior' },
+  stepNext: { id: 'step.next', defaultMessage: 'Etapa siguiente' },
 
   // sensor metric cards
   mTempLabel: { id: 'metric.temp.label', defaultMessage: 'TEMPERATURA' },

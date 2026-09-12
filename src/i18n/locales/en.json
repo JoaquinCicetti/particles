@@ -16,6 +16,8 @@
   "finale.cta": "Book a meeting",
   "finale.fine": "GROWCAST AGRO © 2026 — AGRICULTURAL INTELLIGENCE",
   "hint": "SCROLL TO EXPLORE",
+  "step.prev": "Previous stage",
+  "step.next": "Next stage",
   "metric.temp.label": "TEMPERATURE",
   "metric.hum.label": "HUMIDITY",
   "metric.co2.label": "CO₂",
