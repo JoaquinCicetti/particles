@@ -99,7 +99,6 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
     const hint = el.querySelector<HTMLElement>('[data-hint]')
     const sections = q<HTMLElement>('[data-window]')
     const cards = q<HTMLElement>('[data-metric]')
-    const finale = el.querySelector<HTMLElement>('[data-finale]')
     const railFill = el.querySelector<HTMLElement>('[data-rail-fill]')
     const railDot = el.querySelector<HTMLElement>('[data-rail-dot]')
     const phaseEl = el.querySelector<HTMLElement>('[data-phase]')
@@ -153,13 +152,6 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
         c.style.transform = `translate(${x}vw, ${y}vh) scale(${0.68 + 0.32 * o})`
         c.style.visibility = o < 0.01 ? 'hidden' : 'visible'
       })
-
-      if (finale) {
-        const o = smoothstep(0.92, 0.98, p) * stay
-        finale.style.opacity = String(o)
-        finale.style.pointerEvents = o > 0.5 ? 'auto' : 'none'
-        finale.style.visibility = o < 0.01 ? 'hidden' : 'visible'
-      }
 
       // the rail is a map of the whole page (story + solutions)
       if (railFill) railFill.style.transform = `scaleY(${page})`
@@ -274,18 +266,6 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
           <FormattedMessage {...M.convergeBody} />
         </p>
       </section>
-
-      <footer className="finale" data-finale>
-        <span className="finale-word">GROWCAST</span>
-        <span className="finale-tag">
-          <FormattedMessage {...M.tagline} />
-        </span>
-        <ContactCta onClick={onContact} />
-        <a className="finale-more" href="#cultivo" onClick={onAnchorClick}>
-          <FormattedMessage {...M.finaleMore} />
-          <i aria-hidden />
-        </a>
-      </footer>
 
       <div className="hint" data-hint>
         <span>

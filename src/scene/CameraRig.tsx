@@ -67,8 +67,8 @@ const TAIL_T = [
   V(0, 1.8, 0), // pan back to the data field at origin
   V(0, 2.6, 0),
   V(0, 4.2, 0),
-  V(0, 4.9, 0), // tilt down so the brand mark frames above center
-  V(0, 5.0, 0), // logo sits a bit above the middle, clear of the finale text
+  V(0, 5.7, 0), // tilt up onto the mark as it forms
+  V(0, 6.2, 0), // dead centre on the mark — nothing else is in the frame now
 ]
 
 /**

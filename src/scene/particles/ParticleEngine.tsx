@@ -19,12 +19,26 @@ const BARS_Z = 22
 // the brand mark sits high above the rows so the data visibly flows UP into it
 const LOGO_CENTER_Y = 6.2
 
+// The finale routes like a chip: every trace lands on a connector on the edge
+// of a square package the mark sits inside, and crosses it into the mark. The
+// package itself is never drawn — it exists only to decide where the traces
+// end — so it is sized off the mark rather than off the viewport.
+const LOGO_HEIGHT = 3.2
+const CHIP_HALF = LOGO_HEIGHT * 0.5 + 0.55
+
+// routing grid: the lane pitch, the lanes that enter the package from
+// underneath rather than from the side, and the pitch of its connectors
+const LANE_STEP = 0.5
+const BOTTOM_X = CHIP_HALF + 1.0
+const PAD_PITCH = 0.3
+
 /**
  * Final act follows one idea: the data converges into Growcast. Once particles
  * are sorted into the structured 3D rows they gather onto circuit lanes and
- * route UP through them — climbing, breaking to 45 degrees, stepping sideways,
- * picking up another vertical, each lane taking its own route the way copper on
- * a real board does — then converge into the logo. An ordered, staggered
+ * route UP through them the way copper on a real board does — a run climbs,
+ * turns once, carries on, and never forks into three directions at a point —
+ * until every lane lands on a pad on the edge of the square package the brand
+ * mark sits inside, and crosses the pad into the mark. An ordered, staggered
  * left→right sweep, never a disordered cloud.
  */
 const vertexShader = /* glsl */ `
@@ -92,72 +106,78 @@ void main() {
   // ── act 4: the brand mark (raised, the destination) ──
   vec3 logoPos = aLogo;
 
-  // ── riser: the columns route up like copper on a board. Real routing is not
-  //    all verticals — a run climbs, breaks oblique, steps sideways, picks up
-  //    another vertical, throws off short stubs, and every trace ends on the
-  //    central pad. Each lane derives its own pattern from a hash of its x, and
-  //    each particle can take a small side-branch off that lane, so a lane
-  //    reads as a bundle of little traces rather than one thick one. Particles
-  //    still start on exactly the same columns as before. ──
-  float laneStep = 0.62; // finer pitch than the old 0.9: more, thinner traces
+  // ── riser: the rows route up into the chip. Copper on a real board only
+  //    ever runs vertical, horizontal or at 45, and a run never forks into
+  //    three directions at a point — it turns once and carries on. So a lane
+  //    is one polyline, every particle on that lane rides that same polyline,
+  //    strung out along its length so the lane reads as a trace being drawn.
+  //    Every trace ends on a connector on the edge of the undrawn package the
+  //    mark sits inside: inner lanes come up into the bottom edge, outer lanes
+  //    climb alongside the package and turn in horizontally onto its left or
+  //    right edge, the outermost landing highest so no two traces cross. ──
+  float laneStep = LANE_STEP_C;
   float laneX = floor(aGrid.x / laneStep + 0.5) * laneStep;
   float h1 = fract(sin(laneX * 12.9898) * 43758.5453);
-  float h2 = fract(sin(laneX * 78.2330 + 1.7) * 24634.6345);
   float h3 = fract(sin(laneX * 45.1640 + 9.1) * 13758.5453);
 
-  // roughly a quarter of the lanes run straight through — a real board has
-  // those too, and they keep the field from looking uniformly zig-zagged
-  float bend = step(0.28, h2);
-  float dx1 = (h2 - 0.5) * 2.6 * bend; // sideways step, up to ~1.3 either way
+  float chipBottom = LOGO_CENTER_Y_C - CHIP_HALF_C;
+  float side = laneX < 0.0 ? -1.0 : 1.0;
 
-  // short per-particle spurs: about a third of a lane's particles branch off
-  // onto their own little stub before rejoining the route
-  float spur = step(0.66, aRand.x);
-  float spurDX = (aRand.y - 0.5) * 1.15 * spur;
+  vec2 n0 = vec2(laneX, 0.5 + h3 * 0.3); // the lane's foot on the board
+  vec2 n1, n2, n3;
 
-  float yA = 1.3 + h1 * 1.0; // first vertical run tops out here
-  float xS = laneX + spurDX; // the spur branch (a no-op for most particles)
-  float yS = yA + abs(spurDX); // at 45, as a real stub would be
-  float xB = xS + dx1;
-  float yB = yS + abs(dx1); // after the 45: dy matches |dx| exactly
-  float yC = yB + 0.4 + h3 * 0.7; // second vertical run
+  if (abs(laneX) <= BOTTOM_X_C) {
+    // bottom entry: a vertical run, one 45 jog onto the pad's column, then
+    // vertical into the pad
+    float padX = floor(laneX * (CHIP_HALF_C - 0.3) / BOTTOM_X_C / PAD_PITCH_C + 0.5) * PAD_PITCH_C;
+    float jog = padX - laneX;
+    float y1 = min(1.15 + h1 * 1.25, chipBottom - 0.3 - abs(jog));
+    n1 = vec2(laneX, y1);
+    n2 = vec2(padX, y1 + abs(jog)); // dy matches |dx| exactly: a true 45
+    n3 = vec2(padX, chipBottom);
+  } else {
+    // side entry: climb alongside the package, one 45 turn inwards, then a
+    // horizontal run onto a pad on the side edge
+    float t = (abs(laneX) - BOTTOM_X_C) / max(8.0 - BOTTOM_X_C, 0.001);
+    float padY = chipBottom + 0.35 + t * (2.0 * CHIP_HALF_C - 0.7);
+    float turn = min(1.1, (abs(laneX) - CHIP_HALF_C) * 0.55);
+    n1 = vec2(laneX, padY - turn);
+    n2 = vec2(laneX - side * turn, padY);
+    n3 = vec2(side * CHIP_HALF_C, padY);
+  }
 
-  // EVERY lane converges on the centre column. The last run is 45 where there
-  // is headroom for it and flattens off where there is not: an outer lane 8
-  // units out cannot climb 8 more before the mark, so forcing a true 45 there
-  // used to mean clamping the step — which left the outer lanes stranded
-  // mid-board and let the final mix teleport them to the logo.
-  float yTop = LOGO_CENTER_Y_C - 0.5;
-  float need = abs(aLogo.x - xB);
-  float yD = yC + min(need, max(0.0, yTop - yC));
-  // a hair of layer separation, so crossing routes read as a stack of layers
-  float panelZ = (h3 - 0.5) * 0.5;
+  float l1 = distance(n0, n1);
+  float l2 = distance(n1, n2);
+  float l3 = distance(n2, n3);
 
   float order = clamp((aGrid.x + 8.0) / 16.0, 0.0, 1.0); // left→right sweep
   float rstart = 0.58 + order * 0.08;
   float rp = smoothstep(rstart, rstart + 0.24, pp);
-  float la = smoothstep(0.00, 0.13, rp); // planes purge onto the lane
-  float lb = smoothstep(0.10, 0.26, rp); // first vertical run
-  float lc = smoothstep(0.22, 0.36, rp); // the little spur branch
-  float ld = smoothstep(0.32, 0.50, rp); // break oblique
-  float le = smoothstep(0.46, 0.62, rp); // second vertical run
-  float lf = smoothstep(0.58, 0.80, rp); // converge on the centre column
-  float lg = smoothstep(0.76, 1.00, rp); // lift onto the mark
 
-  vec3 P = gridPos;
-  P = mix(P, vec3(laneX, gridPos.y, panelZ), la);
-  P = mix(P, vec3(laneX, yA, panelZ), lb);
-  P = mix(P, vec3(xS, yS, panelZ), lc);
-  P = mix(P, vec3(xB, yB, panelZ), ld);
-  P = mix(P, vec3(xB, yC, panelZ), le);
-  P = mix(P, vec3(aLogo.x, yD, panelZ), lf);
+  // every particle rides its lane a little ahead of or behind its neighbours,
+  // so the trace draws itself in instead of travelling as one clump
+  float lead = aRand.z * 0.30;
+  float run = clamp((rp - lead) / 0.42, 0.0, 1.0) * (l1 + l2 + l3);
+  vec2 q;
+  if (run < l1) q = mix(n0, n1, run / max(l1, 0.001));
+  else if (run < l1 + l2) q = mix(n1, n2, (run - l1) / max(l2, 0.001));
+  else q = mix(n2, n3, (run - l1 - l2) / max(l3, 0.001));
+  q += (aRand.xy - 0.5) * 0.05; // a hair of width on the trace
+
+  // a hair of layer separation, so crossing routes read as a stack of layers
+  float panelZ = (h3 - 0.5) * 0.4;
+
+  float la = smoothstep(0.00, 0.10, rp); // the rows purge onto the lane foot
+  float lg = smoothstep(0.76, 1.00, rp); // cross the pad into the mark
+
+  vec3 P = mix(gridPos, vec3(q, panelZ), la);
   P = mix(P, aLogo, lg);
   vec3 riserPos = P;
 
   vec3 pos = wFlow * flowPos + wTun * tunnelPos + base * riserPos;
 
-  // bright signal pulse travelling along the traces, over every routed stage
-  float rising = clamp(lb + lc + ld + le + lf, 0.0, 1.0) * (1.0 - lg);
+  // bright signal pulse travelling along the traces, over the whole routed run
+  float rising = la * (1.0 - lg);
   float pulse = pow(0.5 + 0.5 * sin(P.y * 1.6 - uTime * 2.4 + laneX), 8.0) * rising;
   float inLogo = lg;
 
@@ -191,6 +211,10 @@ void main() {
 }
 `
   .replace(/LOGO_CENTER_Y_C/g, LOGO_CENTER_Y.toFixed(2))
+  .replace(/CHIP_HALF_C/g, CHIP_HALF.toFixed(3))
+  .replace(/BOTTOM_X_C/g, BOTTOM_X.toFixed(3))
+  .replace(/LANE_STEP_C/g, LANE_STEP.toFixed(3))
+  .replace(/PAD_PITCH_C/g, PAD_PITCH.toFixed(3))
   .replace(/FEED_COUNT_C/g, FEED_COUNT.toFixed(1))
   .replace(/TOWER_X_C/g, ELEVATOR.pos.x.toFixed(2))
   .replace(/TOWER_Z_C/g, ELEVATOR.pos.z.toFixed(2))
@@ -274,7 +298,7 @@ export default function ParticleEngine() {
   useEffect(() => {
     let cancelled = false
     sampleSvgPoints('/logo.svg', COUNT, {
-      worldHeight: 3.2,
+      worldHeight: LOGO_HEIGHT,
       centerY: LOGO_CENTER_Y,
       rasterHeight: 820,
       step: 2,

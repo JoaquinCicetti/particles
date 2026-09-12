@@ -418,40 +418,6 @@ body {
   color: var(--fg-dim);
 }
 
-/* finale — sits below the centered, glowing brand mark */
-.finale {
-  position: absolute;
-  left: 50%;
-  bottom: calc(7vh + env(safe-area-inset-bottom));
-  translate: -50% 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.2rem;
-  opacity: 0;
-  text-align: center;
-}
-
-.finale-word {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(1.4rem, 3vw, 2.3rem);
-  letter-spacing: 0.42em;
-  margin-right: -0.42em; /* optically recenter tracked text */
-  color: var(--fg);
-  text-shadow: 0 0 28px rgba(200, 127, 61, 0.45);
-}
-
-.finale-tag {
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.5em;
-  color: var(--copper);
-}
-
 /* primary CTA — dark glass pill, luminous copper outline + glowing text */
 .cta {
   position: relative;
@@ -525,34 +491,6 @@ body {
   font-size: 0.55rem;
   letter-spacing: 0.3em;
   color: var(--fg-dim);
-}
-
-/* "see solutions" — invites the scroll past the logo */
-.finale-more {
-  pointer-events: auto;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.4rem;
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.4em;
-  color: var(--copper);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.finale-more:hover {
-  color: var(--copper-bright);
-}
-
-.finale-more i {
-  width: 1px;
-  height: 2.2rem;
-  background: linear-gradient(to bottom, var(--copper), transparent);
-  animation: hint-drop 2.2s ease-in-out infinite;
-  transform-origin: top;
 }
 
 /* scroll hint */
@@ -1298,7 +1236,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .grain,
   .hint i,
-  .finale-more i,
   .metric-float {
     animation: none;
   }
@@ -1606,8 +1543,7 @@ body {
 .lang-opt,
 .dialog-close,
 .sheet-link,
-.sidenav-item,
-.finale-more {
+.sidenav-item {
   min-height: 3rem; /* ≥ 48px tap target */
 }
 
@@ -1706,13 +1642,8 @@ body {
   font-size: 1.02rem;
 }
 
-.finale-tag,
 .contact-line {
   font-size: 0.74rem;
-}
-
-.finale-more {
-  font-size: 0.7rem;
 }
 
 .finale-fine {
