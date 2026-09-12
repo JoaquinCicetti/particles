@@ -90,7 +90,10 @@ export const SENSOR_POINTS: THREE.Vector3[] = [
     )
   }),
   GROUND_SENSOR,
-  v(ELEVATOR.pos.x, ELEVATOR.height + 0.4, ELEVATOR.pos.z),
+  // NOTE: no sensor on the tower head. Every sensor gets a feed that drifts
+  // DOWN to the enclosure at y 2.4, so one up at y 11.9 sent a stream running
+  // against the uplink rising out of the box — two opposed flows on the same
+  // axis, which read as a mistake.
 ]
 
 
