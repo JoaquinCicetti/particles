@@ -840,8 +840,10 @@ body {
   background: linear-gradient(to bottom, rgba(5, 3, 2, 0) 0, var(--bg) 40vh);
   padding-top: 36vh;
   padding-left: calc(clamp(1.5rem, 6vw, 6rem) + env(safe-area-inset-left));
-  /* extra room on the right for the fixed side index + rail */
-  padding-right: calc(clamp(1.5rem, 6vw, 6rem) + 8rem + env(safe-area-inset-right));
+  /* extra room on the right for the fixed side index + rail. the index is a
+     glass panel now, so it occludes rather than overlaps — reserve its full
+     width (~10.5rem incl. its own right offset) plus a gutter */
+  padding-right: calc(clamp(1.5rem, 6vw, 6rem) + 10.5rem + env(safe-area-inset-right));
   overflow: hidden; /* ghost numerals and glows must not widen the page */
 }
 
