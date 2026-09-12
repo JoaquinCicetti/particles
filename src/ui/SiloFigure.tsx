@@ -1,41 +1,53 @@
 import { useIntl } from 'react-intl'
 import { M } from '../i18n/messages'
+import { GrowcastStack, PHONE_PORT, PhoneCard, Pulse, SensorNode, UplinkArc, stackPorts } from './figures'
 
 /**
- * Animated silo schematic for the silos section: two thermometry cables hang
- * inside the grain mass, their readings pulse up to the node box, on to the
- * Growcast core, and a command pulse comes back down to the aeration fan.
- * A hot spot on the left cable throbs. Pure SVG + CSS (offset-path).
+ * Animated silo schematic: two thermometry cables hang inside the grain
+ * mass, a CO₂ pod sits on the roof vent, and their readings pulse up to the
+ * Growcast device on the rail to the right. Its expander drives one control
+ * module, which commands the aeration fan; the uplink carries everything to
+ * the phone below. A hot spot on the left cable throbs.
+ *
+ * The silo lives inside <g transform="translate(4 10)">. CSS offset-path
+ * resolves in the ELEMENT'S OWN coordinate system, so every <Pulse> below
+ * lives at root level with root-coordinate path data — never inside that
+ * group.
  */
 
-// wires the pulses travel along (viewBox units, inside the translated group)
-const CABLE_L = 'M74 190 V49 L98 34 V22 H200 V52'
-const CABLE_R = 'M122 190 V49 L98 34 V22 H200 V52'
-const TO_CORE = 'M214 63 H268'
-const TO_FAN = 'M200 74 V212 H182'
+// pulse paths, in ROOT coordinates (= local + 4, + 10)
+const CABLE_L = 'M78 200 V59 L102 44 V6 H200 V42 H214'
+const CABLE_R = 'M126 200 V59 L102 44 V6 H200 V42 H214'
+/** the leg the cables share above the roof — the only part not already drawn in-group */
+const TRUNK = 'M102 44 V6 H200 V42 H214'
+const TO_FAN = 'M312 30.75 H208 V222 H185'
+const UPLINK = 'M278 50 H284 V118 H320'
+
+const STACK_X = 214
+const STACK_Y = 22
+const PHONE_X = 294
+const PHONE_Y = 138
+const PHONE_S = 1.15
+
+const P = stackPorts(STACK_X, STACK_Y)
+const PHONE = PHONE_PORT(PHONE_X, PHONE_Y, PHONE_S)
+
+const CO2 = { x: 96, y: 6 }
 
 const NODES_Y = [80, 104, 128, 152, 176]
 const GRAIN_TOP_AT = (x: number) => (x < 98 ? 132 - ((x - 46) / 52) * 20 : 112 + ((x - 98) / 52) * 20)
 
 export default function SiloFigure() {
   const intl = useIntl()
-  const pulse = (path: string, d: string, delay: string, cmd = false) => (
-    <circle
-      key={`${path}-${delay}`}
-      className={`fig-pulse${cmd ? ' cmd' : ''}`}
-      r="2.2"
-      style={{ offsetPath: `path('${path}')`, ['--d' as string]: d, ['--delay' as string]: delay }}
-    />
-  )
 
   return (
-    <svg className="fig" viewBox="0 0 364 246" role="img" aria-label={intl.formatMessage(M.siloAria)}>
+    <svg className="fig" viewBox="0 0 364 272" role="img" aria-label={intl.formatMessage(M.siloAria)}>
       <defs>
         <pattern id="silo-grain" width="6" height="6" patternUnits="userSpaceOnUse">
           <circle cx="3" cy="3" r="0.75" fill="currentColor" opacity="0.45" />
         </pattern>
       </defs>
-      <g transform="translate(24 0)">
+      <g transform="translate(4 10)">
         {/* grain mass */}
         <path d="M46 132 L98 112 L150 132 V200 H46 Z" fill="currentColor" opacity="0.1" />
         <path d="M46 132 L98 112 L150 132 V200 H46 Z" fill="url(#silo-grain)" />
@@ -54,13 +66,7 @@ export default function SiloFigure() {
           <path d="M96 30 V34 M100 30 V34" />
         </g>
 
-        {/* headspace CO₂ sensor */}
-        <rect x="88" y="44" width="20" height="9" rx="1" className="fig-node" />
-        <text x="98" y="51" textAnchor="middle" className="fig-lbl" fontSize="7">
-          CO₂
-        </text>
-
-        {/* thermometry cables + sensor nodes */}
+        {/* thermometry cables + sensor nodes (cable-mounted thermocouples) */}
         <path d="M74 49 V190 M122 49 V190" className="fig-cable" />
         <path d="M74 49 L98 34 L122 49" className="fig-wire" />
         {[74, 122].map((x) =>
@@ -79,26 +85,6 @@ export default function SiloFigure() {
           24.1 °C
         </text>
 
-        {/* roof → node → core, node → fan */}
-        <path d="M98 34 V22 H200 V52" className="fig-wire" />
-        <path d={TO_CORE} className="fig-wire" />
-        <path d={TO_FAN} className="fig-wire" />
-
-        {/* node box */}
-        <rect x="186" y="52" width="28" height="22" rx="2" className="fig-node" />
-        <rect x="192" y="59" width="16" height="8" rx="1" fill="currentColor" opacity="0.75" />
-        <text x="200" y="86" textAnchor="middle" className="fig-lbl">
-          {intl.formatMessage(M.siloLblNode)}
-        </text>
-
-        {/* growcast core */}
-        <rect x="268" y="50" width="48" height="26" rx="2" className="fig-node" />
-        <path d="M280 63 h24 M292 55 v16" stroke="currentColor" strokeWidth="1" opacity="0.8" />
-        <circle cx="292" cy="63" r="3" fill="currentColor" />
-        <text x="292" y="88" textAnchor="middle" className="fig-lbl fig-lbl-accent">
-          {intl.formatMessage(M.siloLblCore)}
-        </text>
-
         {/* aeration fan */}
         <circle cx="170" cy="212" r="11" className="fig-node" />
         <g className="fig-fan-blades" fill="currentColor" opacity="0.9">
@@ -110,20 +96,48 @@ export default function SiloFigure() {
         <text x="170" y="234" textAnchor="middle" className="fig-lbl">
           {intl.formatMessage(M.siloLblFan)}
         </text>
-
-        {/* probes label under the silo */}
-        <text x="98" y="243" textAnchor="middle" className="fig-lbl">
-          {intl.formatMessage(M.siloLblProbes)}
-        </text>
-
-        {/* travelling readings + command pulse */}
-        {pulse(CABLE_L, '4.2s', '0s')}
-        {pulse(CABLE_L, '4.2s', '-2.1s')}
-        {pulse(CABLE_R, '4.6s', '-1s')}
-        {pulse(CABLE_R, '4.6s', '-3.3s')}
-        {pulse(TO_CORE, '1.6s', '-0.4s')}
-        {pulse(TO_FAN, '3.2s', '-1.2s', true)}
       </g>
+
+      {/* ── wiring, in root coordinates ── */}
+      <path d={TRUNK} className="fig-wire" />
+      <path d={TO_FAN} className="fig-wire" />
+      <path d={UPLINK} className="fig-wire" />
+      <path d={`M${PHONE.x} ${P.uplink.y} V${PHONE.y}`} className="fig-link" />
+
+      {/* headspace CO₂ pod, mounted on the roof vent */}
+      <SensorNode x={CO2.x} y={CO2.y} kind="co2" />
+      <text x="92" y="24" textAnchor="end" className="fig-lbl" fontSize="7">
+        CO₂
+      </text>
+
+      {/* the product: device + expander + one control module on a DIN rail */}
+      <GrowcastStack x={STACK_X} y={STACK_Y} modules={1} />
+
+      {/* live uplink to the phone */}
+      <UplinkArc cx={P.uplink.x} cy={P.uplink.y} />
+      <text x="300" y="130" textAnchor="end" className="fig-lbl fig-lbl-accent" fontSize="7">
+        {intl.formatMessage(M.figLive)}
+      </text>
+      <PhoneCard x={PHONE_X} y={PHONE_Y} s={PHONE_S} metrics={['temp', 'co2']} />
+      <text x={PHONE.x} y="249" textAnchor="middle" className="fig-lbl" fontSize="7">
+        {intl.formatMessage(M.figPhone)}
+      </text>
+      <text x={PHONE.x} y="258" textAnchor="middle" className="fig-lbl fig-lbl-accent" fontSize="7">
+        {intl.formatMessage(M.figApp)}
+      </text>
+
+      {/* probes label under the silo */}
+      <text x="102" y="258" textAnchor="middle" className="fig-lbl">
+        {intl.formatMessage(M.siloLblProbes)}
+      </text>
+
+      {/* travelling readings + command pulse — root level, root path data */}
+      <Pulse path={CABLE_L} d="4.2s" delay="0s" />
+      <Pulse path={CABLE_L} d="4.2s" delay="-2.1s" />
+      <Pulse path={CABLE_R} d="4.6s" delay="-1s" />
+      <Pulse path={CABLE_R} d="4.6s" delay="-3.3s" />
+      <Pulse path={TO_FAN} d="3.2s" delay="-1.2s" cmd />
+      <Pulse path={UPLINK} d="2s" delay="-0.4s" />
     </svg>
   )
 }
