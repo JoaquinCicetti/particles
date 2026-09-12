@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { scrollState } from '../lib/scroll'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
+import { createRandom } from '../lib/random'
 import { M } from '../i18n/messages'
 import SideNav from './SideNav'
 import ContactCta from './ContactCta'
@@ -21,14 +22,58 @@ const METRICS = [
 // hold the chips back until the particle wall is building behind them — the
 // dense field is what gives the small mono type enough contrast to read
 const METRIC_WINDOW: [number, number] = [0.3, 0.56]
-// Per-chip delays, ordered against the LAYOUT rather than the array. The chips
-// sit alternating left/right and descending (.metric-1..6 in the CSS), so
-// scrambling index order is not enough on its own: the previous set happened to
-// sort into all three right-hand chips top-to-bottom, then all three left-hand
-// ones, which played as a tidy two-column sweep. These fire
-//   3 left-mid, 2 right-top, 6 right-low, 1 left-top, 4 right-mid, 5 left-low
-// crossing sides and heights, with uneven gaps so no cadence emerges either.
-const METRIC_DELAY = [0.066, 0.02, 0.0, 0.099, 0.12, 0.052] as const
+/**
+ * Per-chip entry delays and per-chip bubble motion, both drawn fresh PER PAGE
+ * LOAD from one seeded pass.
+ *
+ * On the entry order: any fixed table is a sequence however you permute it —
+ * the same chips arrive in the same order every time, and after two viewings
+ * you are watching a cue list. Two earlier attempts failed for a subtler reason
+ * as well: .metric-1..6 are laid out alternating left/right and descending, so
+ * a table scrambled by array INDEX can still sort into a tidy spatial sweep,
+ * which is exactly what happened both times. So the order is shuffled on every
+ * load, and the gaps are CLUSTERED rather than even — a pair, a pause, a burst
+ * of three, a pause, a straggler — because even gaps read as a drumbeat no
+ * matter which chip sits on which beat.
+ *
+ * On the motion: the chips are effervescence. Each is a bubble in the same flow
+ * the particles are in, so it RISES through its window (it used to drift down
+ * as a parallax against the climbing camera, which read as sinking), carries
+ * its own rise distance and rate, sways gently sideways on its own phase, and
+ * swells a little as it goes.
+ *
+ * Seeded off the clock rather than Math.random() to stay with the codebase's
+ * seeded-PRNG convention (react-hooks/purity forbids Math.random in render;
+ * this runs once at module init, but the convention is worth keeping).
+ */
+const { METRIC_DELAY, METRIC_BUBBLE } = (() => {
+  const rnd = createRandom((Date.now() & 0xffff) | 1)
+
+  const slots = [0, 0.012, 0.052, 0.061, 0.072, 0.132].map((v) => v + rnd() * 0.014)
+  const order = METRICS.map((_, i) => i)
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1))
+    const tmp = order[i]
+    order[i] = order[j]
+    order[j] = tmp
+  }
+  const delay = new Array<number>(METRICS.length).fill(0)
+  order.forEach((chip, k) => {
+    delay[chip] = slots[k] ?? 0
+  })
+
+  const bubble = METRICS.map(() => ({
+    rise: 30 + rnd() * 18, // vh travelled bottom-to-top
+    drop: 0.42 + rnd() * 0.2, // how much of that sits below the resting slot
+    // capped at 0.9vw (~13px at 1440): the right-hand chips clear the side
+    // index panel by ~19px, and a wider sway walks them under it
+    sway: 0.35 + rnd() * 0.55,
+    swaySpeed: 0.22 + rnd() * 0.3,
+    phase: rnd() * Math.PI * 2,
+  }))
+
+  return { METRIC_DELAY: delay, METRIC_BUBBLE: bubble }
+})()
 
 const PHASE_AT = [0, 0.16, 0.32, 0.5, 0.62, 0.88] as const
 const PHASE_MSG = [M.phase1, M.phase2, M.phase3, M.phase4, M.phase5, M.phase6] as const
@@ -100,12 +145,13 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
         const a = a0 + (METRIC_DELAY[i] ?? 0)
         const o = fadeWindow(p, a, b, 0.22)
         const t = Math.min(1, Math.max(0, (p - a) / (b - a)))
-        // la cámara sube por el flujo → los chips derivan hacia abajo
+        const bub = METRIC_BUBBLE[i]
         c.style.opacity = String(o)
-        // 32vh of drift rather than 18: each chip rises from well above its
-        // resting slot and carries on well below it, sweeping the frame as the
-        // camera climbs instead of just nudging
-        c.style.transform = `translateY(${lerp(-15, 17, t)}vh) scale(${0.7 + 0.3 * o})`
+        // effervescence: rise from below the resting slot up past it, swaying on
+        // this bubble's own phase and swelling a little on the way
+        const y = lerp(bub.rise * bub.drop, -bub.rise * (1 - bub.drop), t)
+        const x = Math.sin(now * 0.001 * bub.swaySpeed + bub.phase) * bub.sway
+        c.style.transform = `translate(${x}vw, ${y}vh) scale(${0.68 + 0.32 * o})`
         c.style.visibility = o < 0.01 ? 'hidden' : 'visible'
       })
 
