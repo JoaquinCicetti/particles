@@ -5,6 +5,7 @@ import { SILOS, ELEVATOR, WAREHOUSE, SENSOR_POINTS } from './particles/curves'
 import { createRandom } from '../lib/random'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
+import { FARM_FADE } from '../lib/acts'
 
 /**
  * Holographic farm structures: detailed wireframe grain silos, a gabled
@@ -424,7 +425,7 @@ export default function Structures() {
   }, [])
 
   useFrame(({ clock }) => {
-    const fade = 1 - smoothstep(0.3, 0.44, scrollState.smooth)
+    const fade = 1 - smoothstep(FARM_FADE[0], FARM_FADE[1], scrollState.smooth)
     const group = groupRef.current
     if (group) group.visible = fade > 0.01
     materials.line.opacity = 0.6 * fade

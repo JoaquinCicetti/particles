@@ -14,13 +14,17 @@ import { M } from '../i18n/messages'
  *     string injection, not uniforms, so the driver constant-folds every
  *     smoothstep bound: zero extra ALU on a 110k-vertex shader, zero uniforms.
  *   • the overlay renders one copy block per act and reads its own windows.
- *   • CameraRig samples one pose per act.
+ *   • CameraRig samples one pose per act, piecewise.
  *   • the scroll track height comes from ACTS.length × ACT_VH.
+ *
+ * The five acts are the client's own canonical narrative:
+ *   medimos · conectamos · analizamos · controlamos · registramos
  *
  * Everything here is plain data (no THREE import) so it stays cheap to import
  * from the DOM side of the app.
  */
 
+export type Vec2 = readonly [number, number]
 export type Vec3 = readonly [number, number, number]
 export type Align = 'center' | 'left'
 export type Shape = 'flow' | 'stream' | 'board' | 'logo'
@@ -34,8 +38,6 @@ export type ActCopy = {
   span?: Vec2
 }
 
-export type Vec2 = readonly [number, number]
-
 export type CameraPose = { pos: Vec3; target: Vec3 }
 
 export type Act = {
@@ -44,6 +46,7 @@ export type Act = {
   at: number
   label: MessageDescriptor
   copy?: ActCopy
+  /** the pose the camera SETTLES on at the start of this act */
   camera: CameraPose
   cameraMobile?: CameraPose
   shape: Shape
@@ -53,122 +56,79 @@ export type Act = {
 
 export const ACTS: readonly Act[] = [
   {
-    id: 'farm',
+    // 0.00 → 0.20 — the establishing shot: the farm, its sensors bubbling up.
+    // The hero copy and the metric chips are this act's copy.
+    id: 'medimos',
     at: 0,
     label: M.phase1,
     shape: 'flow',
-    camera: { pos: [-1, 6.2, 24], target: [0, 2.8, 0] },
-    cameraMobile: { pos: [-3.4, 5.2, 16.5], target: [-7.2, 3.0, -3] },
+    // the 1.6-unit scene shift that used to be applied every frame (to clear
+    // the hero copy on the left) is baked into this pose, and only this one
+    camera: { pos: [2.79, 5.82, 20.66], target: [-0.51, 2.97, 0.05] },
+    cameraMobile: { pos: [-1.66, 5.37, 16.57], target: [-5.53, 2.81, -1.56] },
   },
   {
-    id: 'sensors',
-    at: 0.16,
+    // 0.20 → 0.40 — descend onto the elevator; every sensor's telemetry
+    // converges into one rising stream
+    id: 'conectamos',
+    at: 0.2,
     label: M.phase2,
-    shape: 'flow',
+    shape: 'stream',
+    blend: [0.26, 0.38],
     copy: {
       kicker: M.sensorsKicker,
       title: M.sensorsTitle,
       body: M.sensorsBody,
       align: 'center',
-      span: [0.16, 0.3],
+      span: [0.15, 0.42],
     },
-    camera: { pos: [-1.5, 8.0, 5.5], target: [-3.6, 7.0, -2] },
+    camera: { pos: [-2.4, 6.8, 3.0], target: [-3.6, 7.7, -2.0] },
   },
   {
-    id: 'stream',
-    at: 0.32,
+    // 0.40 → 0.60 — out of the vortex and back: the stream sorts itself into
+    // the structured field
+    id: 'analizamos',
+    at: 0.4,
     label: M.phase3,
-    shape: 'stream',
-    blend: [0.3, 0.42],
-    camera: { pos: [-3.6, 3.2, -1.2], target: [-3.6, 10.0, -2] },
-  },
-  {
-    id: 'structured',
-    at: 0.5,
-    label: M.phase4,
     shape: 'board',
-    blend: [0.5, 0.58],
+    blend: [0.48, 0.6],
     copy: {
       kicker: M.dataKicker,
       title: M.dataTitle,
       body: M.dataBody,
       align: 'left',
-      span: [0.5, 0.6],
+      span: [0.4, 0.62],
     },
-    camera: { pos: [0, 3.0, 12.5], target: [0, 1.8, 0] },
+    camera: { pos: [-3.65, 3.5, -1.35], target: [-3.6, 10.6, -2.0] },
   },
   {
-    id: 'converge',
-    at: 0.62,
-    label: M.phase5,
+    // 0.60 → 0.80 — the traces lift off the board and climb toward the mark
+    id: 'controlamos',
+    at: 0.6,
+    label: M.phase4,
     shape: 'board',
     copy: {
       kicker: M.tagline,
       title: M.convergeTitle,
       body: M.convergeBody,
       align: 'left',
-      span: [0.64, 0.85],
+      span: [0.6, 0.86],
     },
-    camera: { pos: [0, 5.0, 11.5], target: [0, 4.2, 0] },
+    camera: { pos: [0, 3.15, 12.5], target: [0, 1.9, 0] },
   },
   {
-    id: 'growcast',
-    at: 0.88,
-    label: M.phase6,
+    // 0.80 → 1.00 — everything has landed on the brand mark; the finale lockup
+    // is this act's copy
+    id: 'registramos',
+    at: 0.8,
+    label: M.phase5,
     shape: 'logo',
-    camera: { pos: [0, 6.2, 8.8], target: [0, 5.0, 0] },
+    camera: { pos: [0, 5.2, 11.4], target: [0, 4.3, 0] },
   },
 ]
 
-/**
- * The camera path as it stands today: eleven CatmullRom knots swept as ONE
- * global arclength curve. Stage C1 collapses this to one pose per act (the
- * `camera` fields above) sampled piecewise; until then CameraRig keeps reading
- * these so the refactor is provably a no-op.
- */
-export const STORY_KNOTS: {
-  positions: readonly Vec3[]
-  targets: readonly Vec3[]
-  mobilePositions: readonly Vec3[]
-  mobileTargets: readonly Vec3[]
-} = {
-  positions: [
-    [-1, 6.2, 24], //   0.000  far, high, wide farm landscape
-    [6.5, 5.8, 18], //  0.111  drift right toward the warehouse
-    [-1.5, 8.0, 5.5], //0.222  descent toward the (relocated) elevator
-    [-3.0, 5.2, 0.8], //into the stream
-    [-3.6, 4.2, -1.0], //inside the stream, descending
-    [-3.6, 2.2, -1.4], //deeper down inside the vortex (extra dwell)
-    [0, 3.0, 12.5], //  pull back to the structured rows
-    [0, 3.6, 12], //    0.667  rows settle, the riser begins
-    [0, 5.0, 11.5], //  0.778  follow the data rising up the lanes
-    [0, 6.2, 10], //    0.889  frame the brand mark forming
-    [0, 6.2, 8.8], //   1.000  the brand mark
-  ],
-  targets: [
-    [0, 2.8, 0],
-    [1.5, 3.2, 0],
-    [-3.6, 7.0, -2], // look at the relocated tower
-    [-3.6, 8.5, -2],
-    [-3.6, 10.0, -2],
-    [-3.6, 11.5, -2], // keep looking up the vortex while descending
-    [0, 1.8, 0], // pan back to the data field at origin
-    [0, 2.6, 0],
-    [0, 4.2, 0],
-    [0, 4.9, 0], // tilt down so the brand mark frames above center
-    [0, 5.0, 0], // logo sits a bit above the middle, clear of the finale text
-  ],
-  // mobile (portrait) crops the wide establishing shot, so the opening reframes
-  // onto the silo cluster (left of the tower) before the descent
-  mobilePositions: [
-    [-3.4, 5.2, 16.5],
-    [1.5, 5.6, 16],
-  ],
-  mobileTargets: [
-    [-7.2, 3.0, -3],
-    [-2.5, 3.2, -1],
-  ],
-}
+/** where the camera comes to rest at p = 1 — the brand mark, framed */
+export const END_POSE: CameraPose = { pos: [0, 6.2, 8.8], target: [0, 5.0, 0] }
 
 // ── derived helpers ────────────────────────────────────────────
 
@@ -189,11 +149,8 @@ export function copySpan(i: number): Vec2 {
   return ACTS[i].copy?.span ?? [ACTS[i].at, actEnd(i)]
 }
 
-/** progress at which the finale (brand lockup + CTA) takes over */
-export const FINALE_IN = 0.92
-
 /** viewport-heights of scroll per act — ACTS.length × this is the track height */
-export const ACT_VH = 800 / 6
+export const ACT_VH = 120
 
 // ── shader constants ───────────────────────────────────────────
 // Everything the particle vertex shader needs to know about the timeline.
@@ -209,8 +166,26 @@ const STREAM = shapeBlend('stream')
 const BOARD = shapeBlend('board')
 
 /** how far the riser's left→right stagger spreads, and how long one trace takes */
-export const RISE_STAGGER = 0.08
-export const RISE_SPAN = 0.24
+export const RISE_STAGGER = 0.06
+export const RISE_SPAN = 0.16
+/** the board holds, fully formed, for this long before the first trace lifts */
+const BOARD_HOLD = 0.02
+/** the leftmost trace leaves the board here; the rightmost lands at FINALE_IN */
+export const RISE_AT = BOARD[1] + BOARD_HOLD
+
+/**
+ * Progress at which the finale (brand lockup + CTA) takes over: the exact
+ * moment the last trace lands on the mark.
+ */
+export const FINALE_IN = RISE_AT + RISE_STAGGER + RISE_SPAN
+
+/** the built farm fades out as the field morphs into the vortex */
+export const FARM_FADE: Vec2 = [STREAM[0] + 0.04, STREAM[1] + 0.06]
+/** the faint topology threads go a beat earlier than the structures */
+export const NETWORK_FADE: Vec2 = [FARM_FADE[0] - 0.02, FARM_FADE[1] - 0.02]
+
+/** the floating sensor chips belong to act 1 — "medimos" is what they show */
+export const METRIC_WINDOW: Vec2 = [0.07, 0.33]
 
 const f = (n: number) => n.toFixed(4)
 
@@ -219,8 +194,7 @@ export const ACTS_GLSL = [
   `#define GC_STREAM_FULL ${f(STREAM[1])}`,
   `#define GC_BOARD_IN ${f(BOARD[0])}`,
   `#define GC_BOARD_FULL ${f(BOARD[1])}`,
-  // the riser leaves the board the moment the board is fully formed
-  `#define GC_RISE_AT ${f(BOARD[1])}`,
+  `#define GC_RISE_AT ${f(RISE_AT)}`,
   `#define GC_RISE_STAGGER ${f(RISE_STAGGER)}`,
   `#define GC_RISE_SPAN ${f(RISE_SPAN)}`,
 ].join('\n')

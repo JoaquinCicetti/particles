@@ -84,7 +84,7 @@ body {
    `--story-vh` is published by bindScroll() as ACTS.length × ACT_VH: the
    timeline in src/lib/acts.ts owns the pacing, this only renders it. */
 .scroll-track {
-  height: calc(var(--story-vh, 800) * 1vh);
+  height: calc(var(--story-vh, 600) * 1vh);
 }
 
 .canvas-layer {

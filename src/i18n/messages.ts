@@ -53,13 +53,12 @@ export const M = defineMessages({
   mPhLabel: { id: 'metric.ph.label', defaultMessage: 'pH' },
   mAirLabel: { id: 'metric.air.label', defaultMessage: 'FLUJO DE AIRE' },
 
-  // scroll phase ticker
-  phase1: { id: 'phase.1', defaultMessage: '01 / EL ESTABLECIMIENTO' },
-  phase2: { id: 'phase.2', defaultMessage: '02 / RED DE SENSORES' },
-  phase3: { id: 'phase.3', defaultMessage: '03 / FLUJO DE DATOS' },
-  phase4: { id: 'phase.4', defaultMessage: '04 / DATOS ESTRUCTURADOS' },
-  phase5: { id: 'phase.5', defaultMessage: '05 / CONVERGENCIA' },
-  phase6: { id: 'phase.6', defaultMessage: '06 / GROWCAST' },
+  // scroll phase ticker — the client's five canonical stages
+  phase1: { id: 'phase.1', defaultMessage: '01 / MEDIMOS' },
+  phase2: { id: 'phase.2', defaultMessage: '02 / CONECTAMOS' },
+  phase3: { id: 'phase.3', defaultMessage: '03 / ANALIZAMOS' },
+  phase4: { id: 'phase.4', defaultMessage: '04 / CONTROLAMOS' },
+  phase5: { id: 'phase.5', defaultMessage: '05 / REGISTRAMOS' },
 
   // contact dialog
   dialogKicker: { id: 'dialog.kicker', defaultMessage: 'COORDINEMOS' },

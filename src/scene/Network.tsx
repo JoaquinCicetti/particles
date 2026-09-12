@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { FLOW_CURVES } from './particles/curves'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
+import { NETWORK_FADE } from '../lib/acts'
 
 /** Faint copper threads tracing the telemetry topology between structures. */
 export default function Network() {
@@ -24,7 +25,7 @@ export default function Network() {
   }, [])
 
   useFrame(() => {
-    const fade = 1 - smoothstep(0.28, 0.42, scrollState.smooth)
+    const fade = 1 - smoothstep(NETWORK_FADE[0], NETWORK_FADE[1], scrollState.smooth)
     material.opacity = 0.08 * fade
     if (groupRef.current) groupRef.current.visible = fade > 0.01
   })

@@ -34,8 +34,12 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 // in. The frame guard keeps a double-call (our loop + useFrame in the same
 // frame) from advancing twice.
 
-/** exponential damping rate for `smooth` chasing `target` */
-const DAMP = 3.2
+/**
+ * Exponential damping rate for `smooth` chasing `target`. Raised from 3.2 when
+ * the track went 800vh → 600vh: over a 25% shorter page the old rate lagged far
+ * enough that a fast trackpad flick could skip a copy block entirely.
+ */
+const DAMP = 4.5
 
 let lastAdvance = 0
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { scrollState } from '../lib/scroll'
-import { ACTS, copySpan, FINALE_IN } from '../lib/acts'
+import { ACTS, copySpan, FINALE_IN, METRIC_WINDOW } from '../lib/acts'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
 import { M } from '../i18n/messages'
 import SideNav from './SideNav'
@@ -18,7 +18,6 @@ const METRICS = [
   { icon: 'ph', label: M.mPhLabel, value: '6.3', unit: 'pH' },
   { icon: 'air', label: M.mAirLabel, value: '1.8', unit: 'm/s' },
 ] as const
-const METRIC_WINDOW: [number, number] = [0.17, 0.46]
 
 type Props = { onContact: () => void; onMenu: () => void }
 
