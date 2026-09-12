@@ -5,7 +5,7 @@ import type { GlyphKey } from './ui/glyphs'
 
 export const MOD_KEY = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘' : 'Ctrl'
 
-export const typeLabel = (intl: IntlShape, it: Pick<Item, 'type' | 'sensorKind'>) =>
+const typeLabel = (intl: IntlShape, it: Pick<Item, 'type' | 'sensorKind'>) =>
   intl.formatMessage(it.type === 'sensor' && it.sensorKind ? SENSOR_SPECS[it.sensorKind].label : ITEM_SPECS[it.type].label)
 
 /** The custom name, or "Rack 2"-style numbering among its siblings. */

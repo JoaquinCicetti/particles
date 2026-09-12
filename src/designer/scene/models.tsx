@@ -1,7 +1,18 @@
 import { useMemo } from 'react'
 import { bodyHeight } from '../model/geometry'
 import type { Item, Room } from '../model/schema'
-import { CONE_GEO, HIT_GEO, LINE, MAT, SENSOR_MAT, TORUS_GEO, noRaycast, type Tone } from './materials'
+import {
+  CONE_GEO,
+  HIT_GEO,
+  LINE,
+  MAT,
+  MIST_GEO,
+  SENSOR_MAT,
+  TORUS_GEO,
+  TORUS_MID_GEO,
+  noRaycast,
+  type Tone,
+} from './materials'
 import { Box, Cyl, Lines, Plants } from './parts'
 
 /**
@@ -46,7 +57,12 @@ function Rack({ item, room, tone }: Props) {
         <Box key={i} size={[post, H, post]} position={[x, H / 2, z]} material={MAT.metal} tone={tone} />
       ))}
       {shelves.map((y, i) => (
-        <Box key={i} size={[w, 0.03, d]} position={[0, y, 0]} material={MAT.tray} tone={tone} />
+        <group key={i}>
+          <Box size={[w, 0.03, d]} position={[0, y, 0]} material={MAT.tray} tone={tone} />
+          {/* front/back lips: a bare slab reads as a floating plane */}
+          <Box size={[w, 0.035, 0.018]} position={[0, y + 0.03, -d / 2 + 0.009]} material={MAT.metal} />
+          <Box size={[w, 0.035, 0.018]} position={[0, y + 0.03, d / 2 - 0.009]} material={MAT.metal} />
+        </group>
       ))}
       <Box size={[w, 0.03, d]} position={[0, H - 0.015, 0]} material={MAT.metal} tone={tone} />
       <Plants spots={spots} size={Math.min(0.1, gap * 0.22)} />
@@ -112,42 +128,65 @@ function Light({ item, room, tone }: Props) {
 function Climate({ item, tone }: Props) {
   const { width: w, depth: d } = item
   const h = 0.3
-  const grill = useMemo(() => {
-    const p: number[] = []
-    for (let i = 0; i < 4; i++) {
-      const y = h * (0.42 + i * 0.12)
-      p.push(-w * 0.42, y, d / 2 + 0.002, w * 0.42, y, d / 2 + 0.002)
-    }
-    return p
-  }, [w, d])
+  const slats = 6
+  const face = d / 2
   return (
     <group>
       <Box size={[w, h, d]} position={[0, h / 2, 0]} material={MAT.shell} tone={tone} />
-      <Box size={[w * 0.86, 0.03, 0.03]} position={[0, 0.05, d / 2]} rotation={[0.5, 0, 0]} material={MAT.metal} tone={tone} />
-      <Box size={[0.03, 0.012, 0.006]} position={[w * 0.4, h * 0.8, d / 2 + 0.003]} material={MAT.led} />
-      <Lines points={grill} material={LINE.wire} />
+      {/* intake grille on the front face — the only side normally in view */}
+      {Array.from({ length: slats }, (_, i) => (
+        <Box
+          key={i}
+          size={[w * 0.9, h * 0.6 / slats * 0.62, 0.012]}
+          position={[0, h * 0.34 + (h * 0.58 * (i + 0.5)) / slats, face + 0.004]}
+          rotation={[0.5, 0, 0]}
+          material={MAT.louver}
+        />
+      ))}
+      {/* discharge vane under the grille, angled down into the room */}
+      <Box size={[w * 0.9, 0.03, 0.055]} position={[0, h * 0.17, face - 0.008]} rotation={[0.75, 0, 0]} material={MAT.louver} />
+      {/* bezel: a thin frame reads as a moulded case rather than a bare box */}
+      <Box size={[w, 0.016, 0.016]} position={[0, h - 0.008, face + 0.004]} material={MAT.metal} />
+      <Box size={[w, 0.016, 0.016]} position={[0, 0.008, face + 0.004]} material={MAT.metal} />
+      <Box size={[0.016, h, 0.016]} position={[-w / 2 + 0.008, h / 2, face + 0.004]} material={MAT.metal} />
+      <Box size={[0.016, h, 0.016]} position={[w / 2 - 0.008, h / 2, face + 0.004]} material={MAT.metal} />
+      <Box size={[0.03, 0.012, 0.006]} position={[w * 0.38, h * 0.14, face + 0.012]} material={MAT.led} />
     </group>
   )
 }
 
+const FAN_BLADES = 4
+const FAN_SPOKES = 4
+
 function Fan({ tone }: Props) {
   return (
     <group>
-      <Box size={[0.14, 0.04, 0.14]} position={[0, 0.02, 0]} material={MAT.metal} tone={tone} />
-      <Box size={[0.025, 0.13, 0.025]} position={[0, 0.1, 0]} material={MAT.metal} tone={tone} />
+      <Cyl size={[0.17, 0.025, 0.17]} position={[0, 0.012, 0]} material={MAT.metal} tone={tone} />
+      <Box size={[0.028, 0.15, 0.028]} position={[0, 0.1, 0]} material={MAT.metal} />
+      {/* tilt yoke */}
+      <Box size={[0.05, 0.05, 0.022]} position={[0, 0.18, 0]} material={MAT.shell} />
       <group position={[0, 0.3, 0]}>
         <mesh geometry={TORUS_GEO} material={MAT.metal} />
-        <Cyl size={[0.06, 0.08, 0.06]} rotation={[Math.PI / 2, 0, 0]} material={MAT.shell} tone={tone} />
-        {[0, 1, 2].map((i) => {
-          const a = (i * Math.PI * 2) / 3
+        <mesh geometry={TORUS_MID_GEO} material={MAT.metal} />
+        {/* cage spokes: one bar spans the guard, so four bars read as eight */}
+        {Array.from({ length: FAN_SPOKES }, (_, i) => (
+          <Box
+            key={i}
+            size={[0.005, 0.34, 0.005]}
+            rotation={[0, 0, (i * Math.PI) / FAN_SPOKES]}
+            material={MAT.metal}
+          />
+        ))}
+        <Cyl size={[0.07, 0.075, 0.07]} rotation={[Math.PI / 2, 0, 0]} material={MAT.shell} tone={tone} />
+        {Array.from({ length: FAN_BLADES }, (_, i) => {
+          const a = (i * Math.PI * 2) / FAN_BLADES
           return (
             <Box
               key={i}
-              size={[0.05, 0.13, 0.008]}
-              position={[Math.sin(a) * 0.08, Math.cos(a) * 0.08, 0.03]}
-              rotation={[0, 0, -a]}
+              size={[0.085, 0.135, 0.006]}
+              position={[Math.sin(a) * 0.085, Math.cos(a) * 0.085, 0.022]}
+              rotation={[0, 0.38, -a]}
               material={MAT.shell}
-              tone={tone}
             />
           )
         })}
@@ -158,12 +197,22 @@ function Fan({ tone }: Props) {
 
 function Humidifier({ item, tone }: Props) {
   const r = Math.min(item.width, item.depth) / 2
+  const nozzle = 0.69
   return (
     <group>
       <Cyl size={[r * 1.8, 0.55, r * 1.8]} position={[0, 0.275, 0]} material={MAT.shell} tone={tone} />
+      {/* tank seam + water line */}
+      <Cyl size={[r * 1.86, 0.012, r * 1.86]} position={[0, 0.2, 0]} material={MAT.metal} />
       <Cyl size={[r * 1.84, 0.015, r * 1.84]} position={[0, 0.42, 0]} material={MAT.led} />
       <Cyl size={[r * 1.2, 0.08, r * 1.2]} position={[0, 0.59, 0]} material={MAT.metal} tone={tone} />
-      <Cyl size={[r * 0.5, 0.06, r * 0.5]} position={[0, 0.66, 0]} material={MAT.body} tone={tone} />
+      <Cyl size={[r * 0.5, 0.06, r * 0.5]} position={[0, nozzle - 0.03, 0]} material={MAT.body} tone={tone} />
+      <mesh
+        geometry={MIST_GEO}
+        material={MAT.mist}
+        position={[0, nozzle + 0.3, 0]}
+        scale={[r * 2.4, 0.6, r * 2.4]}
+        raycast={noRaycast}
+      />
     </group>
   )
 }

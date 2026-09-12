@@ -118,7 +118,6 @@ export const D = defineMessages({
   cEmailInvalid: { id: 'dz.contact.emailInvalid', defaultMessage: 'Revisá el email.' },
 
   // inspector
-  inspector: { id: 'dz.insp.title', defaultMessage: 'Elemento' },
   inspectorEmpty: {
     id: 'dz.insp.empty',
     defaultMessage: 'Seleccioná un elemento en la vista o en las listas para editarlo.',
