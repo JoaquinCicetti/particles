@@ -11,9 +11,8 @@ import { scrollState } from '../lib/scroll'
  * inside the tower looking up the vortex → pull back to the structured rows →
  * up through the circuit lanes → the brand mark.
  *
- * Landscape and portrait run SEPARATE paths (see each below). They can frame
- * very different amounts of the farm, so they need different routes rather than
- * one route with its opening swapped.
+ * Landscape and portrait share the route and differ only in how close they
+ * start — see the knot tables below.
  *
  * Subtle pointer parallax and idle breathing keep static moments alive.
  */
@@ -23,10 +22,40 @@ const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
 /**
- * The last five knots are shared verbatim by both paths: the shader's act
- * boundaries (rows → riser → logo) are keyed to the scroll positions these sit
- * at, so they must not move. Everything before them is per-viewport.
+ * One route, two opening distances.
+ *
+ * The path views along the farm's DIAGONAL: the tent sits front-right (x 4.6,
+ * z 3.4) and the tower and silos back-left (x -3.6 to -10.2), so a camera out
+ * beyond the tent looking back at the tower lines them up in DEPTH rather than
+ * across the frame. Looking slightly down, near reads low and far reads high,
+ * which stacks both groups up the vertical axis. That was worked out for
+ * portrait — where the farm's ~18-unit span simply will not fit across a ~24deg
+ * horizontal FOV — but it frames better in landscape too, so both use it.
+ *
+ * Landscape only starts CLOSER: its horizontal FOV is ~80deg against portrait's
+ * ~24, so it fits the same content from roughly 70% of the distance.
+ *
+ * Only the opening two knots differ. Everything from the swing onto the tower
+ * inward is shared, and the last five knots must not move at all — the shader's
+ * act boundaries (rows -> riser -> logo) are keyed to the scroll positions they
+ * sit at.
  */
+
+// knots 2-5: swing onto the tower, the door, the climb, the vortex
+const APPROACH_P = [
+  V(-0.6, 2.2, 5.4), //   0.200  swing onto the tower, dropping low
+  V(-3.6, 3.05, 2.3), //  0.300  square in front of the enclosure door
+  V(-3.6, 6.8, 1.4), //   0.400  rise past it, following the conduit
+  V(-3.6, 3.0, -1.7), //  0.500  inside the tower, looking up the vortex
+]
+const APPROACH_T = [
+  V(-3.5, 3.4, -0.9),
+  V(-3.6, 3.0, -0.9), // the door plane
+  V(-3.6, 10.0, -1.6), // tilt up the conduit as we climb past it
+  V(-3.6, 11.5, -2), // keep looking up the vortex while descending
+]
+
+// knots 6-10: the rows / riser / logo tail. Fixed — the shader depends on these
 const TAIL_P = [
   V(0, 3.0, 12.5), //     0.600  pull back to the structured rows
   V(0, 3.6, 12), //       0.700  rows settle, the riser begins
@@ -43,74 +72,23 @@ const TAIL_T = [
 ]
 
 /**
- * LANDSCAPE. Opens wide across the farm, then drops to ground level and comes
- * in looking UP at the enclosure. The approach is deliberately low: at eye
- * level the silo cluster (x -7.4 / -8.0 / -10.2) sat directly behind the box
- * (x -3.6) and aimed the camera into the thickest part of the gather, whereas
- * from below everything behind it is empty sky. Three other approaches were
- * built and compared side by side — see commit bbc6a22 to revisit them.
- */
-const POSITIONS = [
-  V(-1, 6.2, 24), //      0.000  wide farm landscape
-  V(1.0, 2.0, 13.5), //   0.100  already down at ground level, coming in
-  V(-1.2, 1.9, 5.0), //   0.200  low and close, looking up at the box
-  V(-3.6, 3.05, 1.55), // 0.300  square in front of the enclosure door
-  V(-3.6, 6.6, 1.2), //   0.400  rise past it, following the conduit
-  V(-3.6, 3.0, -1.7), //  0.500  inside the tower, looking up the vortex
-  ...TAIL_P,
-]
-
-const TARGETS = [
-  V(0, 2.8, 0),
-  V(-2.8, 3.8, -1.0), // the tower, never left of it — the silos must not sit
-  V(-3.4, 3.5, -0.9), // behind the subject on the way in
-  V(-3.6, 3.0, -0.9), // the door plane
-  V(-3.6, 10.0, -1.6), // tilt up the conduit as we climb past it
-  V(-3.6, 11.5, -2), // keep looking up the vortex while descending
-  ...TAIL_T,
-]
-
-/**
- * PORTRAIT — its own path, not the landscape one with the opening swapped out.
- * That splice never fitted: the two differ in what they can frame at all, so
- * they need different routes and different opening positions, not shared knots.
- *
- * The farm spans ~18 units from the far silo to the tent, and portrait's
- * horizontal FOV is narrow (~24 deg at 390x844 against 50 vertical) — it will
- * not fit across, and pulling back far enough to force it leaves everything
- * too small to read. So portrait views along the farm's DIAGONAL: the tent is
- * front-right (x 4.6, z 3.4) and the tower and silos back-left, so a camera out
- * beyond the tent looking back at the tower lines them up in DEPTH. Looking
- * slightly down, near reads low in frame and far reads high — which stacks both
- * groups up the tall axis, where there is room for them.
- *
- * The door shot also sits further back than landscape: the narrow FOV means the
- * same distance crops the enclosure, so it needs the extra room.
+ * The opening pair. Both aim down the diagonal at the tower from the first
+ * frame; they differ only in how far out they sit.
  *
  * Note the path is sampled from cp 0.06, so the frame actually opened on is
- * already 60% of the way from knot 0 to knot 1 — both have to carry the
- * framing, not just the first. Moving only knot 0 barely shifts the opening;
- * that mistake cost a round.
+ * already 60% of the way from knot 0 to knot 1 — BOTH knots carry the framing.
+ * Moving only the first barely shifts the opening; that cost a round earlier.
  */
-const MOBILE_POSITIONS = [
-  V(13.0, 16.0, 34.0), // 0.000  far back down the diagonal, swung left
-  V(10.0, 11.0, 24.0), // 0.100  in along the diagonal, both still stacked
-  V(-0.6, 2.2, 5.4), //   0.200  swing onto the tower, dropping low
-  V(-3.6, 3.05, 2.3), //  0.300  the door, backed off for the narrow FOV
-  V(-3.6, 6.8, 1.4), //   0.400  rise past it, following the conduit
-  V(-3.6, 3.0, -1.7), //  0.500  inside the tower, looking up the vortex
-  ...TAIL_P,
-]
+const OPEN_P = [V(8.4, 12.3, 24.0), V(6.2, 8.7, 16.8)]
+const OPEN_T = [V(-3.0, 3.2, -0.8), V(-3.1, 3.2, -0.8)]
 
-const MOBILE_TARGETS = [
-  V(-3.0, 3.2, -0.8), // aim down the diagonal at the tower from the start
-  V(-3.1, 3.2, -0.8),
-  V(-3.5, 3.4, -0.9),
-  V(-3.6, 3.0, -0.9), // the door plane
-  V(-3.6, 10.0, -1.6),
-  V(-3.6, 11.5, -2),
-  ...TAIL_T,
-]
+const OPEN_MOBILE_P = [V(13.0, 16.0, 34.0), V(10.0, 11.0, 24.0)]
+const OPEN_MOBILE_T = [V(-3.0, 3.2, -0.8), V(-3.1, 3.2, -0.8)]
+
+const POSITIONS = [...OPEN_P, ...APPROACH_P, ...TAIL_P]
+const TARGETS = [...OPEN_T, ...APPROACH_T, ...TAIL_T]
+const MOBILE_POSITIONS = [...OPEN_MOBILE_P, ...APPROACH_P, ...TAIL_P]
+const MOBILE_TARGETS = [...OPEN_MOBILE_T, ...APPROACH_T, ...TAIL_T]
 
 export default function CameraRig({ started }: { started: boolean }) {
   const parallax = useRef(new THREE.Vector2())
@@ -147,7 +125,11 @@ export default function CameraRig({ started }: { started: boolean }) {
     // Mobile skips it: there the hero copy is anchored to the bottom, so there
     // is nothing on the left to clear, and panning would only push the tent
     // toward the edge of an already narrow frame.
-    const SCENE_SHIFT = isMobile ? 0 : 1.6
+    // No lateral pan any more. It existed to push the old wide farm shot right
+    // and clear the hero copy on the left, but the diagonal opening already
+    // puts the structures upper-left and the tent lower-right, so panning left
+    // only crowds them toward the edge.
+    const SCENE_SHIFT = 0
     const pan = SCENE_SHIFT * (1 - THREE.MathUtils.smoothstep(p, 0.03, 0.13))
     vPos.current.x -= pan
     vTgt.current.x -= pan
