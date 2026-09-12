@@ -114,10 +114,8 @@
 }
 
 .dz-brand-kicker {
-  font-family: var(--mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.3em;
-  color: var(--copper);
+  font-size: 0.68rem;
+  color: var(--dz-text-2);
 }
 
 /* tabs */
@@ -384,24 +382,19 @@
   align-items: center;
   gap: 0.45rem;
   margin-right: 0.35rem;
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 0.74rem;
   color: var(--dz-text-2);
 }
 
 .dz-save i {
-  width: 0.45rem;
-  height: 0.45rem;
+  width: 0.4rem;
+  height: 0.4rem;
   border-radius: 50%;
   background: #86b56f;
-  box-shadow: 0 0 6px rgba(134, 181, 111, 0.7);
 }
 
 .dz-save.is-pending i {
   background: var(--copper);
-  box-shadow: 0 0 6px rgba(200, 127, 61, 0.7);
 }
 
 .dz-save.is-error i {
@@ -474,43 +467,28 @@
 
 .dz-step-n {
   flex: none;
-  display: grid;
-  place-items: center;
-  width: 1.65rem;
-  height: 1.65rem;
+  width: 1rem;
   font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  color: var(--copper);
-  border: 1px solid var(--dz-line-strong);
-  border-radius: 50%;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
+  font-size: 0.7rem;
+  color: var(--dz-text-2);
+  transition: color 0.2s ease;
 }
 
 .dz-step.is-open .dz-step-n {
-  color: var(--bg);
-  background: var(--copper);
-  border-color: var(--copper);
+  color: var(--copper);
 }
 
 .dz-step-title {
   flex: 1;
   font-family: var(--display);
   font-weight: 500;
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.94rem;
 }
 
 .dz-count {
   font-family: var(--mono);
-  font-size: 0.62rem;
-  color: var(--copper-bright);
-  padding: 0.12rem 0.45rem;
-  border: 1px solid var(--dz-line-strong);
-  border-radius: 999px;
+  font-size: 0.7rem;
+  color: var(--dz-text-2);
 }
 
 .dz-chev {
@@ -577,11 +555,9 @@
 .dz-field > span,
 .dz-num-label,
 .dz-group-label {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--copper);
+  font-size: 0.74rem;
+  letter-spacing: 0.01em;
+  color: var(--dz-text-2);
 }
 
 .dz-input,
@@ -669,32 +645,27 @@ textarea.dz-input {
 }
 
 .dz-roomstats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.5rem;
 }
 
 .dz-roomstats > div {
   display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.6rem 0.75rem;
-  background: rgba(200, 127, 61, 0.05);
-  border: 1px solid var(--dz-line);
-  border-radius: calc(var(--radius) - 0.15rem);
+  align-items: baseline;
+  gap: 0.45rem;
 }
 
 .dz-roomstats span {
-  font-family: var(--mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.2em;
-  color: var(--copper);
+  font-size: 0.74rem;
+  color: var(--dz-text-2);
 }
 
 .dz-roomstats b {
-  font-weight: 300;
-  font-size: 1.15rem;
-  color: var(--copper-bright);
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 0.86rem;
+  color: var(--fg);
 }
 
 /* library */
@@ -1238,37 +1209,23 @@ textarea.dz-input {
 .dz-insp-head {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.55rem;
 }
 
 .dz-insp-icon {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 2.6rem;
-  height: 2.6rem;
-  color: var(--tint, var(--copper-bright));
-  background: rgba(200, 127, 61, 0.08);
-  border: 1px solid var(--dz-line-strong);
-  border-radius: var(--radius);
-}
-
-.dz-insp-icon .dz-glyph {
-  width: 1.3rem;
-  height: 1.3rem;
-}
-
-.dz-insp-head .metric-label {
-  font-size: 0.58rem;
-  letter-spacing: 0.22em;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--tint, var(--copper));
 }
 
 .dz-insp-title {
-  margin-top: 0.3rem;
+  min-width: 0;
   font-family: var(--display);
   font-weight: 500;
-  font-size: 1.05rem;
-  letter-spacing: 0.02em;
+  font-size: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dz-group {
@@ -1315,42 +1272,12 @@ textarea.dz-input {
   gap: 0.5rem;
 }
 
-.dz-rot-dial {
+.dz-rot-val {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  height: 2.25rem;
+  text-align: center;
   font-family: var(--mono);
-  font-size: 0.84rem;
-  color: var(--copper-bright);
-  border: 1px solid var(--dz-line);
-  border-radius: calc(var(--radius) - 0.15rem);
-}
-
-.dz-rot-dial b {
-  font-weight: 400;
-}
-
-.dz-rot-needle {
-  position: relative;
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid var(--dz-line-strong);
-  border-radius: 50%;
-  transition: transform 0.25s ease;
-}
-
-.dz-rot-needle::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 1px;
-  width: 1.5px;
-  height: 45%;
-  background: var(--copper-bright);
-  translate: -50% 0;
+  font-size: 0.86rem;
+  color: var(--fg);
 }
 
 .dz-insp .dz-seg {
@@ -1363,86 +1290,90 @@ textarea.dz-input {
   gap: 0.5rem;
 }
 
-.dz-insp-empty .metric-label {
-  font-size: 0.62rem;
-  letter-spacing: 0.26em;
-}
-
-.dz-kbd-list {
+.dz-keys {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.6rem;
   margin-top: 0.4rem;
 }
 
-.dz-kbd-list dl {
+.dz-keys dl {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
-.dz-kbd-list dl > div {
+.dz-keys dl > div {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--dz-text-2);
 }
 
-.dz-kbd-list dt {
+.dz-keys dt {
   display: flex;
   gap: 0.2rem;
 }
 
 /* ── summary ── */
 .dz-summary {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  padding: 1.1rem 1.1rem 1.4rem;
+  padding: 1.1rem 1.1rem 1.2rem;
 }
 
-.dz-summary > .metric-label {
-  font-size: 0.62rem;
-  letter-spacing: 0.26em;
-  color: var(--copper-bright);
+/* running total — pinned so it stays read-able while properties scroll */
+.dz-quotebar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem calc(1rem + env(safe-area-inset-bottom));
+  background: var(--dz-panel);
+  border-top: 1px solid var(--dz-line);
+}
+
+.dz-sum-title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 0.94rem;
 }
 
 .dz-totals {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+  display: flex;
+  gap: 2.25rem;
+  padding-bottom: 0.2rem;
 }
 
 .dz-total {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
-  padding: 0.9rem 0.9rem 0.8rem;
-  background: linear-gradient(180deg, rgba(200, 127, 61, 0.12), rgba(200, 127, 61, 0.02));
-  border: 1px solid var(--dz-line-strong);
-  border-radius: var(--radius);
+  gap: 0.2rem;
 }
 
-.dz-total .metric-value {
-  font-size: 2.3rem;
+.dz-total b {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--fg);
 }
 
-.dz-total-lbl {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.24em;
-  color: var(--copper);
+.dz-total span {
+  font-size: 0.74rem;
+  color: var(--dz-text-2);
 }
 
-.dz-sum-h {
-  margin-top: 0.3rem;
-  font-family: var(--mono);
+.dz-sub-h {
+  margin-top: 0.35rem;
+  font-family: var(--body);
   font-weight: 400;
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-size: 0.74rem;
   color: var(--dz-text-2);
 }
 
@@ -1479,34 +1410,30 @@ textarea.dz-input {
 .dz-sum-list b {
   font-family: var(--mono);
   font-weight: 400;
-  color: var(--copper-bright);
+  color: var(--fg);
 }
 
 .dz-tag {
-  font-family: var(--mono);
   font-style: normal;
-  font-size: 0.5rem;
-  letter-spacing: 0.16em;
-  color: var(--copper);
-  border: 1px solid var(--dz-line-strong);
-  border-radius: 0.25rem;
-  padding: 0.05rem 0.3rem;
+  font-size: 0.66rem;
+  color: var(--dz-text-2);
 }
 
 .dz-sum-meta {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  font-size: 0.74rem;
   color: var(--dz-text-2);
 }
 
 .dz .cta.dz-send {
   width: 100%;
-  min-height: 3rem;
-  margin-top: 0.3rem;
+  min-height: 2.9rem;
+  margin-top: 0.4rem;
   padding: 0.8rem 1rem;
-  font-size: 0.76rem;
-  letter-spacing: 0.16em;
+  font-family: var(--body);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 /* ── overlays ── */
@@ -1679,6 +1606,7 @@ textarea.dz-input {
     border: 0;
   }
 
+  .dz-keys,
   .dz[data-mtab='design'] .dz-right,
   .dz:not([data-mtab='design']) .dz-left,
   .dz[data-mtab='item'] .dz-summary,
@@ -1701,10 +1629,7 @@ textarea.dz-input {
     justify-content: center;
     gap: 0.45rem;
     min-height: 2.9rem;
-    font-family: var(--mono);
-    font-size: 0.64rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-size: 0.78rem;
     color: var(--dz-text-2);
     background: none;
     border: 0;

@@ -6,7 +6,7 @@ import { defineMessages } from 'react-intl'
  * messages so they only ship with the lazy designer chunk.
  */
 export const D = defineMessages({
-  kicker: { id: 'dz.kicker', defaultMessage: 'DISEÑADOR DE SALAS' },
+  kicker: { id: 'dz.kicker', defaultMessage: 'Diseñador de salas' },
   docTitle: { id: 'dz.docTitle', defaultMessage: 'Diseñador de salas de cultivo — Growcast Agro' },
   backHome: { id: 'dz.backHome', defaultMessage: 'Volver al inicio de Growcast Agro' },
   undo: { id: 'dz.undo', defaultMessage: 'Deshacer' },
@@ -71,8 +71,8 @@ export const D = defineMessages({
   length: { id: 'dz.room.length', defaultMessage: 'Largo' },
   height: { id: 'dz.room.height', defaultMessage: 'Alto' },
   depth: { id: 'dz.depth', defaultMessage: 'Prof.' },
-  area: { id: 'dz.room.area', defaultMessage: 'SUPERFICIE' },
-  volume: { id: 'dz.room.volume', defaultMessage: 'VOLUMEN' },
+  area: { id: 'dz.room.area', defaultMessage: 'Superficie' },
+  volume: { id: 'dz.room.volume', defaultMessage: 'Volumen' },
 
   // item types
   typeRack: { id: 'dz.type.rack', defaultMessage: 'Rack' },
@@ -101,7 +101,7 @@ export const D = defineMessages({
   extraQty: { id: 'dz.extra.qty', defaultMessage: 'Cantidad' },
   extraNotePh: { id: 'dz.extra.notePh', defaultMessage: 'Detalle (opcional)' },
   extraEmpty: { id: 'dz.extra.empty', defaultMessage: 'Sin salidas extra por ahora.' },
-  extraQuickAdd: { id: 'dz.extra.quickAdd', defaultMessage: 'AGREGAR' },
+  extraQuickAdd: { id: 'dz.extra.quickAdd', defaultMessage: 'Agregar' },
 
   // contact
   cName: { id: 'dz.contact.name', defaultMessage: 'Nombre' },
@@ -118,30 +118,30 @@ export const D = defineMessages({
   cEmailInvalid: { id: 'dz.contact.emailInvalid', defaultMessage: 'Revisá el email.' },
 
   // inspector
-  inspector: { id: 'dz.insp.title', defaultMessage: 'ELEMENTO' },
+  inspector: { id: 'dz.insp.title', defaultMessage: 'Elemento' },
   inspectorEmpty: {
     id: 'dz.insp.empty',
     defaultMessage: 'Seleccioná un elemento en la vista o en las listas para editarlo.',
   },
   name: { id: 'dz.insp.name', defaultMessage: 'Nombre' },
-  position: { id: 'dz.insp.position', defaultMessage: 'POSICIÓN' },
-  size: { id: 'dz.insp.size', defaultMessage: 'TAMAÑO' },
-  rotation: { id: 'dz.insp.rotation', defaultMessage: 'ROTACIÓN' },
+  position: { id: 'dz.insp.position', defaultMessage: 'Posición' },
+  size: { id: 'dz.insp.size', defaultMessage: 'Tamaño' },
+  rotation: { id: 'dz.insp.rotation', defaultMessage: 'Rotación' },
   rotLeft: { id: 'dz.insp.rotLeft', defaultMessage: 'Girar 90° a la izquierda' },
   rotRight: { id: 'dz.insp.rotRight', defaultMessage: 'Girar 90° a la derecha' },
-  mount: { id: 'dz.insp.mount', defaultMessage: 'ALTURA DE MONTAJE' },
+  mount: { id: 'dz.insp.mount', defaultMessage: 'Altura de montaje' },
   mountFloor: { id: 'dz.insp.mountFloor', defaultMessage: 'Suelo' },
   mountCanopy: { id: 'dz.insp.mountCanopy', defaultMessage: 'Canopia' },
   mountCeiling: { id: 'dz.insp.mountCeiling', defaultMessage: 'Techo' },
-  sensorKind: { id: 'dz.insp.sensorKind', defaultMessage: 'TIPO DE SENSOR' },
-  outputs: { id: 'dz.insp.outputs', defaultMessage: 'SALIDAS A CONTROLAR' },
+  sensorKind: { id: 'dz.insp.sensorKind', defaultMessage: 'Tipo de sensor' },
+  outputs: { id: 'dz.insp.outputs', defaultMessage: 'Salidas a controlar' },
   outputsHint: {
     id: 'dz.insp.outputsHint',
     defaultMessage: 'Cuántas salidas del controlador usa este equipo (por ejemplo, 2 si tiene frío y calor).',
   },
   duplicate: { id: 'dz.insp.duplicate', defaultMessage: 'Duplicar' },
   delete: { id: 'dz.insp.delete', defaultMessage: 'Eliminar' },
-  shortcuts: { id: 'dz.kb.title', defaultMessage: 'ATAJOS' },
+  shortcuts: { id: 'dz.kb.title', defaultMessage: 'Atajos' },
   kbMove: { id: 'dz.kb.move', defaultMessage: 'Mover 10 cm (Shift: 1 m)' },
   kbRotate: { id: 'dz.kb.rotate', defaultMessage: 'Girar 90°' },
   kbDuplicate: { id: 'dz.kb.duplicate', defaultMessage: 'Duplicar' },
@@ -150,12 +150,12 @@ export const D = defineMessages({
   kbDeselect: { id: 'dz.kb.deselect', defaultMessage: 'Deseleccionar' },
 
   // summary
-  summary: { id: 'dz.sum.title', defaultMessage: 'RESUMEN PARA COTIZAR' },
-  sensorsTotal: { id: 'dz.sum.sensors', defaultMessage: 'SENSORES' },
-  outputsTotal: { id: 'dz.sum.outputs', defaultMessage: 'SALIDAS' },
+  summary: { id: 'dz.sum.title', defaultMessage: 'Resumen para cotizar' },
+  sensorsTotal: { id: 'dz.sum.sensors', defaultMessage: 'Sensores' },
+  outputsTotal: { id: 'dz.sum.outputs', defaultMessage: 'Salidas' },
   sensorsByKind: { id: 'dz.sum.sensorsByKind', defaultMessage: 'Sensores por tipo' },
   outputsByKind: { id: 'dz.sum.outputsByKind', defaultMessage: 'Salidas por tipo' },
-  extraTag: { id: 'dz.sum.extraTag', defaultMessage: 'EXTRA' },
+  extraTag: { id: 'dz.sum.extraTag', defaultMessage: 'Extra' },
   none: { id: 'dz.sum.none', defaultMessage: 'Ninguno todavía' },
   summaryNote: {
     id: 'dz.sum.note',

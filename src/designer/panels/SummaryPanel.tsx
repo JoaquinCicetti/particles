@@ -36,62 +36,68 @@ export default function SummaryPanel() {
   ]
 
   return (
-    <section className="dz-summary">
-      <span className="metric-label">{t(D.summary)}</span>
-      <div className="dz-totals">
-        <div className="dz-total">
-          <span className="metric-value">{s.totalSensors}</span>
-          <span className="dz-total-lbl">{t(D.sensorsTotal)}</span>
+    <>
+      <section className="dz-summary">
+        <h3 className="dz-sum-title">{t(D.summary)}</h3>
+
+        <h4 className="dz-sub-h">{t(D.sensorsByKind)}</h4>
+        {sensorRows.length ? (
+          <ul className="dz-sum-list">
+            {sensorRows.map((k) => (
+              <li key={k} style={{ '--tint': SENSOR_SPECS[k].tint } as CSSProperties}>
+                <Glyph name={SENSOR_SPECS[k].glyph} />
+                <span>{t(SENSOR_SPECS[k].label)}</span>
+                <b>{s.sensors[k]}</b>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="dz-empty">{t(D.none)}</p>
+        )}
+
+        <h4 className="dz-sub-h">{t(D.outputsByKind)}</h4>
+        {outputRows.length ? (
+          <ul className="dz-sum-list">
+            {outputRows.map((r) => (
+              <li key={r.key}>
+                <Glyph name={r.glyph} />
+                <span>
+                  {r.label}
+                  {r.extra && <i className="dz-tag">{t(D.extraTag)}</i>}
+                </span>
+                <b>{r.n}</b>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="dz-empty">{t(D.none)}</p>
+        )}
+
+        <p className="dz-sum-meta">
+          {fmt(s.area, 1)} m² · {t(D.structures, { racks: s.racks, tables: s.tables })}
+        </p>
+        <p className="dz-hint dz-hint-sm">{t(D.summaryNote)}</p>
+      </section>
+
+      {/* Running total — stays in view while the item properties are scrolled. */}
+      <div className="dz-quotebar">
+        <div className="dz-totals">
+          <div className="dz-total">
+            <b>{s.totalSensors}</b>
+            <span>{t(D.sensorsTotal)}</span>
+          </div>
+          <div className="dz-total">
+            <b>{s.totalOutputs}</b>
+            <span>{t(D.outputsTotal)}</span>
+          </div>
         </div>
-        <div className="dz-total">
-          <span className="metric-value">{s.totalOutputs}</span>
-          <span className="dz-total-lbl">{t(D.outputsTotal)}</span>
-        </div>
+        <button type="button" className="cta dz-send" onClick={send}>
+          <span className="cta-label">{t(D.sendBtn)}</span>
+          <span className="cta-arrow" aria-hidden>
+            →
+          </span>
+        </button>
       </div>
-
-      <h4 className="dz-sum-h">{t(D.sensorsByKind)}</h4>
-      {sensorRows.length ? (
-        <ul className="dz-sum-list">
-          {sensorRows.map((k) => (
-            <li key={k} style={{ '--tint': SENSOR_SPECS[k].tint } as CSSProperties}>
-              <Glyph name={SENSOR_SPECS[k].glyph} />
-              <span>{t(SENSOR_SPECS[k].label)}</span>
-              <b>{s.sensors[k]}</b>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="dz-empty">{t(D.none)}</p>
-      )}
-
-      <h4 className="dz-sum-h">{t(D.outputsByKind)}</h4>
-      {outputRows.length ? (
-        <ul className="dz-sum-list">
-          {outputRows.map((r) => (
-            <li key={r.key}>
-              <Glyph name={r.glyph} />
-              <span>
-                {r.label}
-                {r.extra && <i className="dz-tag">{t(D.extraTag)}</i>}
-              </span>
-              <b>{r.n}</b>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="dz-empty">{t(D.none)}</p>
-      )}
-
-      <p className="dz-sum-meta">
-        {fmt(s.area, 1)} m² · {t(D.structures, { racks: s.racks, tables: s.tables })}
-      </p>
-      <button type="button" className="cta dz-send" onClick={send}>
-        <span className="cta-label">{t(D.sendBtn)}</span>
-        <span className="cta-arrow" aria-hidden>
-          →
-        </span>
-      </button>
-      <p className="dz-hint dz-hint-sm">{t(D.summaryNote)}</p>
-    </section>
+    </>
   )
 }

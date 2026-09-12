@@ -4,7 +4,7 @@ import { D } from '../i18n/messages'
 import { ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
 import { footprint } from '../model/geometry'
 import { SENSOR_KINDS, isControllable, type Item } from '../model/schema'
-import { MOD_KEY, glyphOf, itemTitle, typeLabel } from '../labels'
+import { MOD_KEY, glyphOf, itemTitle } from '../labels'
 import { useActiveDesign, useDesigner } from '../store'
 import Glyph from '../ui/Glyph'
 import NumberField from '../ui/NumberField'
@@ -41,23 +41,8 @@ export default function Inspector() {
   if (!it) {
     return (
       <section className="dz-insp dz-insp-empty">
-        <span className="metric-label">{t(D.inspector)}</span>
         <p className="dz-hint">{t(D.inspectorEmpty)}</p>
-        <div className="dz-kbd-list">
-          <span className="dz-group-label">{t(D.shortcuts)}</span>
-          <dl>
-            {KEYS.map(([keys, msg]) => (
-              <div key={msg.id}>
-                <dt>
-                  {keys.map((k) => (
-                    <kbd key={k}>{k}</kbd>
-                  ))}
-                </dt>
-                <dd>{t(msg)}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
+        <Shortcuts />
       </section>
     )
   }
@@ -79,13 +64,8 @@ export default function Inspector() {
   return (
     <section className="dz-insp" style={tint ? ({ '--tint': tint } as CSSProperties) : undefined}>
       <header className="dz-insp-head">
-        <span className="dz-insp-icon">
-          <Glyph name={glyphOf(it)} />
-        </span>
-        <div>
-          <span className="metric-label">{typeLabel(intl, it)}</span>
-          <h3 className="dz-insp-title">{itemTitle(intl, it, d.items)}</h3>
-        </div>
+        <Glyph name={glyphOf(it)} className="dz-glyph dz-insp-icon" />
+        <h3 className="dz-insp-title">{itemTitle(intl, it, d.items)}</h3>
       </header>
 
       <label className="dz-field">
@@ -147,10 +127,9 @@ export default function Inspector() {
           >
             <Glyph name="rotL" />
           </button>
-          <div className="dz-rot-dial" aria-live="polite">
-            <span className="dz-rot-needle" style={{ transform: `rotate(${it.rotation * 90}deg)` }} aria-hidden />
-            <b>{it.rotation * 90}°</b>
-          </div>
+          <output className="dz-rot-val" aria-live="polite">
+            {it.rotation * 90}°
+          </output>
           <button
             type="button"
             className="dz-btn dz-icon-btn"
@@ -199,5 +178,27 @@ export default function Inspector() {
         </button>
       </div>
     </section>
+  )
+}
+
+/** Keyboard reference — fills the properties slot while nothing is selected. */
+function Shortcuts() {
+  const t = useIntl().formatMessage
+  return (
+    <div className="dz-keys">
+      <h4 className="dz-sub-h">{t(D.shortcuts)}</h4>
+      <dl>
+        {KEYS.map(([keys, msg]) => (
+          <div key={msg.id}>
+            <dt>
+              {keys.map((k) => (
+                <kbd key={k}>{k}</kbd>
+              ))}
+            </dt>
+            <dd>{t(msg)}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   )
 }
