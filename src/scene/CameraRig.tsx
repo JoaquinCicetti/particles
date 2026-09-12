@@ -68,8 +68,13 @@ export default function CameraRig({ started }: { started: boolean }) {
     // shift the opening farm to the right (clears the hero copy on the left),
     // then ease the pan out by the descent so the dive, data column and logo
     // all stay centred
+    // the pan exists only to clear the hero copy on the left, and that copy is
+    // gone by p 0.13 — so it eases out there. It used to hold until 0.30, which
+    // dragged the whole approach 1.6 to the left: the look-target ran through
+    // the gap between the enclosure and the silo cluster, which is the densest
+    // part of the gather, and that is what read as a mess on the way in.
     const SCENE_SHIFT = 1.6
-    const pan = SCENE_SHIFT * (1 - THREE.MathUtils.smoothstep(p, 0.16, 0.30))
+    const pan = SCENE_SHIFT * (1 - THREE.MathUtils.smoothstep(p, 0.03, 0.13))
     vPos.current.x -= pan
     vTgt.current.x -= pan
 

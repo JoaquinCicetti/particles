@@ -7,13 +7,15 @@ import {
 } from '../scene/cameraModes'
 
 /**
- * TEMPORARY — camera path A/B switch, for picking between the four candidates.
+ * TEMPORARY — camera ROUTE A/B switch. The four candidates differ only in the
+ * approach: the run from the opening shot to the enclosure door. Opening,
+ * door shot, sky turn and the whole tail are identical in all of them.
  * Delete this file, its <CameraSwitch/> mount in App.tsx, the .cam-switch block
- * in global.css, and src/scene/cameraModes.ts once a path is chosen.
+ * in global.css, and src/scene/cameraModes.ts once a route is chosen.
  *
  * Sits under the header CTA rather than beside it, because the top-right corner
  * is already taken by "BOOK A MEETING". The choice persists in localStorage so
- * a reload keeps whichever path you were judging.
+ * a reload keeps whichever route you were judging.
  */
 export default function CameraSwitch() {
   const [mode, setMode] = useState(getCameraModeIndex)
@@ -43,8 +45,8 @@ export default function CameraSwitch() {
   }, [])
 
   return (
-    <div className="cam-switch" role="group" aria-label="Camera path (testing)">
-      <span className="cam-switch-kicker">CAMERA · TEST</span>
+    <div className="cam-switch" role="group" aria-label="Camera route (testing)">
+      <span className="cam-switch-kicker">APPROACH · TEST</span>
       {CAMERA_MODES.map((m, i) => (
         <button
           key={m.id}

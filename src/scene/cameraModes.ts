@@ -2,22 +2,27 @@ import * as THREE from 'three'
 
 /**
  * ============================================================================
- * TEMPORARY — camera path A/B testing rig. Delete this file, src/ui/
+ * TEMPORARY — camera route A/B testing rig. Delete this file, src/ui/
  * CameraSwitch.tsx, its <CameraSwitch/> mount in App.tsx, and the .cam-switch
- * block in global.css once a path is chosen; then inline the winning mode's
- * knots + damp back into CameraRig.
+ * block in global.css once a route is chosen; then inline the winning approach
+ * knots back into CameraRig.
  * ============================================================================
  *
- * Four candidates for the "laggy" feel. Two things can cause it, and the modes
- * separate them:
- *   • DAMP — scrollState.smooth chases the scroll position exponentially, so
- *     the camera always trails the wheel. Low damp = floaty and late.
- *   • LEAD — trailing is only *perceived* as lag when the camera is behind
- *     where you are going. Sampling the path slightly ahead makes it
- *     anticipate instead, which can feel responsive at a low damp.
- * Mode 3 additionally straightens the route, on the theory that the detours
- * (the lateral drift, the rise back over the enclosure) are what feels slow
- * rather than the response curve.
+ * Only the APPROACH changes between modes — the run from the opening shot to
+ * the enclosure door. Everything else is shared and identical:
+ *   • the opening position and framing (knot 0)
+ *   • the door shot itself (knot 3)
+ *   • the turn up to the sky and the vortex entry (knots 4-5)
+ *   • the rows / riser / logo tail (knots 6-10), which the shader's act
+ *     boundaries are keyed to and must not move
+ *
+ * What was wrong with the shipped route: the look-target ran through x ≈ -5.2
+ * on the way in, which is the gap between the enclosure (x -3.6) and the silo
+ * cluster (x -7.4 / -8.0 / -10.2) — i.e. straight into the thickest part of the
+ * gather. Two causes, both fixed here: the approach targets themselves sat left
+ * of the board, and SCENE_SHIFT (see CameraRig) dragged everything a further
+ * 1.6 left for the whole approach. Each route below keeps its look-target on
+ * the tower or to the RIGHT of it, never left into the silos.
  */
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
@@ -34,14 +39,13 @@ export type CameraMode = {
   targets: THREE.Vector3[]
 }
 
-// the shipped path — every mode below keeps knots 6..10 identical so the rows,
-// riser and logo acts still land exactly where the shader expects them
-const BASE_POSITIONS = [
-  V(-1, 6.2, 24), //     wide farm landscape
-  V(1.2, 5.4, 14.5), //  in from the front
-  V(-2.4, 3.8, 5.6), //  closing on the tower wall
-  V(-3.6, 3.05, 1.55), //square in front of the enclosure door
-  V(-3.6, 6.6, 1.2), //  rise past it, following the conduit
+// ── shared, never varies between modes ──────────────────────────────────────
+const OPEN_P = V(-1, 6.2, 24) //        the opening shot — kept, it works
+const OPEN_T = V(0, 2.8, 0)
+const DOOR_P = V(-3.6, 3.05, 1.55) //   square in front of the enclosure door
+const DOOR_T = V(-3.6, 3.0, -0.9)
+const TAIL_P = [
+  V(-3.6, 6.6, 1.2), //   rise past the box, starting to look up
   V(-3.6, 3.0, -1.7), // inside the tower, looking up the vortex
   V(0, 3.0, 12.5), //    pull back to the structured rows
   V(0, 3.6, 12),
@@ -49,12 +53,7 @@ const BASE_POSITIONS = [
   V(0, 6.2, 10),
   V(0, 6.2, 8.8),
 ]
-
-const BASE_TARGETS = [
-  V(0, 2.8, 0),
-  V(-2.4, 3.4, -0.9),
-  V(-3.5, 3.05, -0.9),
-  V(-3.6, 3.0, -0.9),
+const TAIL_T = [
   V(-3.6, 10.0, -1.6),
   V(-3.6, 11.5, -2),
   V(0, 1.8, 0),
@@ -64,62 +63,51 @@ const BASE_TARGETS = [
   V(0, 5.0, 0),
 ]
 
-const TAIL_P = BASE_POSITIONS.slice(6)
-const TAIL_T = BASE_TARGETS.slice(6)
+/** an approach is two knots: they sit between the opening and the door */
+type Approach = { p: [THREE.Vector3, THREE.Vector3]; t: [THREE.Vector3, THREE.Vector3] }
+
+const route = (
+  id: string,
+  label: string,
+  hint: string,
+  a: Approach,
+  damp = 7,
+  lead = 0,
+): CameraMode => ({
+  id,
+  label,
+  hint,
+  damp,
+  lead,
+  positions: [OPEN_P, ...a.p, DOOR_P, ...TAIL_P],
+  targets: [OPEN_T, ...a.t, DOOR_T, ...TAIL_T],
+})
 
 export const CAMERA_MODES: CameraMode[] = [
-  {
-    id: 'smooth',
-    label: '1 · Smooth',
-    hint: 'what ships now — soft damp 3.6, no lead',
-    damp: 3.6,
-    lead: 0,
-    positions: BASE_POSITIONS,
-    targets: BASE_TARGETS,
-  },
-  {
-    id: 'snappy',
-    label: '2 · Snappy',
-    hint: 'same route, damp 11 — camera sticks to the scroll',
-    damp: 11,
-    lead: 0,
-    positions: BASE_POSITIONS,
-    targets: BASE_TARGETS,
-  },
-  {
-    id: 'direct',
-    label: '3 · Direct',
-    hint: 'straight run to the door, no detours, damp 7',
-    damp: 7,
-    lead: 0,
-    positions: [
-      V(-2.0, 5.2, 22), //   already facing the tower, no lateral drift
-      V(-2.6, 4.5, 12.5), // straight in
-      V(-3.2, 3.6, 5.0), //  closing
-      V(-3.6, 3.05, 1.55), //the door
-      V(-3.6, 5.0, -0.5), // straight up past it, no arc back out
-      V(-3.6, 3.0, -1.7), // inside, looking up
-      ...TAIL_P,
-    ],
-    targets: [
-      V(-3.2, 3.4, -0.9),
-      V(-3.4, 3.2, -0.9),
-      V(-3.5, 3.05, -0.9),
-      V(-3.6, 3.0, -0.9),
-      V(-3.6, 9.0, -1.6),
-      V(-3.6, 11.5, -2),
-      ...TAIL_T,
-    ],
-  },
-  {
-    id: 'lead',
-    label: '4 · Lead',
-    hint: 'damp 5 but samples ahead — anticipates instead of trailing',
-    damp: 5,
-    lead: 0.03,
-    positions: BASE_POSITIONS,
-    targets: BASE_TARGETS,
-  },
+  route('orbit', '1 · Orbit', 'swings out right, arcs in onto the door', {
+    // out to the front-right, then curve left onto the door. the look-point
+    // stays right of the tower the whole way, so the silos never sit behind it
+    p: [V(4.2, 5.0, 13.0), V(0.4, 3.6, 5.2)],
+    t: [V(-2.4, 3.9, -1.0), V(-3.2, 3.2, -0.9)],
+  }),
+  route('low', '2 · Low', 'drops to ground level, looks up at the box — sky behind', {
+    // the cheapest way to get a clean backdrop: from below, everything behind
+    // the enclosure is empty sky rather than the farm and its gather
+    p: [V(1.0, 2.0, 13.5), V(-1.2, 1.9, 5.0)],
+    t: [V(-2.8, 3.8, -1.0), V(-3.4, 3.5, -0.9)],
+  }),
+  route('axis', '3 · Axis', 'dead straight down the front, zero lateral drift', {
+    // no sideways movement at all — locked on the tower's own +z axis, target
+    // pinned to the board from the first frame of the approach
+    p: [V(-3.6, 4.6, 14.0), V(-3.6, 3.5, 6.0)],
+    t: [V(-3.6, 3.4, -0.9), V(-3.6, 3.1, -0.9)],
+  }),
+  route('descend', '4 · Descend', 'comes down from above onto the box — ground behind', {
+    // high and dropping, so the backdrop is the ground plane and the data floor
+    // rings rather than anything at the board's own height
+    p: [V(-0.6, 9.2, 12.0), V(-2.6, 5.6, 5.4)],
+    t: [V(-2.9, 4.4, -1.0), V(-3.5, 3.3, -0.9)],
+  }),
 ]
 
 // mobile (portrait) crops the wide establishing shot, so the opening two knots
