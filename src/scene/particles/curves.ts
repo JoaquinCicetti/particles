@@ -52,17 +52,51 @@ const TWIST = 1.15 // radians of swirl per world unit of height (tight spiral)
 const radiusAt = (y: number) =>
   R_BASE + (R_TOP - R_BASE) * Math.min(1, Math.max(0, (y - SPIRAL_BASE) / (SPIRAL_TOP - SPIRAL_BASE)))
 
-// a smooth helix: the sensor stream eases in, then spirals up the tower axis,
+// how the stream gathers before it becomes the vortex. seen from the front
+// (the opening third of the story) the approach is most of what reads, so it
+// must not look like N separate rays converging on the tower: each stream
+// lifts off its sensor, then wraps most of a turn around the axis at a wide
+// radius while it climbs, tightening into the helix. because the last approach
+// points are already circling the axis with a shrinking radius, the stream
+// enters the helix tangentially — no corner where the two meet.
+const GATHER_R = 2.6 // radius of the wide inward swirl
+const PRE_WRAP = 2.1 // radians wrapped around the axis while gathering
+const GATHER_DROP = 1.7 // how far below its entry the gather starts
+
+// a smooth helix: the sensor stream swirls in, then spirals up the tower axis,
 // tapering inward — entering the vortex at its own angle + height
 function spiral(sensor: THREE.Vector3, angle0: number, yEntry: number) {
   const r0 = radiusAt(yEntry)
-  const entry = v(tx + Math.cos(angle0) * r0, yEntry, tz + Math.sin(angle0) * r0)
-  const mid = v(
-    (sensor.x + entry.x) / 2,
-    (sensor.y + entry.y) / 2 + 0.3,
-    (sensor.z + entry.z) / 2,
-  )
-  const pts = [sensor, mid, entry]
+  // lift out of the structure first, angled slightly toward the axis, so the
+  // stream reads as rising off the sensor rather than aimed at the tower
+  const pts = [
+    sensor,
+    v(
+      sensor.x + (tx - sensor.x) * 0.14,
+      sensor.y + 0.9,
+      sensor.z + (tz - sensor.z) * 0.14,
+    ),
+  ]
+  const preSegs = 5
+  for (let i = 0; i <= preSegs; i++) {
+    const t = i / preSegs
+    // ease the wrap so it opens wide and tightens late — the gather stays
+    // diffuse for most of its length and only resolves near the axis
+    const e = t * t * (3 - 2 * t)
+    const ang = angle0 - PRE_WRAP * (1 - e)
+    const r = GATHER_R + (r0 - GATHER_R) * e
+    const y = yEntry - GATHER_DROP * (1 - e)
+    // blend out of the sensor's own position so the first part of the gather
+    // still belongs to its source, then hands over to the shared swirl
+    const w = Math.pow(t, 0.55)
+    pts.push(
+      v(
+        sensor.x + (tx + Math.cos(ang) * r - sensor.x) * w,
+        sensor.y + (y - sensor.y) * w,
+        sensor.z + (tz + Math.sin(ang) * r - sensor.z) * w,
+      ),
+    )
+  }
   const segs = Math.max(8, Math.round((SPIRAL_TOP - yEntry) * 2.4))
   for (let i = 1; i <= segs; i++) {
     const t = i / segs
@@ -74,15 +108,17 @@ function spiral(sensor: THREE.Vector3, angle0: number, yEntry: number) {
   return new THREE.CatmullRomCurve3(pts, false, 'centripetal')
 }
 
-// every sensor stream feeds the same vortex, entering at a different angle and
-// height, then spirals up and converges toward the tight top — a smooth tornado
+// every sensor stream feeds the same vortex. the angles stay spread all the way
+// round the axis — that is what gives the gather its body — but the entry
+// heights sit in a narrow band, so from the front the streams resolve into one
+// flow at one place instead of joining at six different altitudes.
 export const FLOW_CURVES = [
-  spiral(WAREHOUSE_FRONT, 0.0, 6.6),
-  spiral(WAREHOUSE_BACK, Math.PI * 0.33, 7.2),
+  spiral(WAREHOUSE_FRONT, 0.0, 5.8),
+  spiral(WAREHOUSE_BACK, Math.PI * 0.33, 6.2),
   spiral(SILO_SENSORS[0], Math.PI * 0.66, 5.4),
-  spiral(SILO_SENSORS[1], Math.PI, 4.6),
-  spiral(SILO_SENSORS[2], Math.PI * 1.33, 4.0),
-  spiral(GROUND_SENSOR, Math.PI * 1.66, 2.8),
+  spiral(SILO_SENSORS[1], Math.PI, 5.0),
+  spiral(SILO_SENSORS[2], Math.PI * 1.33, 5.2),
+  spiral(GROUND_SENSOR, Math.PI * 1.66, 4.6),
   // faint perimeter sweep (atmosphere)
   new THREE.CatmullRomCurve3(
     [v(-10, 1.2, -6), v(0, 2, -8), v(9, 1.6, -5), v(10.5, 2.4, 2), v(4, 1.4, 9), v(-6, 2.0, 9.5)],
@@ -92,7 +128,9 @@ export const FLOW_CURVES = [
 ]
 
 export const CURVE_COUNT = FLOW_CURVES.length
-export const CURVE_SAMPLES = 64
+// the gather now takes up much more of each curve's length, so raise the
+// sample count to keep the helix above it crisply defined
+export const CURVE_SAMPLES = 96
 
 export function bakeCurveTexture() {
   const data = new Float32Array(CURVE_SAMPLES * CURVE_COUNT * 4)
