@@ -3,7 +3,12 @@
 import puppeteer from 'puppeteer-core'
 
 const URL = process.env.URL ?? 'http://localhost:5174/'
-const STORY_STOPS = [0, 0.3, 0.55, 0.66, 0.74, 0.82, 0.9, 1.0]
+// act boundaries + each act's midpoint (see src/lib/acts.ts — five acts at
+// 0 / 0.2 / 0.4 / 0.6 / 0.8), so every stop lands on a settle or a transition
+// plus 0.85/0.95: the board-to-logo hand-off has been reverted twice, so the
+// harness always looks at it
+const STORY_STOPS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]
+const MOBILE_STOPS = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
 const SECTIONS = ['cultivo', 'silos', 'maduracion', 'contacto']
 const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 810 },
@@ -30,7 +35,7 @@ for (const vp of VIEWPORTS) {
   await page.goto(URL, { waitUntil: 'networkidle0', timeout: 30000 })
   await wait(2500)
 
-  const stops = vp.name === 'desktop' ? STORY_STOPS : [0, 1.0]
+  const stops = vp.name === 'desktop' ? STORY_STOPS : MOBILE_STOPS
   for (const p of stops) {
     await page.evaluate((prog) => {
       const track = document.querySelector('.scroll-track')
