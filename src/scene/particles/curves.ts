@@ -45,12 +45,23 @@ const tx = ELEVATOR.pos.x
 const tz = ELEVATOR.pos.z
 
 /**
- * The Growcast device: a control board at the foot of the elevator. Every
- * structure's telemetry runs down to it along a slack cable, and from its
- * terminal a single condensed bundle fires straight up to the sky — the data
- * leaving for the platform. No helix, no swirl: one destination, one uplink.
+ * The Growcast device: an industrial enclosure bolted to the camera-facing wall
+ * of the elevator, with the brand mark on its door. Every structure's telemetry
+ * drifts into cable glands underneath it, and a conduit out of its top carries
+ * one condensed bundle up the tower and into the sky — the data leaving for the
+ * platform. No helix, no swirl: one destination, one uplink.
  */
-export const HUB = v(tx, 1.15, tz)
+export const BOARD = {
+  w: 1.5, // door width  (x)
+  h: 1.7, // door height (y)
+  d: 0.42, // how far it stands off the wall (z)
+  cy: 3.1, // centre height — low enough to read as wall-mounted kit
+  wallZ: tz + ELEVATOR.width / 2, // the tower face it hangs on
+}
+/** the door plane, where the logo sits and the camera comes to look */
+export const BOARD_FRONT = v(tx, BOARD.cy, BOARD.wallZ + BOARD.d)
+export const BOARD_TOP = BOARD.cy + BOARD.h / 2
+export const HUB = BOARD_FRONT
 export const SKY = 18.0 // where the uplink hands off to the sky
 const SAG = 1.5 // how far each feed cable droops between structure and board
 
@@ -81,24 +92,36 @@ function feed(sensor: THREE.Vector3, pad: THREE.Vector3, seed: number) {
   return new THREE.CatmullRomCurve3(pts, false, 'centripetal')
 }
 
-// where each cable lands on the board, spread around its edge
-const PAD_R = 0.62
-const pad = (angle: number) => v(tx + Math.cos(angle) * PAD_R, HUB.y + 0.12, tz + Math.sin(angle) * PAD_R)
+// cable glands along the underside of the enclosure — where real wiring enters,
+// and it keeps the door face clear for the logo
+export const GLANDS = 4
+const pad = (i: number) =>
+  v(
+    tx + BOARD.w * (-0.34 + (0.68 * i) / (GLANDS - 1)),
+    BOARD.cy - BOARD.h / 2 - 0.06,
+    BOARD.wallZ + BOARD.d * 0.5,
+  )
 
-// the uplink: dead straight out of the board's terminal into the sky. Several
-// near-identical strands so it reads as one condensed bundle rather than a
-// single thread — they fan very slightly as they climb and leave.
+// the uplink: out of the top of the enclosure, a short bend back to the tower
+// axis, then dead straight into the sky. Several near-identical strands so it
+// reads as one condensed bundle rather than a single thread.
 const UPLINK_R = 0.13
+const BEND = 1.1 // height over which the conduit returns to the tower axis
 function uplink(strand: number, of: number) {
   const a = (strand / of) * Math.PI * 2
+  const ox = Math.cos(a) * UPLINK_R
+  const oz = Math.sin(a) * UPLINK_R
   const pts: THREE.Vector3[] = []
-  const segs = 16
+  const segs = 18
   for (let i = 0; i <= segs; i++) {
     const t = i / segs
-    // emerge from the terminal as one point, separate into the bundle, then
-    // open a little at the very top as the data disperses
-    const r = UPLINK_R * Math.min(1, t / 0.06) * (1 + Math.pow(t, 3) * 2.2)
-    pts.push(v(tx + Math.cos(a) * r, HUB.y + (SKY - HUB.y) * t, tz + Math.sin(a) * r))
+    const y = BOARD_TOP + (SKY - BOARD_TOP) * t
+    // ease off the enclosure's z and onto the tower axis over the first BEND
+    const k = Math.min(1, ((y - BOARD_TOP) / BEND) ** 0.8)
+    const z = BOARD.wallZ + BOARD.d * 0.5 + (tz - (BOARD.wallZ + BOARD.d * 0.5)) * k
+    // emerge as one point, separate into the bundle, open a little at the top
+    const spread = Math.min(1, t / 0.05) * (1 + Math.pow(t, 3) * 2.2)
+    pts.push(v(tx + ox * spread, y, z + oz * spread))
   }
   return new THREE.CatmullRomCurve3(pts, false, 'centripetal')
 }
@@ -109,10 +132,10 @@ function uplink(strand: number, of: number) {
 // condensed while the feeds stay thin and drifting.
 const UPLINK_STRANDS = 4
 export const FLOW_CURVES = [
-  feed(WAREHOUSE_FRONT, pad(0.15), 1301),
-  feed(SILO_SENSORS[0], pad(Math.PI * 0.8), 4177),
-  feed(SILO_SENSORS[1], pad(Math.PI * 1.05), 9043),
-  feed(SILO_SENSORS[2], pad(Math.PI * 1.35), 6211),
+  feed(WAREHOUSE_FRONT, pad(3), 1301),
+  feed(SILO_SENSORS[0], pad(0), 4177),
+  feed(SILO_SENSORS[1], pad(1), 9043),
+  feed(SILO_SENSORS[2], pad(2), 6211),
   ...Array.from({ length: UPLINK_STRANDS }, (_, i) => uplink(i, UPLINK_STRANDS)),
 ]
 

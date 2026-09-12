@@ -5,10 +5,12 @@ import { scrollState } from '../lib/scroll'
 
 /**
  * Scroll-driven cinematic camera. Position and look-target each follow a
- * CatmullRom path keyed to scroll progress:
- *   wide farm establishing → lateral drift → descent onto the elevator →
- *   inside the particle stream → pull back to the structured rows → tilt up
- *   to follow the data rising through the circuit lanes → the brand mark.
+ * CatmullRom path keyed to scroll progress, and the path deliberately mimics
+ * the route the data takes:
+ *   wide farm establishing → in from the front onto the Growcast enclosure →
+ *   square in front of its door, on the brand mark → up past it following the
+ *   conduit → inside the tower looking up the vortex → pull back to the
+ *   structured rows → up through the circuit lanes → the brand mark.
  * Subtle pointer parallax and idle breathing keep static moments alive.
  */
 
@@ -18,11 +20,11 @@ const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
 const POSITIONS = [
   V(-1, 6.2, 24), //   0.000  far, high, wide farm landscape
-  V(6.5, 5.8, 18), //  0.111  drift right toward the warehouse
-  V(-1.5, 8.0, 5.5), //0.222  descent toward the (relocated) elevator
-  V(-3.0, 5.2, 0.8), //into the stream
-  V(-3.6, 4.2, -1.0), //inside the stream, descending
-  V(-3.6, 2.2, -1.4), //deeper down inside the vortex (extra dwell)
+  V(1.2, 5.4, 14.5), //0.111  in from the front, the enclosure becomes the subject
+  V(-2.4, 3.8, 5.6), //0.222  closing on the tower wall
+  V(-3.6, 3.2, 2.3), //0.333  square in front of the door — the brand mark
+  V(-3.6, 6.6, 1.2), //0.444  rise past it, following the conduit up
+  V(-3.6, 3.0, -1.7), //0.500 inside the tower, looking up the vortex
   V(0, 3.0, 12.5), //  pull back to the structured rows
   V(0, 3.6, 12), //    0.667  rows settle, the riser begins
   V(0, 5.0, 11.5), //  0.778  follow the data rising up the lanes
@@ -32,10 +34,10 @@ const POSITIONS = [
 
 const TARGETS = [
   V(0, 2.8, 0),
-  V(1.5, 3.2, 0),
-  V(-3.6, 7.0, -2), // look at the relocated tower
-  V(-3.6, 8.5, -2),
-  V(-3.6, 10.0, -2),
+  V(-2.4, 3.6, -0.8), // the enclosure, still far off
+  V(-3.5, 3.2, -0.78), // settling onto the door
+  V(-3.6, 3.1, -0.78), // the door plane — the logo is dead centre
+  V(-3.6, 10.0, -1.6), // tilt up the conduit as we climb past it
   V(-3.6, 11.5, -2), // keep looking up the vortex while descending
   V(0, 1.8, 0), // pan back to the data field at origin
   V(0, 2.6, 0),
@@ -51,13 +53,13 @@ export default function CameraRig({ started }: { started: boolean }) {
   const intro = useRef(0)
 
   const { posCurve, tgtCurve } = useMemo(() => {
-    // mobile (portrait) crops the wide establishing shot, so reframe the
-    // opening onto the silo cluster (left of the tower) before the descent
+    // mobile (portrait) crops the wide establishing shot, so open tighter and
+    // come in on the enclosure sooner — the door still has to read at 390px
     const positions = isMobile
-      ? [V(-3.4, 5.2, 16.5), V(1.5, 5.6, 16), ...POSITIONS.slice(2)]
+      ? [V(-2.6, 5.0, 15.5), V(-0.6, 4.2, 9.5), ...POSITIONS.slice(2)]
       : POSITIONS
     const targets = isMobile
-      ? [V(-7.2, 3.0, -3), V(-2.5, 3.2, -1), ...TARGETS.slice(2)]
+      ? [V(-5.0, 3.2, -2), V(-3.2, 3.3, -0.8), ...TARGETS.slice(2)]
       : TARGETS
     return {
       posCurve: new THREE.CatmullRomCurve3(positions, false, 'centripetal'),

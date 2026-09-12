@@ -1,7 +1,8 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { SILOS, ELEVATOR, WAREHOUSE, SENSOR_POINTS, HUB, SKY } from './particles/curves'
+import { SILOS, ELEVATOR, WAREHOUSE, SENSOR_POINTS, BOARD, BOARD_FRONT, GLANDS, SKY } from './particles/curves'
+import { sampleSvgPoints } from './particles/svgSampler'
 import { createRandom } from '../lib/random'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
@@ -300,66 +301,91 @@ function buildTreeLines(out: number[], cx: number, cz: number, scale: number) {
 }
 
 /**
- * The Growcast device at the foot of the elevator: a control board the feed
- * cables land on, and the terminal the uplink bundle leaves from. Drawn flat
- * and small — it is a destination for the particles, not scenery, so it reads
- * as a board with pads and traces rather than a building.
+ * The Growcast device: an industrial enclosure bolted to the camera-facing wall
+ * of the elevator. A plain box with a door, latch and cable glands — common
+ * electrical kit, deliberately not a sculpture. The brand mark goes on its door
+ * as sampled points (see the logo layer in Structures), so nothing is drawn on
+ * the face here.
  */
-function buildDeviceLines(out: number[], hub: THREE.Vector3) {
-  const W = 1.5 // half-width  (x)
-  const D = 1.1 // half-depth  (z)
-  const y = hub.y
-  const c0 = V(hub.x - W, y, hub.z - D)
-  const c1 = V(hub.x + W, y, hub.z - D)
-  const c2 = V(hub.x + W, y, hub.z + D)
-  const c3 = V(hub.x - W, y, hub.z + D)
+function buildEnclosureLines(out: number[]) {
+  const { w, h, d, cy, wallZ } = BOARD
+  const hw = w / 2
+  const hh = h / 2
+  const z0 = wallZ // against the tower wall
+  const z1 = wallZ + d // the door plane
+  const x0 = ELEVATOR.pos.x - hw
+  const x1 = ELEVATOR.pos.x + hw
+  const y0 = cy - hh
+  const y1 = cy + hh
 
-  // board outline, plus a chamfered inner edge so it reads as a PCB
-  pushLine(out, c0, c1)
-  pushLine(out, c1, c2)
-  pushLine(out, c2, c3)
-  pushLine(out, c3, c0)
-  const i = 0.16
-  pushLine(out, V(c0.x + i, y, c0.z + i), V(c1.x - i, y, c1.z + i))
-  pushLine(out, V(c1.x - i, y, c1.z + i), V(c2.x - i, y, c2.z - i))
-  pushLine(out, V(c2.x - i, y, c2.z - i), V(c3.x + i, y, c3.z - i))
-  pushLine(out, V(c3.x + i, y, c3.z - i), V(c0.x + i, y, c0.z + i))
-
-  // legs down to the ground so it stands on the pad rather than floating
-  for (const c of [c0, c1, c2, c3]) pushLine(out, c, V(c.x, 0.02, c.z))
-
-  // routing: right-angle traces running in from the edges toward the terminal
-  const trace = (sx: number, sz: number, mx: number) => {
-    pushLine(out, V(hub.x + sx * W * 0.86, y, hub.z + sz * D * 0.86), V(hub.x + mx, y, hub.z + sz * D * 0.86))
-    pushLine(out, V(hub.x + mx, y, hub.z + sz * D * 0.86), V(hub.x + mx, y, hub.z))
-    pushLine(out, V(hub.x + mx, y, hub.z), V(hub.x + mx * 0.2, y, hub.z))
+  // the box: door frame, back frame, and the four corner returns
+  const face = (z: number) => {
+    pushLine(out, V(x0, y0, z), V(x1, y0, z))
+    pushLine(out, V(x1, y0, z), V(x1, y1, z))
+    pushLine(out, V(x1, y1, z), V(x0, y1, z))
+    pushLine(out, V(x0, y1, z), V(x0, y0, z))
   }
-  trace(-1, -1, -0.72)
-  trace(1, -1, 0.62)
-  trace(1, 1, 0.86)
-  trace(-1, 1, -0.5)
-
-  // solder pads around the rim, where the feed cables terminate
-  const PAD = 0.09
-  for (let k = 0; k < 8; k++) {
-    const a = (k / 8) * Math.PI * 2 + 0.15
-    const px = hub.x + Math.cos(a) * 0.62
-    const pz = hub.z + Math.sin(a) * 0.62
-    pushLine(out, V(px - PAD, y, pz - PAD), V(px + PAD, y, pz - PAD))
-    pushLine(out, V(px + PAD, y, pz - PAD), V(px + PAD, y, pz + PAD))
-    pushLine(out, V(px + PAD, y, pz + PAD), V(px - PAD, y, pz + PAD))
-    pushLine(out, V(px - PAD, y, pz + PAD), V(px - PAD, y, pz - PAD))
+  face(z0)
+  face(z1)
+  for (const [x, y] of [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+  ]) {
+    pushLine(out, V(x, y, z0), V(x, y, z1))
   }
 
-  // the terminal the uplink fires from, and the wire itself: a bare vertical
-  // run with periodic ties, so the condensed particle bundle has something to
-  // travel along instead of hanging in empty air
-  pushRing(out, hub.x, y + 0.02, hub.z, 0.2, 20)
-  pushRing(out, hub.x, y + 0.16, hub.z, 0.12, 16)
-  pushLine(out, V(hub.x, y + 0.16, hub.z), V(hub.x, SKY, hub.z))
-  for (let k = 1; k < 12; k++) {
-    const wy = y + ((SKY - y) * k) / 12
-    pushRing(out, hub.x, wy, hub.z, 0.07, 10)
+  // door seam set in from the edge, so it reads as a hinged door not a block
+  const i = 0.1
+  pushLine(out, V(x0 + i, y0 + i, z1), V(x1 - i, y0 + i, z1))
+  pushLine(out, V(x1 - i, y0 + i, z1), V(x1 - i, y1 - i, z1))
+  pushLine(out, V(x1 - i, y1 - i, z1), V(x0 + i, y1 - i, z1))
+  pushLine(out, V(x0 + i, y1 - i, z1), V(x0 + i, y0 + i, z1))
+
+  // hinges down the left stile, latch on the right
+  for (const hy of [y0 + h * 0.2, y1 - h * 0.2]) {
+    pushLine(out, V(x0 - 0.05, hy, z1 - 0.06), V(x0 - 0.05, hy + 0.16, z1 - 0.06))
+    pushLine(out, V(x0 - 0.05, hy, z1 - 0.06), V(x0 + 0.02, hy, z1 - 0.06))
+    pushLine(out, V(x0 - 0.05, hy + 0.16, z1 - 0.06), V(x0 + 0.02, hy + 0.16, z1 - 0.06))
+  }
+  pushLine(out, V(x1 - 0.02, cy - 0.09, z1 + 0.02), V(x1 + 0.09, cy - 0.09, z1 + 0.02))
+  pushLine(out, V(x1 + 0.09, cy - 0.09, z1 + 0.02), V(x1 + 0.09, cy + 0.09, z1 + 0.02))
+  pushLine(out, V(x1 + 0.09, cy + 0.09, z1 + 0.02), V(x1 - 0.02, cy + 0.09, z1 + 0.02))
+
+  // wall brackets — two per side, back to the tower face
+  for (const bx of [x0 + 0.16, x1 - 0.16]) {
+    for (const by of [y1 - 0.1, y0 + 0.1]) {
+      pushLine(out, V(bx, by, z0), V(bx, by, z0 - 0.14))
+      pushLine(out, V(bx - 0.08, by, z0 - 0.14), V(bx + 0.08, by, z0 - 0.14))
+    }
+  }
+
+  // cable glands underneath, one per feed, each with a short tail
+  for (let g = 0; g < GLANDS; g++) {
+    const gx = ELEVATOR.pos.x + w * (-0.34 + (0.68 * g) / (GLANDS - 1))
+    const gz = wallZ + d * 0.5
+    pushRing(out, gx, y0 - 0.01, gz, 0.07, 10)
+    pushRing(out, gx, y0 - 0.09, gz, 0.05, 8)
+    pushLine(out, V(gx, y0 - 0.09, gz), V(gx, y0 - 0.26, gz))
+  }
+
+  // conduit out of the top, bending back to the tower axis, then the riser the
+  // uplink bundle travels along — with ties up its length
+  const cz = wallZ + d * 0.5
+  pushRing(out, ELEVATOR.pos.x, y1 + 0.01, cz, 0.1, 12)
+  const bend = 10
+  for (let k = 0; k < bend; k++) {
+    const t0 = k / bend
+    const t1 = (k + 1) / bend
+    const yy = (t: number) => y1 + 1.1 * t
+    const zz = (t: number) => cz + (ELEVATOR.pos.z - cz) * Math.pow(t, 0.8)
+    pushLine(out, V(ELEVATOR.pos.x, yy(t0), zz(t0)), V(ELEVATOR.pos.x, yy(t1), zz(t1)))
+  }
+  pushLine(out, V(ELEVATOR.pos.x, y1 + 1.1, ELEVATOR.pos.z), V(ELEVATOR.pos.x, SKY, ELEVATOR.pos.z))
+  for (let k = 1; k < 11; k++) {
+    const wy = y1 + 1.1 + ((SKY - y1 - 1.1) * k) / 11
+    pushRing(out, ELEVATOR.pos.x, wy, ELEVATOR.pos.z, 0.07, 10)
   }
 }
 
@@ -382,7 +408,7 @@ export default function Structures() {
     lines.push(...buildTowerLines(ELEVATOR.pos, ELEVATOR.width, ELEVATOR.height))
     lines.push(...buildWarehouseLines(WAREHOUSE))
     lines.push(...buildHydroInterior(WAREHOUSE, growPts)) // rack grow nodes
-    buildDeviceLines(lines, HUB) // the Growcast board + its uplink wire
+    buildEnclosureLines(lines) // the Growcast enclosure + its conduit/riser
 
     // shimmering particle shells on silo + warehouse surfaces
     for (const s of SILOS) {
@@ -485,7 +511,45 @@ export default function Structures() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    return { line, grid, shell, sensor, grow }
+    // the brand mark on the enclosure door — brighter than the wireframe so it
+    // reads as a lit badge when the camera comes to look at it
+    const mark = new THREE.PointsMaterial({
+      color: '#ffd9a0',
+      size: 0.035,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    return { line, grid, shell, sensor, grow, mark }
+  }, [])
+
+  // the brand mark, sampled from the same logo.svg the finale uses and laid
+  // flat on the enclosure door (a hair in front of it, so it never z-fights)
+  const [markGeo, setMarkGeo] = useState<THREE.BufferGeometry | null>(null)
+  useEffect(() => {
+    let alive = true
+    sampleSvgPoints('/logo.svg', 1400, {
+      worldHeight: BOARD.h * 0.62,
+      centerY: BOARD.cy,
+      centerX: BOARD_FRONT.x,
+      centerZ: BOARD_FRONT.z + 0.012,
+      rasterHeight: 420,
+      step: 1,
+      depth: 0.006,
+      seed: 71129,
+    })
+      .then((pts) => {
+        if (!alive) return
+        const g = new THREE.BufferGeometry()
+        g.setAttribute('position', new THREE.BufferAttribute(pts, 3))
+        setMarkGeo(g)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
   }, [])
 
   useFrame(({ clock }) => {
@@ -499,6 +563,7 @@ export default function Structures() {
     materials.sensor.opacity = (0.7 + 0.3 * Math.sin(clock.elapsedTime * 2.6)) * fade
     // grow nodes breathe slowly
     materials.grow.opacity = (0.6 + 0.25 * Math.sin(clock.elapsedTime * 1.3 + 1.0)) * fade
+    materials.mark.opacity = (0.85 + 0.15 * Math.sin(clock.elapsedTime * 1.8)) * fade
   })
 
   return (
@@ -508,6 +573,7 @@ export default function Structures() {
       <points geometry={shellGeo} material={materials.shell} />
       <points geometry={growGeo} material={materials.grow} />
       <points geometry={sensorGeo} material={materials.sensor} />
+      {markGeo && <points geometry={markGeo} material={materials.mark} />}
     </group>
   )
 }
