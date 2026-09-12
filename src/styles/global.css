@@ -1017,22 +1017,74 @@ body {
   padding-top: 0;
 }
 
-/* icon slot — a copper tick for now; the client's sensor SVGs get masked in
-   per key, e.g. .sol-icon[data-icon='probe'] { mask-image: url(...) } */
+/* icon slot — one 16×16 stroke glyph per `data-icon` key, masked in. Each key
+   only overrides --icon; the mask shorthand itself is declared once. The CO₂
+   glyph is the same path SensorIcon/figures.tsx draw (SENSOR_PATHS.co2), so
+   the bullet list and the schematics stay in step. */
 .sol-icon {
   flex: none;
   width: 1.2rem;
   height: 1.2rem;
   margin-top: 0.3rem;
   background: var(--copper);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") center / contain no-repeat;
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
 }
 
 .sol-icon[data-icon='check'] {
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center / contain no-repeat;
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E");
   background: var(--copper-bright);
+}
+
+/* device on the wall */
+.sol-icon[data-icon='node'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5.5' width='9' height='8' rx='1.2'/%3E%3Cpath d='M8 5.5V2.5M5.8 9.5h4.4'/%3E%3C/svg%3E");
+}
+
+/* probe in the medium */
+.sol-icon[data-icon='probe'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2.2v7.6M5.4 4.4h5.2'/%3E%3Ccircle cx='8' cy='11.8' r='2'/%3E%3C/svg%3E");
+}
+
+/* valve / actuator */
+.sol-icon[data-icon='valve'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6.4 8 9 3 11.6zM13 6.4 8 9l5 2.6zM8 9V4.6M5.8 3.6h4.4'/%3E%3C/svg%3E");
+}
+
+/* alert */
+.sol-icon[data-icon='alert'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2.4 14.6 13.6H1.4zM8 6.6v3.4M8 12v.4'/%3E%3C/svg%3E");
+}
+
+/* CO₂ — SENSOR_PATHS.co2 */
+.sol-icon[data-icon='co2'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5h6.5a2.8 2.8 0 0 0 .3-5.6A4 4 0 0 0 4.2 8 2.3 2.3 0 0 0 5 12.5z'/%3E%3C/svg%3E");
+}
+
+/* aeration fan */
+.sol-icon[data-icon='fan'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='1.5'/%3E%3Cpath d='M8 6.5V2.4M9.3 8.8l3.5 2M6.7 8.8l-3.5 2'/%3E%3C/svg%3E");
+}
+
+/* phone */
+.sol-icon[data-icon='phone'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='1.8' width='8' height='12.4' rx='1.4'/%3E%3Cpath d='M6.8 12.2h2.4'/%3E%3C/svg%3E");
+}
+
+/* cooling */
+.sol-icon[data-icon='snow'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v12M2.8 5l10.4 6M13.2 5 2.8 11'/%3E%3C/svg%3E");
+}
+
+/* ripening curve */
+.sol-icon[data-icon='curve'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 13V3M2 13h12M4 11.5c2.4 0 3-7 5.4-7 1.8 0 2.2 3.2 4.1 3.2'/%3E%3C/svg%3E");
+}
+
+/* batch log */
+.sol-icon[data-icon='log'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='2.2' width='9' height='11.6' rx='1.2'/%3E%3Cpath d='M5.8 5.4h4.4M5.8 8h4.4M5.8 10.6h3'/%3E%3C/svg%3E");
 }
 
 /* 3-step process */
@@ -1923,5 +1975,180 @@ body {
   .fig-mist {
     opacity: 0.5;
     transform: translateY(-8px);
+  }
+}
+
+/* ── real Growcast hardware inside the schematics ──
+   device / expander / control modules / sensor pods / phone. Every new LED is
+   a consecutive direct child of its OWN <g>: the .fig-led:nth-child stagger
+   above selects by position and would otherwise bleed onto sibling shapes. */
+.fig-chassis {
+  fill: #0b0705;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.fig-screen {
+  fill: rgba(255, 217, 160, 0.05);
+  stroke: currentColor;
+  stroke-width: 0.6;
+  opacity: 0.85;
+}
+
+.fig-pin {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.7;
+  opacity: 0.55;
+}
+
+.fig-vent {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.7;
+  opacity: 0.42;
+  stroke-linecap: round;
+}
+
+.fig-mark {
+  fill: var(--copper-bright);
+  stroke: var(--copper-bright);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.fig-link {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9;
+  opacity: 0.6;
+}
+
+.fig-rail {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.7;
+  opacity: 0.3;
+}
+
+.fig-sensor-glyph {
+  fill: none;
+  stroke: var(--copper-bright);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fig-chip {
+  fill: rgba(255, 217, 160, 0.16);
+  stroke: var(--copper-bright);
+  stroke-width: 0.5;
+}
+
+/* the app's "live" dot */
+.fig-live {
+  fill: var(--copper-bright);
+  animation: fig-live 1.6s ease-in-out infinite;
+}
+
+@keyframes fig-live {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.22;
+  }
+}
+
+/* the app's hero sparkline, drawn on and wiped */
+.fig-spark {
+  fill: none;
+  stroke: var(--copper-bright);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 42;
+  animation: fig-draw 4.2s ease-in-out infinite;
+}
+
+@keyframes fig-draw {
+  0% {
+    stroke-dashoffset: 42;
+  }
+  45%,
+  62% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -42;
+  }
+}
+
+/* the app's setpoint gauge */
+.fig-gauge {
+  fill: var(--copper-bright);
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: fig-gauge 5.2s ease-in-out infinite;
+}
+
+@keyframes fig-gauge {
+  0%,
+  100% {
+    transform: scaleX(0.28);
+  }
+  50% {
+    transform: scaleX(0.84);
+  }
+}
+
+/* uplink: staggered arcs expanding toward the phone */
+.fig-uplink {
+  fill: none;
+  stroke: var(--copper-bright);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: fig-uplink 2.4s ease-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes fig-uplink {
+  0% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.95;
+  }
+  70%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fig-live,
+  .fig-spark,
+  .fig-gauge,
+  .fig-uplink {
+    animation: none;
+  }
+
+  .fig-live {
+    opacity: 0.9;
+  }
+
+  .fig-spark {
+    stroke-dashoffset: 0;
+  }
+
+  .fig-gauge {
+    transform: scaleX(0.62);
+  }
+
+  .fig-uplink {
+    opacity: 0.5;
   }
 }
