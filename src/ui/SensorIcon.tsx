@@ -9,10 +9,7 @@ export const SENSOR_PATHS: Record<string, string> = {
   co2: 'M5 12.5h6.5a2.8 2.8 0 0 0 .3-5.6A4 4 0 0 0 4.2 8 2.3 2.3 0 0 0 5 12.5z',
   ec: 'M9 2 4.5 9h3.2L7 14l4.5-7H8.3L9 2z',
   ph: 'M6.5 2.5h3M7 2.5v4L4 12.2A1.2 1.2 0 0 0 5 14h6a1.2 1.2 0 0 0 1-1.8L9 6.5v-4',
-  // vapour-pressure deficit: a droplet next to the delta it is short of
-  vpd: 'M5.4 2.4c1.7 2.1 2.6 3.5 2.6 4.7a2.6 2.6 0 0 1-5.2 0c0-1.2.9-2.6 2.6-4.7zM11.4 7.4l3.1 5.6h-6.2z',
-  // water content: a droplet held in the soil bands beneath it
-  wc: 'M8 1.6c1.9 2.4 2.9 3.9 2.9 5.2a2.9 2.9 0 0 1-5.8 0c0-1.3 1-2.8 2.9-5.2zM2.4 11.2h11.2M4.2 13.8h7.6',
+  air: 'M2.5 6h7a2 2 0 1 0-2-2M2.5 9.5h9.5a2 2 0 1 1-2 2M2.5 12.5h5',
 }
 
 export type SensorIconKey = keyof typeof SENSOR_PATHS

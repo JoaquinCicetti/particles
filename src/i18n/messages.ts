@@ -25,7 +25,7 @@ export const M = defineMessages({
   sensorsBody: {
     id: 'sensors.body',
     defaultMessage:
-      'Temperatura, humedad, CO₂, VPD, contenido de agua, conductividad y pH: cada variable, en cada punto, transmitiendo a un núcleo central.',
+      'Temperatura, humedad, CO₂, conductividad y pH: cada variable, en cada punto, transmitiendo a un núcleo central.',
   },
 
   dataKicker: { id: 'data.kicker', defaultMessage: 'DATOS ESTRUCTURADOS' },
@@ -46,8 +46,6 @@ export const M = defineMessages({
 
   finaleFine: { id: 'finale.fine', defaultMessage: 'GROWCAST © 2026 — INTELIGENCIA AGRÍCOLA' },
   hint: { id: 'hint', defaultMessage: 'DESPLAZÁ PARA EXPLORAR' },
-  stepPrev: { id: 'step.prev', defaultMessage: 'Etapa anterior' },
-  stepNext: { id: 'step.next', defaultMessage: 'Etapa siguiente' },
 
   // sensor metric cards
   mTempLabel: { id: 'metric.temp.label', defaultMessage: 'TEMPERATURA' },
@@ -55,15 +53,15 @@ export const M = defineMessages({
   mCo2Label: { id: 'metric.co2.label', defaultMessage: 'CO₂' },
   mEcLabel: { id: 'metric.ec.label', defaultMessage: 'CONDUCTIVIDAD' },
   mPhLabel: { id: 'metric.ph.label', defaultMessage: 'pH' },
-  mVpdLabel: { id: 'metric.vpd.label', defaultMessage: 'DÉFICIT DE PRESIÓN DE VAPOR' },
-  mWcLabel: { id: 'metric.wc.label', defaultMessage: 'CONTENIDO DE AGUA' },
+  mAirLabel: { id: 'metric.air.label', defaultMessage: 'FLUJO DE AIRE' },
 
-  // scroll phase ticker — the client's five canonical stages
-  phase1: { id: 'phase.1', defaultMessage: '01 / MEDIMOS' },
-  phase2: { id: 'phase.2', defaultMessage: '02 / CONECTAMOS' },
-  phase3: { id: 'phase.3', defaultMessage: '03 / ANALIZAMOS' },
-  phase4: { id: 'phase.4', defaultMessage: '04 / CONTROLAMOS' },
-  phase5: { id: 'phase.5', defaultMessage: '05 / REGISTRAMOS' },
+  // scroll phase ticker
+  phase1: { id: 'phase.1', defaultMessage: '01 / EL ESTABLECIMIENTO' },
+  phase2: { id: 'phase.2', defaultMessage: '02 / RED DE SENSORES' },
+  phase3: { id: 'phase.3', defaultMessage: '03 / FLUJO DE DATOS' },
+  phase4: { id: 'phase.4', defaultMessage: '04 / DATOS ESTRUCTURADOS' },
+  phase5: { id: 'phase.5', defaultMessage: '05 / CONVERGENCIA' },
+  phase6: { id: 'phase.6', defaultMessage: '06 / GROWCAST' },
 
   // contact dialog
   dialogKicker: { id: 'dialog.kicker', defaultMessage: 'COORDINEMOS' },

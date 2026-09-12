@@ -9,11 +9,8 @@ import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocess
 export default function Effects() {
   return (
     <EffectComposer multisampling={0}>
-      {/* 0.18 was low enough that the whole field bloomed and the scene washed
-          out — only the hot cores should glow now, so the threshold goes up and
-          the intensity with it to keep the highlights from going flat */}
-      <Bloom mipmapBlur intensity={1.05} luminanceThreshold={0.32} luminanceSmoothing={0.3} />
-      <Noise premultiply opacity={0.42} />
+      <Bloom mipmapBlur intensity={0.85} luminanceThreshold={0.18} luminanceSmoothing={0.25} />
+      <Noise premultiply opacity={0.55} />
       <Vignette offset={0.22} darkness={0.82} />
     </EffectComposer>
   )
