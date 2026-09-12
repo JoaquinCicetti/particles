@@ -89,11 +89,12 @@ const TARGETS = [
  *
  * Note the path is sampled from cp 0.06, so the frame actually opened on is
  * already 60% of the way from knot 0 to knot 1 — both have to carry the
- * framing, not just the first.
+ * framing, not just the first. Moving only knot 0 barely shifts the opening;
+ * that mistake cost a round.
  */
 const MOBILE_POSITIONS = [
-  V(24.0, 14.0, 19.0), // 0.000  far down the diagonal: tent low, silos high
-  V(15.0, 9.0, 13.0), // 0.100  in along the diagonal, both still stacked
+  V(13.0, 16.0, 34.0), // 0.000  far back down the diagonal, swung left
+  V(10.0, 11.0, 24.0), // 0.100  in along the diagonal, both still stacked
   V(-0.6, 2.2, 5.4), //   0.200  swing onto the tower, dropping low
   V(-3.6, 3.05, 2.3), //  0.300  the door, backed off for the narrow FOV
   V(-3.6, 6.8, 1.4), //   0.400  rise past it, following the conduit
