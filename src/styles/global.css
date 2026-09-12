@@ -45,14 +45,14 @@
 }
 
 :root {
-  --bg: #050302;
-  --fg: #f6efe4;
-  --fg-dim: rgba(244, 236, 224, 0.86);
-  --copper: #c87f3d;
-  --copper-bright: #ffd9a0;
-  --copper-hover: #b3702f; /* plain copper, a touch darker — no gold */
-  --copper-dim: rgba(200, 127, 61, 0.35);
-  --copper-faint: rgba(200, 127, 61, 0.14);
+  --bg: #1c1c20;
+  --fg: #f2f2f4;
+  --fg-dim: rgba(242, 242, 246, 0.86);
+  --accent: #cad86e;
+  --accent-bright: #eef7b4;
+  --accent-hover: #b4c455; /* the brand lime, a touch deeper */
+  --accent-dim: rgba(202, 216, 110, 0.35);
+  --accent-faint: rgba(202, 216, 110, 0.14);
   --radius: 0.5rem; /* shadcn-style corner radius */
   /* horizontal room the side index panel + rail take on the right, so floating
      chrome can stay clear of them at any viewport width */
@@ -64,7 +64,7 @@
 
 html {
   scrollbar-width: thin;
-  scrollbar-color: var(--copper-dim) transparent;
+  scrollbar-color: var(--accent-dim) transparent;
 }
 
 body {
@@ -75,7 +75,7 @@ body {
 }
 
 ::selection {
-  background: var(--copper);
+  background: var(--accent);
   color: var(--bg);
 }
 
@@ -109,13 +109,13 @@ body {
   font-size: 0.68rem;
   font-weight: 400;
   letter-spacing: 0.42em;
-  color: var(--copper-bright);
+  color: var(--accent-bright);
   margin-bottom: 1.4rem;
-  text-shadow: 0 1px 3px rgba(5, 3, 2, 0.95);
+  text-shadow: 0 1px 3px rgba(28, 28, 32, 0.95);
 }
 
 .accent {
-  color: var(--copper-bright);
+  color: var(--accent-bright);
 }
 
 /* nav */
@@ -142,7 +142,7 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(5, 3, 2, 0.72), rgba(5, 3, 2, 0));
+  background: linear-gradient(to bottom, rgba(28, 28, 32, 0.72), rgba(28, 28, 32, 0));
   -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
   mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
@@ -155,11 +155,11 @@ body {
   text-decoration: none;
 }
 
-/* lime logo.svg recolored to flat copper via mask — geometry only */
+/* logo.svg recolored to the flat brand lime via mask — geometry only */
 .brand-mark {
   width: 2rem;
   height: 2rem;
-  background: var(--copper);
+  background: var(--accent);
   -webkit-mask: url('/logo.svg') center / contain no-repeat;
   mask: url('/logo.svg') center / contain no-repeat;
   transition: transform 0.4s ease;
@@ -194,11 +194,11 @@ body {
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--copper);
+  color: var(--accent);
   text-decoration: none;
   white-space: nowrap;
   background: transparent;
-  border: 1px solid var(--copper-dim);
+  border: 1px solid var(--accent-dim);
   border-radius: var(--radius);
   padding: 0.55rem 1.05rem;
   transition:
@@ -208,8 +208,8 @@ body {
 }
 
 .nav-cta:hover {
-  background: var(--copper);
-  border-color: var(--copper);
+  background: var(--accent);
+  border-color: var(--accent);
   color: var(--bg);
 }
 
@@ -230,8 +230,8 @@ body {
   letter-spacing: 0.09em;
   text-transform: uppercase;
   text-shadow:
-    0 2px 4px rgba(5, 3, 2, 0.92),
-    0 0 10px rgba(5, 3, 2, 0.7);
+    0 2px 4px rgba(28, 28, 32, 0.92),
+    0 0 10px rgba(28, 28, 32, 0.7);
 }
 
 .hero p {
@@ -241,7 +241,7 @@ body {
   line-height: 1.65;
   max-width: 30rem;
   color: var(--fg-dim);
-  text-shadow: 0 1px 3px rgba(5, 3, 2, 0.95);
+  text-shadow: 0 1px 3px rgba(28, 28, 32, 0.95);
 }
 
 /* narrative blocks */
@@ -261,8 +261,8 @@ body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   text-shadow:
-    0 2px 4px rgba(5, 3, 2, 0.92),
-    0 0 10px rgba(5, 3, 2, 0.7);
+    0 2px 4px rgba(28, 28, 32, 0.92),
+    0 0 10px rgba(28, 28, 32, 0.7);
 }
 
 .block p {
@@ -271,7 +271,7 @@ body {
   font-size: clamp(0.9rem, 1.15vw, 1.02rem);
   line-height: 1.7;
   color: var(--fg-dim);
-  text-shadow: 0 1px 3px rgba(5, 3, 2, 0.95);
+  text-shadow: 0 1px 3px rgba(28, 28, 32, 0.95);
 }
 
 .block-right {
@@ -299,8 +299,8 @@ body {
    every frame and tanked perf when all 6 cards appeared at once) */
 .panel {
   position: relative;
-  background: rgba(11, 6, 3, 0.82);
-  border: 1px solid var(--copper-dim);
+  background: rgba(19, 19, 23, 0.82);
+  border: 1px solid var(--accent-dim);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
 }
 
@@ -310,7 +310,7 @@ body {
   position: absolute;
   width: 0.85rem;
   height: 0.85rem;
-  border-color: var(--copper);
+  border-color: var(--accent);
   border-style: solid;
 }
 
@@ -339,9 +339,9 @@ body {
   align-items: center;
   gap: 0.7rem;
   padding: 0.62rem 1.25rem 0.62rem 0.95rem;
-  border: 1px solid var(--copper-dim);
+  border: 1px solid var(--accent-dim);
   border-radius: 999px;
-  background: rgba(11, 6, 3, 0.72);
+  background: rgba(19, 19, 23, 0.72);
   box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
   animation: chip-float 4.2s ease-in-out infinite;
 }
@@ -374,7 +374,7 @@ body {
   width: 1.7rem;
   height: 1.7rem;
   flex: none;
-  color: var(--copper);
+  color: var(--accent);
 }
 
 .metric-value {
@@ -382,7 +382,7 @@ body {
   font-weight: 300;
   font-size: 2.1rem;
   line-height: 1;
-  color: var(--copper-bright);
+  color: var(--accent-bright);
   white-space: nowrap;
 }
 
@@ -398,7 +398,7 @@ body {
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.34em;
-  color: var(--copper);
+  color: var(--accent);
 }
 
 /* scattered around the central stream, off the narrative copy */
@@ -418,7 +418,7 @@ body {
   color: var(--fg-dim);
 }
 
-/* primary CTA — dark glass pill, luminous copper outline + glowing text */
+/* primary CTA — dark glass pill, luminous lime outline + glowing text */
 .cta {
   position: relative;
   display: inline-flex;
@@ -432,15 +432,15 @@ body {
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  color: var(--copper-bright);
-  background: rgba(18, 11, 5, 0.55);
-  border: 1px solid var(--copper);
+  color: var(--accent-bright);
+  background: rgba(25, 25, 29, 0.55);
+  border: 1px solid var(--accent);
   border-radius: var(--radius);
   padding: 0.9rem 1.8rem;
-  text-shadow: 0 0 10px rgba(255, 217, 160, 0.5);
+  text-shadow: 0 0 10px rgba(238, 247, 180, 0.5);
   box-shadow:
-    0 0 20px rgba(200, 127, 61, 0.28),
-    inset 0 0 18px rgba(200, 127, 61, 0.08);
+    0 0 20px rgba(202, 216, 110, 0.28),
+    inset 0 0 18px rgba(202, 216, 110, 0.08);
   transition:
     transform 0.25s ease,
     box-shadow 0.3s ease,
@@ -450,11 +450,11 @@ body {
 
 .cta:hover {
   transform: translateY(-2px);
-  color: #fff7ec;
-  border-color: var(--copper-bright);
+  color: #f8fde9;
+  border-color: var(--accent-bright);
   box-shadow:
-    0 0 34px rgba(255, 205, 150, 0.5),
-    inset 0 0 24px rgba(255, 205, 150, 0.14);
+    0 0 34px rgba(226, 240, 150, 0.5),
+    inset 0 0 24px rgba(226, 240, 150, 0.14);
 }
 
 .cta-arrow {
@@ -473,7 +473,7 @@ body {
   letter-spacing: 0.03em;
   text-transform: none;
   color: var(--bg);
-  background: var(--copper);
+  background: var(--accent);
   border-radius: var(--radius);
   text-shadow: none;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
@@ -481,8 +481,8 @@ body {
 
 .dialog-send:hover {
   color: var(--bg);
-  background: var(--copper-bright);
-  border-color: var(--copper-bright);
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
 }
 
@@ -506,13 +506,13 @@ body {
   font-family: var(--mono);
   font-size: 0.58rem;
   letter-spacing: 0.4em;
-  color: var(--copper);
+  color: var(--accent);
 }
 
 .hint i {
   width: 1px;
   height: 3.4rem;
-  background: linear-gradient(to bottom, var(--copper), transparent);
+  background: linear-gradient(to bottom, var(--accent), transparent);
   animation: hint-drop 2.2s ease-in-out infinite;
   transform-origin: top;
 }
@@ -542,13 +542,13 @@ body {
   position: relative;
   width: 1px;
   height: 38vh;
-  background: var(--copper-faint);
+  background: var(--accent-faint);
 }
 
 .rail-fill {
   position: absolute;
   inset: 0;
-  background: var(--copper);
+  background: var(--accent);
   transform: scaleY(0);
   transform-origin: top;
 }
@@ -560,8 +560,8 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--copper-bright);
-  box-shadow: 0 0 10px rgba(255, 217, 160, 0.8);
+  background: var(--accent-bright);
+  box-shadow: 0 0 10px rgba(238, 247, 180, 0.8);
 }
 
 /* phase indicator */
@@ -589,10 +589,10 @@ body {
   align-items: stretch;
   gap: 0.3rem;
   padding: 0.85rem 1.1rem;
-  background: rgba(5, 3, 2, 0.55);
+  background: rgba(28, 28, 32, 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--copper-faint);
+  border: 1px solid var(--accent-faint);
   border-radius: var(--radius);
   pointer-events: auto;
 }
@@ -623,12 +623,12 @@ body {
 .sidenav-item:hover,
 .sidenav-item.is-active {
   opacity: 1;
-  color: var(--copper-bright);
+  color: var(--accent-bright);
 }
 
 .sidenav-item.is-active i {
   width: 1.1rem;
-  box-shadow: 0 0 8px rgba(255, 217, 160, 0.6);
+  box-shadow: 0 0 8px rgba(238, 247, 180, 0.6);
 }
 
 /* ☰ — mobile only */
@@ -640,7 +640,7 @@ body {
   width: 2.3rem;
   height: 2.3rem;
   background: transparent;
-  border: 1px solid var(--copper-dim);
+  border: 1px solid var(--accent-dim);
   border-radius: var(--radius);
   cursor: pointer;
   padding: 0 0.6rem;
@@ -649,7 +649,7 @@ body {
 .nav-menu i {
   display: block;
   height: 1px;
-  background: var(--copper);
+  background: var(--accent);
 }
 
 /* mobile sheet — reuses the dialog shell */
@@ -674,13 +674,13 @@ body {
   text-transform: uppercase;
   color: var(--fg);
   text-decoration: none;
-  border-top: 1px solid var(--copper-faint);
+  border-top: 1px solid var(--accent-faint);
   transition: color 0.2s ease;
 }
 
 .sheet-link:hover,
 .sheet-link:focus-visible {
-  color: var(--copper-bright);
+  color: var(--accent-bright);
   outline: none;
 }
 
@@ -688,7 +688,7 @@ body {
   font-family: var(--mono);
   font-size: 0.6rem;
   letter-spacing: 0.24em;
-  color: var(--copper);
+  color: var(--accent);
 }
 
 /* ── solutions (in-flow, after the story) ───────────────────── */
@@ -696,7 +696,7 @@ body {
   position: relative;
   z-index: 5; /* above the canvas, below the fixed overlay chrome */
   /* the logo scene shows through the seam, then the ground goes solid */
-  background: linear-gradient(to bottom, rgba(5, 3, 2, 0) 0, var(--bg) 40vh);
+  background: linear-gradient(to bottom, rgba(28, 28, 32, 0) 0, var(--bg) 40vh);
   padding-top: 36vh;
   padding-left: calc(clamp(1.5rem, 6vw, 6rem) + env(safe-area-inset-left));
   /* extra room on the right for the fixed side index + rail. the index is a
@@ -712,14 +712,14 @@ body {
   }
 }
 
-/* fine copper dot grid, fading in below the seam — echoes the circuit board */
+/* fine lime dot grid, fading in below the seam — echoes the circuit board */
 .solutions::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(rgba(200, 127, 61, 0.22) 1px, transparent 1.4px);
+  background-image: radial-gradient(rgba(202, 216, 110, 0.22) 1px, transparent 1.4px);
   background-size: 28px 28px;
   -webkit-mask-image: linear-gradient(to bottom, transparent 30vh, #000 60vh);
   mask-image: linear-gradient(to bottom, transparent 30vh, #000 60vh);
@@ -740,8 +740,8 @@ body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   text-shadow:
-    0 2px 4px rgba(5, 3, 2, 0.92),
-    0 0 10px rgba(5, 3, 2, 0.7);
+    0 2px 4px rgba(28, 28, 32, 0.92),
+    0 0 10px rgba(28, 28, 32, 0.7);
 }
 
 .sol-intro p,
@@ -799,10 +799,10 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--copper-dim) 30%, var(--copper-dim) 70%, transparent);
+  background: linear-gradient(90deg, transparent, var(--accent-dim) 30%, var(--accent-dim) 70%, transparent);
 }
 
-/* soft copper glow behind the panels side of each section */
+/* soft lime glow behind the panels side of each section */
 .sol::before {
   content: '';
   position: absolute;
@@ -812,7 +812,7 @@ body {
   width: 60%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(200, 127, 61, 0.16), rgba(200, 127, 61, 0));
+  background: radial-gradient(closest-side, rgba(202, 216, 110, 0.16), rgba(202, 216, 110, 0));
   pointer-events: none;
 }
 
@@ -832,7 +832,7 @@ body {
   font-size: clamp(9rem, 22vw, 20rem);
   line-height: 1;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(200, 127, 61, 0.13);
+  -webkit-text-stroke: 1px rgba(202, 216, 110, 0.13);
   pointer-events: none;
   user-select: none;
 }
@@ -856,7 +856,7 @@ body {
   gap: 0.5rem;
   margin-top: 1.6rem;
   padding-left: 1rem;
-  border-left: 2px solid var(--copper);
+  border-left: 2px solid var(--accent);
   color: var(--fg);
 }
 
@@ -879,9 +879,9 @@ body {
   font-size: 0.98rem;
   color: var(--fg);
   padding: 0.5rem 0.95rem;
-  border: 1px solid var(--copper-dim);
+  border: 1px solid var(--accent-dim);
   border-radius: 999px;
-  background: rgba(200, 127, 61, 0.08);
+  background: rgba(202, 216, 110, 0.08);
 }
 
 .sol-stats {
@@ -926,7 +926,7 @@ body {
 .sol h3.metric-label {
   font-size: 0.74rem;
   font-weight: 400;
-  color: var(--copper-bright);
+  color: var(--accent-bright);
 }
 
 .sol-list {
@@ -943,7 +943,7 @@ body {
   font-size: 1.05rem;
   line-height: 1.55;
   color: var(--fg);
-  border-top: 1px solid var(--copper-faint);
+  border-top: 1px solid var(--accent-faint);
 }
 
 .sol-list li:first-child {
@@ -960,7 +960,7 @@ body {
   width: 1.2rem;
   height: 1.2rem;
   margin-top: 0.3rem;
-  background: var(--copper);
+  background: var(--accent);
   --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
   -webkit-mask: var(--icon) center / contain no-repeat;
   mask: var(--icon) center / contain no-repeat;
@@ -968,7 +968,7 @@ body {
 
 .sol-icon[data-icon='check'] {
   --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E");
-  background: var(--copper-bright);
+  background: var(--accent-bright);
 }
 
 /* device on the wall */
@@ -1047,10 +1047,10 @@ body {
   font-family: var(--mono);
   font-size: 0.72rem;
   letter-spacing: 0.1em;
-  color: var(--copper-bright);
-  border: 1px solid var(--copper);
+  color: var(--accent-bright);
+  border: 1px solid var(--accent);
   border-radius: 50%;
-  background: rgba(200, 127, 61, 0.1);
+  background: rgba(202, 216, 110, 0.1);
 }
 
 .sol-steps strong {
@@ -1071,7 +1071,7 @@ body {
 /* schema slot — replace <FigurePlaceholder/> with the real connection diagram */
 .sol-figure {
   padding: 1.2rem 1.4rem 1.1rem;
-  color: var(--copper);
+  color: var(--accent);
 }
 
 .sol-figure .metric-note {
@@ -1108,7 +1108,7 @@ body {
   font-family: var(--mono);
   font-size: 0.6rem;
   letter-spacing: 0.3em;
-  color: var(--copper);
+  color: var(--accent);
 }
 
 .sol-contact .finale-fine {
@@ -1257,7 +1257,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: rgba(3, 2, 1, 0.7);
+  background: rgba(15, 15, 19, 0.7);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: dialog-fade 0.2s ease;
@@ -1266,8 +1266,8 @@ body {
 .dialog {
   position: relative;
   width: min(28rem, 100%);
-  background: #0b0705;
-  border: 1px solid var(--copper-dim);
+  background: #141418;
+  border: 1px solid var(--accent-dim);
   border-radius: var(--radius);
   padding: 2rem 1.8rem 1.8rem;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
@@ -1306,7 +1306,7 @@ body {
   font-size: 0.6rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--copper);
+  color: var(--accent);
   margin-bottom: 0.45rem;
 }
 
@@ -1317,7 +1317,7 @@ body {
   font-size: 0.95rem;
   color: var(--fg);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--copper-faint);
+  border: 1px solid var(--accent-faint);
   border-radius: calc(var(--radius) - 0.2rem);
   padding: 0.7rem 0.85rem;
   resize: vertical;
@@ -1327,11 +1327,11 @@ body {
 .dialog-field input:focus,
 .dialog-field textarea:focus {
   outline: none;
-  border-color: var(--copper);
+  border-color: var(--accent);
 }
 
 .dialog-field input::placeholder {
-  color: rgba(244, 236, 224, 0.35);
+  color: rgba(242, 242, 246, 0.35);
 }
 
 .dialog-send {
@@ -1404,7 +1404,7 @@ body {
 .loader-mark {
   width: 3.4rem;
   height: 3.4rem;
-  background: var(--copper);
+  background: var(--accent);
   -webkit-mask: url('/logo.svg') center / contain no-repeat;
   mask: url('/logo.svg') center / contain no-repeat;
   animation: loader-pulse 1.8s ease-in-out infinite;
@@ -1434,15 +1434,15 @@ body {
   margin-top: 0.5rem;
   width: 11rem;
   height: 2px;
-  background: var(--copper-faint);
+  background: var(--accent-faint);
   overflow: hidden;
 }
 
 .loader-bar i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--copper), var(--copper-bright));
-  box-shadow: 0 0 8px rgba(255, 217, 160, 0.55);
+  background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+  box-shadow: 0 0 8px rgba(238, 247, 180, 0.55);
 }
 
 .loader-pct {
@@ -1488,9 +1488,9 @@ body {
   position: relative;
   display: inline-flex;
   padding: 0.2rem;
-  border: 1px solid var(--copper-dim);
+  border: 1px solid var(--accent-dim);
   border-radius: 999px;
-  background: rgba(11, 6, 3, 0.62);
+  background: rgba(19, 19, 23, 0.62);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -1502,7 +1502,7 @@ body {
   width: 2.6rem;
   height: calc(100% - 0.4rem);
   border-radius: 999px;
-  background: var(--copper);
+  background: var(--accent);
   transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 
@@ -1532,7 +1532,7 @@ body {
 
 /* ── accessibility: large targets, visible focus, readable sizes ── */
 :focus-visible {
-  outline: 3px solid var(--copper-bright);
+  outline: 3px solid var(--accent-bright);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -1564,7 +1564,7 @@ body {
   align-items: center;
   gap: 0.6rem;
   padding: 0 0.95rem;
-  color: var(--copper);
+  color: var(--accent);
   font-family: var(--body);
   font-size: 0.82rem;
   font-weight: 500;
@@ -1700,7 +1700,7 @@ body {
 }
 
 .fig-lbl-accent {
-  fill: var(--copper-bright);
+  fill: var(--accent-bright);
 }
 
 .fig-struct {
@@ -1726,25 +1726,25 @@ body {
 
 .fig-cable {
   fill: none;
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 1.2;
   opacity: 0.9;
 }
 
 .fig-node {
-  fill: #0b0705;
+  fill: #141418;
   stroke: currentColor;
   stroke-width: 1;
 }
 
 .fig-node.in-grain {
-  fill: var(--copper);
-  stroke: var(--copper-bright);
+  fill: var(--accent);
+  stroke: var(--accent-bright);
 }
 
 .fig-pulse {
-  fill: var(--copper-bright);
-  filter: drop-shadow(0 0 3px rgba(255, 217, 160, 0.9));
+  fill: var(--accent-bright);
+  filter: drop-shadow(0 0 3px rgba(238, 247, 180, 0.9));
   offset-rotate: 0deg;
   animation: fig-travel var(--d, 4s) linear infinite;
   animation-delay: var(--delay, 0s);
@@ -1752,7 +1752,7 @@ body {
 }
 
 .fig-pulse.cmd {
-  fill: var(--copper);
+  fill: var(--accent);
 }
 
 @keyframes fig-travel {
@@ -1774,7 +1774,7 @@ body {
 
 .fig-hot {
   fill: none;
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 1;
   transform-box: fill-box;
   transform-origin: center;
@@ -1823,7 +1823,7 @@ body {
 
 /* grow-room: breathing light cones, blinking controller LEDs; curing: mist */
 .fig-cone {
-  fill: var(--copper-bright);
+  fill: var(--accent-bright);
   animation: fig-breathe 4s ease-in-out infinite;
 }
 
@@ -1838,12 +1838,12 @@ body {
 }
 
 .fig-lamp {
-  fill: var(--copper-bright);
-  filter: drop-shadow(0 0 4px rgba(255, 217, 160, 0.8));
+  fill: var(--accent-bright);
+  filter: drop-shadow(0 0 4px rgba(238, 247, 180, 0.8));
 }
 
 .fig-led {
-  fill: var(--copper-bright);
+  fill: var(--accent-bright);
   animation: fig-blink 1.8s steps(1) infinite;
 }
 
@@ -1868,20 +1868,20 @@ body {
 
 .fig-plant {
   fill: none;
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 1;
   stroke-linecap: round;
   opacity: 0.9;
 }
 
 .fig-cheese {
-  fill: rgba(255, 217, 160, 0.16);
-  stroke: var(--copper-bright);
+  fill: rgba(238, 247, 180, 0.16);
+  stroke: var(--accent-bright);
   stroke-width: 0.9;
 }
 
 .fig-mist {
-  fill: var(--copper-bright);
+  fill: var(--accent-bright);
   opacity: 0;
   animation: fig-mist 2.6s ease-out infinite;
   animation-delay: var(--delay, 0s);
@@ -1923,14 +1923,14 @@ body {
    a consecutive direct child of its OWN <g>: the .fig-led:nth-child stagger
    above selects by position and would otherwise bleed onto sibling shapes. */
 .fig-chassis {
-  fill: #0b0705;
+  fill: #141418;
   stroke: currentColor;
   stroke-width: 1;
   stroke-linejoin: round;
 }
 
 .fig-screen {
-  fill: rgba(255, 217, 160, 0.05);
+  fill: rgba(238, 247, 180, 0.05);
   stroke: currentColor;
   stroke-width: 0.6;
   opacity: 0.85;
@@ -1952,8 +1952,8 @@ body {
 }
 
 .fig-mark {
-  fill: var(--copper-bright);
-  stroke: var(--copper-bright);
+  fill: var(--accent-bright);
+  stroke: var(--accent-bright);
   stroke-width: 1;
   stroke-linejoin: round;
 }
@@ -1974,21 +1974,21 @@ body {
 
 .fig-sensor-glyph {
   fill: none;
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .fig-chip {
-  fill: rgba(255, 217, 160, 0.16);
-  stroke: var(--copper-bright);
+  fill: rgba(238, 247, 180, 0.16);
+  stroke: var(--accent-bright);
   stroke-width: 0.5;
 }
 
 /* the app's "live" dot */
 .fig-live {
-  fill: var(--copper-bright);
+  fill: var(--accent-bright);
   animation: fig-live 1.6s ease-in-out infinite;
 }
 
@@ -2005,7 +2005,7 @@ body {
 /* the app's hero sparkline, drawn on and wiped */
 .fig-spark {
   fill: none;
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 1.2;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -2028,7 +2028,7 @@ body {
 
 /* the app's setpoint gauge */
 .fig-gauge {
-  fill: var(--copper-bright);
+  fill: var(--accent-bright);
   transform-box: fill-box;
   transform-origin: left center;
   animation: fig-gauge 5.2s ease-in-out infinite;
@@ -2047,7 +2047,7 @@ body {
 /* uplink: staggered arcs expanding toward the phone */
 .fig-uplink {
   fill: none;
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 1.1;
   stroke-linecap: round;
   opacity: 0;

@@ -4,7 +4,7 @@ import { createRandom } from '../../lib/random'
  * Rasterizes an SVG to an offscreen canvas and samples its lit pixels into
  * world-space particle targets on a plane at z≈0. Used for both the brand
  * mark and the industrial board "electronic" formation. The SVG's own colors
- * are irrelevant — particles are recolored copper by the shader.
+ * are irrelevant — particles are recolored lime by the shader.
  */
 
 export interface SvgSampleOptions {

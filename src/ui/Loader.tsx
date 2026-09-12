@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 /**
- * Intro loading screen. Animates a copper progress bar over the GROWCAST mark
+ * Intro loading screen. Animates a lime progress bar over the GROWCAST mark
  * while the WebGL context spins up, holds at ~88% until `ready`, then fills to
  * 100% and fades out — handing off to the scene's start animation via onDone.
  */

@@ -190,9 +190,9 @@ void main() {
   float size = (1.2 + aRand.y * 1.6) * (1.0 - wFlow * 0.42 + inLogo * 0.35 + pulse * 1.4);
   gl_PointSize = size * uPixelRatio * (9.0 / dist) * (1.0 + blur * 0.8);
 
-  vec3 deep   = vec3(0.42, 0.20, 0.07);
-  vec3 bright = vec3(1.0, 0.74, 0.40);
-  vec3 white  = vec3(1.0, 0.92, 0.78);
+  vec3 deep   = vec3(0.26, 0.31, 0.11);
+  vec3 bright = vec3(0.79, 0.85, 0.43);
+  vec3 white  = vec3(0.96, 1.0, 0.86);
   float shimmer = 0.5 + 0.5 * sin(uTime * 0.9 + aRand.x * 6.28318);
   float m = clamp(aRand.y * 0.65 + shimmer * 0.35, 0.0, 1.0);
   vColor = mix(deep, bright, m) * (0.8 + wTun * (0.15 + core * 0.5) + rising * 0.25);

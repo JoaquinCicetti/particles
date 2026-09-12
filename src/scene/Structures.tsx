@@ -466,21 +466,21 @@ export default function Structures() {
 
   const materials = useMemo(() => {
     const line = new THREE.LineBasicMaterial({
-      color: '#b97a3e',
+      color: '#93a84e',
       transparent: true,
       opacity: 0.6,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
     const grid = new THREE.LineBasicMaterial({
-      color: '#8a5226',
+      color: '#4f5e28',
       transparent: true,
       opacity: 0.16,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
     const sensor = new THREE.PointsMaterial({
-      color: '#ffe6bf',
+      color: '#eaffc4',
       size: 0.28,
       sizeAttenuation: true,
       transparent: true,
@@ -490,7 +490,7 @@ export default function Structures() {
     })
     // hydroponic grow nodes — the plants on the racks, gently pulsing
     const grow = new THREE.PointsMaterial({
-      color: '#e8a85c',
+      color: '#b9d06a',
       size: 0.06,
       sizeAttenuation: true,
       transparent: true,

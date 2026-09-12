@@ -3,7 +3,7 @@ import { M } from '../i18n/messages'
 
 type Props = {
   onClick: () => void
-  /** `nav` = compact outline button in the header; `block` = large copper button. */
+  /** `nav` = compact outline button in the header; `block` = large lime button. */
   variant?: 'nav' | 'block'
 }
 
