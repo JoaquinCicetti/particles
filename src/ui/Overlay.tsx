@@ -18,7 +18,12 @@ const METRICS = [
   { icon: 'ph', label: M.mPhLabel, value: '6.3', unit: 'pH' },
   { icon: 'air', label: M.mAirLabel, value: '1.8', unit: 'm/s' },
 ] as const
-const METRIC_WINDOW: [number, number] = [0.17, 0.46]
+// hold the chips back until the particle wall is building behind them — the
+// dense field is what gives the small mono type enough contrast to read
+const METRIC_WINDOW: [number, number] = [0.27, 0.5]
+// scrambled per-chip delays so they arrive in no discernible order rather than
+// marching in together (a uniform i * step read as one block)
+const METRIC_DELAY = [0.062, 0.0, 0.094, 0.03, 0.112, 0.047] as const
 
 const PHASE_AT = [0, 0.16, 0.32, 0.5, 0.62, 0.88] as const
 const PHASE_MSG = [M.phase1, M.phase2, M.phase3, M.phase4, M.phase5, M.phase6] as const
@@ -87,7 +92,7 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
 
       cards.forEach((c, i) => {
         const [a0, b] = METRIC_WINDOW
-        const a = a0 + i * 0.012 // bubble up one after another, quickly
+        const a = a0 + (METRIC_DELAY[i] ?? 0)
         const o = fadeWindow(p, a, b, 0.22)
         const t = Math.min(1, Math.max(0, (p - a) / (b - a)))
         // la cámara sube por el flujo → los chips derivan hacia abajo

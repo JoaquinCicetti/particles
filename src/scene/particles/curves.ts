@@ -42,7 +42,7 @@ export const WAREHOUSE = {
  * one sensor in the head space at the roof vent for the air going out. Nothing
  * is mounted on the skin — a probe on the outside of a bin measures nothing.
  */
-const PROBES_PER_CABLE = 3
+const PROBES_PER_CABLE = 2
 const CABLES_PER_SILO = 2
 /** one entry per cable: where it hangs from, and its probes down the grain */
 export const SILO_CABLES = SILOS.flatMap((s, si) =>
@@ -55,7 +55,7 @@ export const SILO_CABLES = SILOS.flatMap((s, si) =>
     const z = s.pos.z + Math.sin(a) * rr
     const probes = Array.from({ length: PROBES_PER_CABLE }, (_, k) =>
       // spread down the grain column, none right at the floor or the surface
-      v(x, s.height * (0.7 - (k * 0.46) / PROBES_PER_CABLE), z),
+      v(x, s.height * (0.66 - k * 0.3), z),
     )
     return { top: v(x, s.height * 0.97, z), probes }
   }),
@@ -77,9 +77,18 @@ export const SENSOR_POINTS: THREE.Vector3[] = [
   WAREHOUSE_FRONT,
   WAREHOUSE_BACK,
   v(WAREHOUSE.pos.x + WAREHOUSE.w / 2, WAREHOUSE.wall, WAREHOUSE.pos.z + 1.5),
-  // hydroponic rack sensors inside the warehouse
-  v(WAREHOUSE.pos.x - 1.6, WAREHOUSE.wall * 0.7, WAREHOUSE.pos.z),
-  v(WAREHOUSE.pos.x + 1.6, WAREHOUSE.wall * 0.5, WAREHOUSE.pos.z - 1.2),
+  // the tent carries the bulk of the instrumentation: climate and substrate
+  // sensors spread through the grow volume, across the rack rows and up the
+  // shelves, rather than a couple of token points
+  ...Array.from({ length: 8 }, (_, k) => {
+    const col = k % 4
+    const tier = Math.floor(k / 4)
+    return v(
+      WAREHOUSE.pos.x + WAREHOUSE.w * (-0.3 + 0.2 * col),
+      WAREHOUSE.wall * (0.32 + 0.4 * tier),
+      WAREHOUSE.pos.z + WAREHOUSE.d * (col % 2 === 0 ? -0.24 : 0.2),
+    )
+  }),
   GROUND_SENSOR,
   v(ELEVATOR.pos.x, ELEVATOR.height + 0.4, ELEVATOR.pos.z),
 ]
@@ -99,10 +108,7 @@ export const BOARD = {
   cy: 3.0, // centre height — low enough to read as wall-mounted kit
   wallZ: tz + ELEVATOR.width / 2, // the tower face it hangs on
 }
-/** the door plane, where the logo sits and the camera comes to look */
-export const BOARD_FRONT = v(tx, BOARD.cy, BOARD.wallZ + BOARD.d)
 export const BOARD_TOP = BOARD.cy + BOARD.h / 2
-export const HUB = BOARD_FRONT
 export const SKY = 18.0 // where the uplink hands off to the sky
 const SAG = 0.7 // how far the drift dips on its way to the enclosure
 

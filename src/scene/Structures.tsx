@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import {
@@ -8,11 +8,9 @@ import {
   SENSOR_POINTS,
   SILO_CABLES,
   BOARD,
-  BOARD_FRONT,
   GLANDS,
   SKY,
 } from './particles/curves'
-import { loadLogoTexture } from './logoTexture'
 import { createRandom } from '../lib/random'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
@@ -25,11 +23,6 @@ import { smoothstep } from '../lib/math'
  */
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
-
-// the brand mark's height on the enclosure door — a badge, not a billboard.
-// the ink is kept muted on purpose: the scene's bloom threshold is low (0.18),
-// so a bright mark would halo even with additive blending off.
-const MARK_H = BOARD.h * 0.26
 
 function pushLine(out: number[], a: THREE.Vector3, b: THREE.Vector3) {
   out.push(a.x, a.y, a.z, b.x, b.y, b.z)
@@ -540,36 +533,6 @@ export default function Structures() {
     return { line, grid, shell, sensor, grow }
   }, [])
 
-  // the brand mark on the enclosure door: a solid, unlit, single-ink plane.
-  // Not particles (stippled) and not additive (a lamp) — printed on the panel.
-  const markRef = useRef<THREE.Mesh>(null)
-  const [mark, setMark] = useState<{ tex: THREE.Texture; aspect: number } | null>(null)
-  useEffect(() => {
-    let alive = true
-    loadLogoTexture('#8f7a61', 512)
-      .then((r) => alive && setMark(r))
-      .catch(() => {})
-    return () => {
-      alive = false
-    }
-  }, [])
-  const markMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.NormalBlending,
-        toneMapped: false,
-      }),
-    [],
-  )
-  useEffect(() => {
-    if (mark) {
-      markMat.map = mark.tex
-      markMat.needsUpdate = true
-    }
-  }, [mark, markMat])
-
   useFrame(({ clock }) => {
     const fade = 1 - smoothstep(0.3, 0.44, scrollState.smooth)
     const group = groupRef.current
@@ -581,7 +544,6 @@ export default function Structures() {
     materials.sensor.opacity = (0.7 + 0.3 * Math.sin(clock.elapsedTime * 2.6)) * fade
     // grow nodes breathe slowly
     materials.grow.opacity = (0.6 + 0.25 * Math.sin(clock.elapsedTime * 1.3 + 1.0)) * fade
-    markMat.opacity = fade // static: fades with the scene, never pulses
   })
 
   return (
@@ -591,15 +553,6 @@ export default function Structures() {
       <points geometry={shellGeo} material={materials.shell} />
       <points geometry={growGeo} material={materials.grow} />
       <points geometry={sensorGeo} material={materials.sensor} />
-      {mark && (
-        <mesh
-          ref={markRef}
-          position={[BOARD_FRONT.x, BOARD.cy + BOARD.h * 0.02, BOARD_FRONT.z + 0.006]}
-          material={markMat}
-        >
-          <planeGeometry args={[MARK_H * mark.aspect, MARK_H]} />
-        </mesh>
-      )}
     </group>
   )
 }

@@ -70,7 +70,7 @@ export default function CameraRig({ started }: { started: boolean }) {
   useFrame(({ camera, pointer, clock }, delta) => {
     // single authority for scroll smoothing — runs even in free-cam mode so
     // the particle choreography still tracks scroll while you orbit
-    const k = 1 - Math.exp(-delta * 3.2)
+    const k = 1 - Math.exp(-delta * 3.6)
     scrollState.smooth += (scrollState.target - scrollState.smooth) * k
     const p = THREE.MathUtils.clamp(scrollState.smooth, 0, 1)
 

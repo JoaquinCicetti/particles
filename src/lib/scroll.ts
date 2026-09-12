@@ -53,7 +53,10 @@ export function bindScroll(track: HTMLElement | null) {
 let tweenRaf = 0
 let tweenAbort: (() => void) | null = null
 
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+// sine ease-in-out, not cubic. Cubic peaks at 3x the average velocity halfway
+// through the tween, which on a long jump whips past everything; sine peaks at
+// about half that, so the glide reads as a glide.
+const easeInOut = (t: number) => 0.5 * (1 - Math.cos(Math.PI * t))
 
 export function scrollToY(targetY: number) {
   tweenAbort?.()
@@ -66,8 +69,9 @@ export function scrollToY(targetY: number) {
     window.scrollTo({ top: to, behavior: 'instant' })
     return
   }
-  // ~0.45s per viewport of travel, between 0.7s and 2.2s
-  const duration = Math.min(2200, Math.max(700, (dist / window.innerHeight) * 450))
+  // ~0.62s per viewport of travel, between 0.9s and 3.6s. Long jumps get real
+  // time to cover the distance instead of being crammed into the old 2.2s cap.
+  const duration = Math.min(3600, Math.max(900, (dist / window.innerHeight) * 620))
   const start = performance.now()
 
   const stop = () => {

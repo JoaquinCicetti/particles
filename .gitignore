@@ -31,3 +31,6 @@ scripts/*.png
 # the subset .woff2 faces the site actually loads ARE committed, so a build
 # from Git ships the real typeface. Regenerate with `pnpm fonts`.
 public/fonts/*.otf
+
+# Claude Code scratch + agent worktrees
+.claude/
