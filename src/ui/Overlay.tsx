@@ -20,10 +20,15 @@ const METRICS = [
 ] as const
 // hold the chips back until the particle wall is building behind them — the
 // dense field is what gives the small mono type enough contrast to read
-const METRIC_WINDOW: [number, number] = [0.27, 0.5]
-// scrambled per-chip delays so they arrive in no discernible order rather than
-// marching in together (a uniform i * step read as one block)
-const METRIC_DELAY = [0.062, 0.0, 0.094, 0.03, 0.112, 0.047] as const
+const METRIC_WINDOW: [number, number] = [0.3, 0.56]
+// Per-chip delays, ordered against the LAYOUT rather than the array. The chips
+// sit alternating left/right and descending (.metric-1..6 in the CSS), so
+// scrambling index order is not enough on its own: the previous set happened to
+// sort into all three right-hand chips top-to-bottom, then all three left-hand
+// ones, which played as a tidy two-column sweep. These fire
+//   3 left-mid, 2 right-top, 6 right-low, 1 left-top, 4 right-mid, 5 left-low
+// crossing sides and heights, with uneven gaps so no cadence emerges either.
+const METRIC_DELAY = [0.066, 0.02, 0.0, 0.099, 0.12, 0.052] as const
 
 const PHASE_AT = [0, 0.16, 0.32, 0.5, 0.62, 0.88] as const
 const PHASE_MSG = [M.phase1, M.phase2, M.phase3, M.phase4, M.phase5, M.phase6] as const
@@ -97,7 +102,10 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
         const t = Math.min(1, Math.max(0, (p - a) / (b - a)))
         // la cámara sube por el flujo → los chips derivan hacia abajo
         c.style.opacity = String(o)
-        c.style.transform = `translateY(${lerp(-8, 10, t)}vh) scale(${0.7 + 0.3 * o})`
+        // 32vh of drift rather than 18: each chip rises from well above its
+        // resting slot and carries on well below it, sweeping the frame as the
+        // camera climbs instead of just nudging
+        c.style.transform = `translateY(${lerp(-15, 17, t)}vh) scale(${0.7 + 0.3 * o})`
         c.style.visibility = o < 0.01 ? 'hidden' : 'visible'
       })
 
