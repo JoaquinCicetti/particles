@@ -6,17 +6,14 @@ import { scrollState } from '../lib/scroll'
 /**
  * Scroll-driven cinematic camera. Position and look-target each follow a
  * CatmullRom path keyed to scroll progress, and the path deliberately mimics
- * the route the data takes:
- *   wide farm establishing → drop to ground level and come in looking UP at the
- *   Growcast enclosure → square in front of its door → up past it following the
- *   conduit → inside the tower looking up the vortex → pull back to the
- *   structured rows → up through the circuit lanes → the brand mark.
+ * the route the data takes: establish the operation → come in on the Growcast
+ * enclosure → square in front of its door → up past it following the conduit →
+ * inside the tower looking up the vortex → pull back to the structured rows →
+ * up through the circuit lanes → the brand mark.
  *
- * The approach is deliberately low. Coming in at eye level put the silo cluster
- * (x -7.4 / -8.0 / -10.2) directly behind the enclosure (x -3.6) and aimed the
- * camera into the thickest part of the particle gather; from below, everything
- * behind the box is empty sky. Three other approaches were built and compared
- * side by side — see commit bbc6a22 if that ever needs revisiting.
+ * Landscape and portrait run SEPARATE paths (see each below). They can frame
+ * very different amounts of the farm, so they need different routes rather than
+ * one route with its opening swapped.
  *
  * Subtle pointer parallax and idle breathing keep static moments alive.
  */
@@ -25,6 +22,34 @@ const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
+/**
+ * The last five knots are shared verbatim by both paths: the shader's act
+ * boundaries (rows → riser → logo) are keyed to the scroll positions these sit
+ * at, so they must not move. Everything before them is per-viewport.
+ */
+const TAIL_P = [
+  V(0, 3.0, 12.5), //     0.600  pull back to the structured rows
+  V(0, 3.6, 12), //       0.700  rows settle, the riser begins
+  V(0, 5.0, 11.5), //     0.800  follow the data rising up the lanes
+  V(0, 6.2, 10), //       0.900  frame the brand mark forming
+  V(0, 6.2, 8.8), //      1.000  the brand mark
+]
+const TAIL_T = [
+  V(0, 1.8, 0), // pan back to the data field at origin
+  V(0, 2.6, 0),
+  V(0, 4.2, 0),
+  V(0, 4.9, 0), // tilt down so the brand mark frames above center
+  V(0, 5.0, 0), // logo sits a bit above the middle, clear of the finale text
+]
+
+/**
+ * LANDSCAPE. Opens wide across the farm, then drops to ground level and comes
+ * in looking UP at the enclosure. The approach is deliberately low: at eye
+ * level the silo cluster (x -7.4 / -8.0 / -10.2) sat directly behind the box
+ * (x -3.6) and aimed the camera into the thickest part of the gather, whereas
+ * from below everything behind it is empty sky. Three other approaches were
+ * built and compared side by side — see commit bbc6a22 to revisit them.
+ */
 const POSITIONS = [
   V(-1, 6.2, 24), //      0.000  wide farm landscape
   V(1.0, 2.0, 13.5), //   0.100  already down at ground level, coming in
@@ -32,11 +57,7 @@ const POSITIONS = [
   V(-3.6, 3.05, 1.55), // 0.300  square in front of the enclosure door
   V(-3.6, 6.6, 1.2), //   0.400  rise past it, following the conduit
   V(-3.6, 3.0, -1.7), //  0.500  inside the tower, looking up the vortex
-  V(0, 3.0, 12.5), //     0.600  pull back to the structured rows
-  V(0, 3.6, 12), //       0.700  rows settle, the riser begins
-  V(0, 5.0, 11.5), //     0.800  follow the data rising up the lanes
-  V(0, 6.2, 10), //       0.900  frame the brand mark forming
-  V(0, 6.2, 8.8), //      1.000  the brand mark
+  ...TAIL_P,
 ]
 
 const TARGETS = [
@@ -46,28 +67,49 @@ const TARGETS = [
   V(-3.6, 3.0, -0.9), // the door plane
   V(-3.6, 10.0, -1.6), // tilt up the conduit as we climb past it
   V(-3.6, 11.5, -2), // keep looking up the vortex while descending
-  V(0, 1.8, 0), // pan back to the data field at origin
-  V(0, 2.6, 0),
-  V(0, 4.2, 0),
-  V(0, 4.9, 0), // tilt down so the brand mark frames above center
-  V(0, 5.0, 0), // logo sits a bit above the middle, clear of the finale text
+  ...TAIL_T,
 ]
 
 /**
- * Portrait crops the wide establishing shot badly, and what got cut was the
- * warehouse — the biggest structure and the one the copy is about. So mobile
- * opens framed on the tent instead of the whole farm, then swings left toward
- * the tower to hand off to the shared low approach.
+ * PORTRAIT — its own path, not the landscape one with the opening swapped out.
+ * That splice never fitted: the two differ in what they can frame at all, so
+ * they need different routes and different opening positions, not shared knots.
  *
- * Two things this framing has to respect. Portrait's horizontal FOV is narrow
- * (~24 deg at 390x844 against 50 vertical), so fitting the tent's 7-unit width
- * needs ~20 units of distance — and since the path is sampled from cp 0.06,
- * the frame you actually open on is already 60% of the way from knot 0 to
- * knot 1, so BOTH have to sit back, not just the first. The targets also aim
- * below the tent, which lifts it above the bottom-anchored hero copy.
+ * The farm spans ~18 units from the far silo to the tent, and portrait's
+ * horizontal FOV is narrow (~24 deg at 390x844 against 50 vertical) — it will
+ * not fit across, and pulling back far enough to force it leaves everything
+ * too small to read. So portrait views along the farm's DIAGONAL: the tent is
+ * front-right (x 4.6, z 3.4) and the tower and silos back-left, so a camera out
+ * beyond the tent looking back at the tower lines them up in DEPTH. Looking
+ * slightly down, near reads low in frame and far reads high — which stacks both
+ * groups up the tall axis, where there is room for them.
+ *
+ * The door shot also sits further back than landscape: the narrow FOV means the
+ * same distance crops the enclosure, so it needs the extra room.
+ *
+ * Note the path is sampled from cp 0.06, so the frame actually opened on is
+ * already 60% of the way from knot 0 to knot 1 — both have to carry the
+ * framing, not just the first.
  */
-const MOBILE_OPEN_P = [V(4.0, 7.5, 27.0), V(3.2, 5.4, 19.0)]
-const MOBILE_OPEN_T = [V(4.0, 2.0, 3.0), V(2.6, 2.2, 2.0)]
+const MOBILE_POSITIONS = [
+  V(24.0, 14.0, 19.0), // 0.000  far down the diagonal: tent low, silos high
+  V(15.0, 9.0, 13.0), // 0.100  in along the diagonal, both still stacked
+  V(-0.6, 2.2, 5.4), //   0.200  swing onto the tower, dropping low
+  V(-3.6, 3.05, 2.3), //  0.300  the door, backed off for the narrow FOV
+  V(-3.6, 6.8, 1.4), //   0.400  rise past it, following the conduit
+  V(-3.6, 3.0, -1.7), //  0.500  inside the tower, looking up the vortex
+  ...TAIL_P,
+]
+
+const MOBILE_TARGETS = [
+  V(-3.0, 3.2, -0.8), // aim down the diagonal at the tower from the start
+  V(-3.1, 3.2, -0.8),
+  V(-3.5, 3.4, -0.9),
+  V(-3.6, 3.0, -0.9), // the door plane
+  V(-3.6, 10.0, -1.6),
+  V(-3.6, 11.5, -2),
+  ...TAIL_T,
+]
 
 export default function CameraRig({ started }: { started: boolean }) {
   const parallax = useRef(new THREE.Vector2())
@@ -76,8 +118,8 @@ export default function CameraRig({ started }: { started: boolean }) {
   const intro = useRef(0)
 
   const { posCurve, tgtCurve } = useMemo(() => {
-    const positions = isMobile ? [...MOBILE_OPEN_P, ...POSITIONS.slice(2)] : POSITIONS
-    const targets = isMobile ? [...MOBILE_OPEN_T, ...TARGETS.slice(2)] : TARGETS
+    const positions = isMobile ? MOBILE_POSITIONS : POSITIONS
+    const targets = isMobile ? MOBILE_TARGETS : TARGETS
     return {
       posCurve: new THREE.CatmullRomCurve3(positions, false, 'centripetal'),
       tgtCurve: new THREE.CatmullRomCurve3(targets, false, 'centripetal'),
