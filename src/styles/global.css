@@ -54,6 +54,9 @@
   --copper-dim: rgba(200, 127, 61, 0.35);
   --copper-faint: rgba(200, 127, 61, 0.14);
   --radius: 0.5rem; /* shadcn-style corner radius */
+  /* horizontal room the side index panel + rail take on the right, so floating
+     chrome can stay clear of them at any viewport width */
+  --rail-reserve: calc(clamp(1.2rem, 2.6vw, 2.4rem) + 1.6rem + 11.5rem);
   --display: 'Aeonik', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', monospace;
   --body: 'Aeonik', system-ui, sans-serif;
@@ -394,11 +397,11 @@ body {
 
 /* scattered around the central stream, off the narrative copy */
 .metric-1 { left: 12%; top: 34%; }
-.metric-2 { right: 12%; top: 30%; }
+.metric-2 { right: max(12%, var(--rail-reserve)); top: 30%; }
 .metric-3 { left: 18%; top: 56%; }
-.metric-4 { right: 16%; top: 52%; }
+.metric-4 { right: max(16%, var(--rail-reserve)); top: 52%; }
 .metric-5 { left: 30%; top: 74%; }
-.metric-6 { right: 28%; top: 72%; }
+.metric-6 { right: max(28%, var(--rail-reserve)); top: 72%; }
 
 /* the metric-* type styles are also used by the in-flow solution stats */
 .metric-note {
