@@ -439,47 +439,28 @@
   border-left: 1px solid var(--dz-line);
 }
 
-/* steps */
-.dz-step {
-  border-bottom: 1px solid var(--dz-line);
+/* blocks — the design panel is three plain zones, not a numbered flow */
+.dz-lib-panel {
+  display: flex;
+  flex-direction: column;
 }
 
-.dz-step-h {
-  margin: 0;
-  font: inherit;
+.dz-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.05rem 1.1rem 1.2rem;
 }
 
-.dz-step-head {
+.dz-block + .dz-block {
+  border-top: 1px solid var(--dz-line);
+}
+
+.dz-block-h {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.95rem 1.1rem;
-  text-align: left;
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
-.dz-step-head:hover {
-  background: rgba(200, 127, 61, 0.05);
-}
-
-.dz-step-n {
-  flex: none;
-  width: 1rem;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--dz-text-2);
-  transition: color 0.2s ease;
-}
-
-.dz-step.is-open .dz-step-n {
-  color: var(--copper);
-}
-
-.dz-step-title {
-  flex: 1;
+  gap: 0.5rem;
+  margin: 0;
   font-family: var(--display);
   font-weight: 500;
   font-size: 0.94rem;
@@ -487,24 +468,56 @@
 
 .dz-count {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-weight: 400;
+  font-size: 0.72rem;
   color: var(--dz-text-2);
 }
 
-.dz-chev {
-  opacity: 0.55;
-  transition: transform 0.2s ease;
-}
-
-.dz-step.is-open .dz-chev {
-  transform: rotate(180deg);
-}
-
-.dz-step-body {
+/* filter chips: one control narrows the palette and the inventory together */
+.dz-filters {
   display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  padding: 0 1.1rem 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.dz-filter {
+  padding: 0.3rem 0.62rem;
+  font-size: 0.78rem;
+  color: var(--dz-text-2);
+  background: none;
+  border: 1px solid var(--dz-line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.dz-filter:hover {
+  color: var(--fg);
+  border-color: var(--dz-line-strong);
+}
+
+.dz-filter.is-on {
+  color: var(--bg);
+  background: var(--copper);
+  border-color: var(--copper);
+}
+
+.dz-search {
+  font-size: 0.84rem;
+  padding-block: 0.45rem;
+}
+
+.dz-search::-webkit-search-cancel-button {
+  filter: invert(0.7) sepia(1) saturate(2) hue-rotate(-20deg);
+}
+
+.dz-palette {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
 }
 
 .dz-hint {
@@ -668,17 +681,7 @@ textarea.dz-input {
   color: var(--fg);
 }
 
-/* library */
-.dz-lib {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.45rem;
-}
-
-.dz-lib-sensors {
-  grid-template-columns: 1fr;
-}
-
+/* palette buttons */
 .dz-lib-btn {
   display: flex;
   align-items: center;
@@ -1317,31 +1320,18 @@ textarea.dz-input {
   gap: 0.2rem;
 }
 
-/* ── summary ── */
-.dz-summary {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  padding: 1.1rem 1.1rem 1.2rem;
-}
-
+/* ── quote ── */
 /* running total — pinned so it stays read-able while properties scroll */
 .dz-quotebar {
   position: sticky;
   bottom: 0;
+  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   padding: 0.9rem 1.1rem calc(1rem + env(safe-area-inset-bottom));
   background: var(--dz-panel);
   border-top: 1px solid var(--dz-line);
-}
-
-.dz-sum-title {
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: 0.94rem;
 }
 
 .dz-totals {
@@ -1424,18 +1414,6 @@ textarea.dz-input {
   color: var(--dz-text-2);
 }
 
-.dz .cta.dz-send {
-  width: 100%;
-  min-height: 2.9rem;
-  margin-top: 0.4rem;
-  padding: 0.8rem 1rem;
-  font-family: var(--body);
-  font-size: 0.88rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  text-transform: none;
-}
-
 /* ── overlays ── */
 .dz-modal {
   z-index: 65;
@@ -1446,6 +1424,53 @@ textarea.dz-input {
   justify-content: flex-end;
   gap: 0.6rem;
   margin-top: 1.4rem;
+}
+
+/* the export step: quote, extra outputs and contact, in one scroll */
+.dz .dialog.dz-finish {
+  width: min(44rem, 100%);
+  max-height: min(86dvh, 60rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.dz-finish-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0.9rem -0.4rem 0;
+  padding: 0 0.4rem;
+  scrollbar-width: thin;
+}
+
+.dz-finish-body .dz-block {
+  padding: 1.1rem 0;
+}
+
+.dz-finish-body .dz-block:first-child {
+  padding-top: 0.2rem;
+}
+
+/* solid footer, so the scroll area reads as continuing rather than clipped */
+.dz-finish .dz-modal-actions {
+  margin-top: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--dz-line-strong);
+}
+
+.dz-finish-body {
+  padding-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .dz-finish .dz-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .dz-finish .dz-modal-actions .dz-btn {
+    justify-content: center;
+  }
 }
 
 .dz-issues {
@@ -1608,16 +1633,14 @@ textarea.dz-input {
 
   .dz-keys,
   .dz[data-mtab='design'] .dz-right,
-  .dz:not([data-mtab='design']) .dz-left,
-  .dz[data-mtab='item'] .dz-summary,
-  .dz[data-mtab='summary'] .dz-insp {
+  .dz:not([data-mtab='design']) .dz-left {
     display: none;
   }
 
   .dz-mtabs {
     grid-area: mtabs;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     background: var(--dz-panel);
     border-top: 1px solid var(--dz-line);
     border-bottom: 1px solid var(--dz-line);

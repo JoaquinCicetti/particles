@@ -1,7 +1,7 @@
 import type { MessageDescriptor } from 'react-intl'
 import { D } from '../i18n/messages'
 import type { GlyphKey } from '../ui/glyphs'
-import type { ExtraOutputKind, ItemType, Room, SensorKind } from './schema'
+import { SENSOR_KINDS, type ExtraOutputKind, type ItemType, type Room, type SensorKind } from './schema'
 
 /** What each placeable thing is: default size, how it mounts, how it's drawn. */
 export type ItemSpec = {
@@ -92,6 +92,46 @@ export const SENSOR_SPECS: Record<SensorKind, SensorSpec> = {
   water_ph_ec: { label: D.kindWater, short: 'pH·EC', glyph: 'water', tint: '#86bcd4', ground: true },
   light_par: { label: D.kindPar, short: 'PAR', glyph: 'par', tint: '#f1e38c', ground: false },
 }
+
+/**
+ * One flat, filterable list of everything that can be placed — the panel shows
+ * it as a single palette rather than as numbered steps, so a sensor is no
+ * harder to reach than a rack. `group` only drives the filter chips.
+ */
+export type CatalogGroup = 'structure' | 'equipment' | 'sensor'
+
+export type CatalogEntry = {
+  /** stable key for React and for the filter */
+  key: string
+  group: CatalogGroup
+  type: ItemType
+  sensorKind?: SensorKind
+  label: MessageDescriptor
+  glyph: GlyphKey
+  tint?: string
+}
+
+export const groupOf = (t: ItemType): CatalogGroup =>
+  t === 'sensor' ? 'sensor' : (STRUCTURE_TYPES as readonly ItemType[]).includes(t) ? 'structure' : 'equipment'
+
+export const CATALOG: readonly CatalogEntry[] = [
+  ...[...STRUCTURE_TYPES, ...EQUIPMENT_TYPES].map((type) => ({
+    key: type,
+    group: groupOf(type),
+    type,
+    label: ITEM_SPECS[type].label,
+    glyph: ITEM_SPECS[type].glyph,
+  })),
+  ...SENSOR_KINDS.map((k) => ({
+    key: `sensor:${k}`,
+    group: 'sensor' as const,
+    type: 'sensor' as const,
+    sensorKind: k,
+    label: SENSOR_SPECS[k].label,
+    glyph: SENSOR_SPECS[k].glyph,
+    tint: SENSOR_SPECS[k].tint,
+  })),
+]
 
 export const EXTRA_SPECS: Record<ExtraOutputKind, { label: MessageDescriptor; glyph: GlyphKey }> = {
   irrigation_pump: { label: D.exPump, glyph: 'pump' },

@@ -1,8 +1,8 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import { useIntl } from 'react-intl'
 import { D } from '../i18n/messages'
-import { EXTRA_SPECS, ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
-import { EXTRA_OUTPUT_KINDS, SENSOR_KINDS, type ExtraOutputKind, type Item, type ItemType } from '../model/schema'
+import { EXTRA_SPECS, SENSOR_SPECS } from '../model/catalog'
+import { EXTRA_OUTPUT_KINDS, type ExtraOutputKind, type Item } from '../model/schema'
 import { fmt, glyphOf, itemTitle } from '../labels'
 import { useActiveDesign, useDesigner } from '../store'
 import Glyph from '../ui/Glyph'
@@ -18,7 +18,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-// ── 01 room ──────────────────────────────────────────────────────
+// ── room ─────────────────────────────────────────────────────────
 
 export function RoomSection() {
   const intl = useIntl()
@@ -114,55 +114,7 @@ export function ItemList({ filter }: { filter: (it: Item) => boolean }) {
   )
 }
 
-// ── 02 / 03 racks, tables and equipment ─────────────────────────
-
-export function LibrarySection({ types }: { types: readonly ItemType[] }) {
-  const intl = useIntl()
-  const addItem = useDesigner((s) => s.addItem)
-  return (
-    <>
-      <div className="dz-lib">
-        {types.map((type) => (
-          <button key={type} type="button" className="dz-lib-btn" onClick={() => addItem(type)}>
-            <Glyph name={ITEM_SPECS[type].glyph} />
-            <span>{intl.formatMessage(ITEM_SPECS[type].label)}</span>
-            <Glyph name="plus" className="dz-glyph dz-lib-plus" />
-          </button>
-        ))}
-      </div>
-      <ItemList filter={(it) => types.includes(it.type)} />
-    </>
-  )
-}
-
-// ── 04 sensors ───────────────────────────────────────────────────
-
-export function SensorSection() {
-  const intl = useIntl()
-  const addItem = useDesigner((s) => s.addItem)
-  return (
-    <>
-      <div className="dz-lib dz-lib-sensors">
-        {SENSOR_KINDS.map((k) => (
-          <button
-            key={k}
-            type="button"
-            className="dz-lib-btn"
-            style={{ '--tint': SENSOR_SPECS[k].tint } as CSSProperties}
-            onClick={() => addItem('sensor', k)}
-          >
-            <Glyph name={SENSOR_SPECS[k].glyph} />
-            <span>{intl.formatMessage(SENSOR_SPECS[k].label)}</span>
-            <Glyph name="plus" className="dz-glyph dz-lib-plus" />
-          </button>
-        ))}
-      </div>
-      <ItemList filter={(it) => it.type === 'sensor'} />
-    </>
-  )
-}
-
-// ── 05 extra outputs ─────────────────────────────────────────────
+// ── extra outputs (finish step) ──────────────────────────────────
 
 export function ExtraOutputsSection() {
   const intl = useIntl()
@@ -192,7 +144,7 @@ export function ExtraOutputsSection() {
                 <select
                   className="dz-select"
                   value={e.kind}
-                  aria-label={t(D.step5)}
+                  aria-label={t(D.extrasTitle)}
                   onChange={(ev) => updateExtra(i, { kind: ev.target.value as ExtraOutputKind })}
                 >
                   {EXTRA_OUTPUT_KINDS.map((k) => (
@@ -227,7 +179,7 @@ export function ExtraOutputsSection() {
   )
 }
 
-// ── 06 contact ───────────────────────────────────────────────────
+// ── contact (finish step) ────────────────────────────────────────
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

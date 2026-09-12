@@ -3,9 +3,9 @@ import { useIntl } from 'react-intl'
 import LangPicker from '../../ui/LangPicker'
 import { onNavClick } from '../../lib/route'
 import { D } from '../i18n/messages'
-import { openDesignFile, useHandoff } from '../actions'
+import { openDesignFile } from '../actions'
 import { MOD_KEY } from '../labels'
-import { useDesigner, useSaveStatus } from '../store'
+import { useDesigner, useSaveStatus, useUi } from '../store'
 import Glyph from '../ui/Glyph'
 import TabStrip from './TabStrip'
 
@@ -16,7 +16,7 @@ export default function TopBar() {
   const canRedo = useDesigner((s) => (s.history[s.activeId]?.future.length ?? 0) > 0)
   const undo = useDesigner((s) => s.undo)
   const redo = useDesigner((s) => s.redo)
-  const { exportFile, send } = useHandoff()
+  const setFinishOpen = useUi((s) => s.setFinishOpen)
   const fileRef = useRef<HTMLInputElement>(null)
 
   return (
@@ -57,7 +57,15 @@ export default function TopBar() {
             <Glyph name="redo" />
           </button>
         </div>
-        <button type="button" className="dz-btn" onClick={() => fileRef.current?.click()} title={t(D.importHint)}>
+        {/* the label collapses on phones, so name the button explicitly —
+            otherwise its accessible name falls back to the long title hint */}
+        <button
+          type="button"
+          className="dz-btn"
+          onClick={() => fileRef.current?.click()}
+          aria-label={t(D.importBtn)}
+          title={t(D.importHint)}
+        >
           <Glyph name="upload" />
           <span className="dz-btn-label">{t(D.importBtn)}</span>
         </button>
@@ -72,13 +80,15 @@ export default function TopBar() {
             if (file) void openDesignFile(file, intl)
           }}
         />
-        <button type="button" className="dz-btn" onClick={exportFile} title={t(D.exportHint)}>
-          <Glyph name="download" />
-          <span className="dz-btn-label">{t(D.exportBtn)}</span>
-        </button>
-        <button type="button" className="dz-btn dz-btn-primary" onClick={send} title={t(D.sendHint)}>
+        <button
+          type="button"
+          className="dz-btn dz-btn-primary"
+          onClick={() => setFinishOpen(true)}
+          aria-label={t(D.finish)}
+          title={t(D.finishHint)}
+        >
           <Glyph name="send" />
-          <span className="dz-btn-label">{t(D.sendBtn)}</span>
+          <span className="dz-btn-label">{t(D.finish)}</span>
         </button>
         <LangPicker inline />
       </div>

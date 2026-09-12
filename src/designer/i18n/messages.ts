@@ -12,7 +12,6 @@ export const D = defineMessages({
   undo: { id: 'dz.undo', defaultMessage: 'Deshacer' },
   redo: { id: 'dz.redo', defaultMessage: 'Rehacer' },
   importBtn: { id: 'dz.import', defaultMessage: 'Importar' },
-  exportBtn: { id: 'dz.export', defaultMessage: 'Exportar' },
   sendBtn: { id: 'dz.send', defaultMessage: 'Enviar a Growcast' },
   importHint: { id: 'dz.importHint', defaultMessage: 'Abrir un diseño (.json) en una pestaña nueva' },
   exportHint: { id: 'dz.exportHint', defaultMessage: 'Descargar este diseño como .json' },
@@ -45,25 +44,38 @@ export const D = defineMessages({
   },
   confirmCloseOk: { id: 'dz.tab.confirmOk', defaultMessage: 'Cerrar sala' },
 
-  // steps
-  step1: { id: 'dz.step.1', defaultMessage: 'Sala' },
-  step2: { id: 'dz.step.2', defaultMessage: 'Racks y mesas' },
-  step3: { id: 'dz.step.3', defaultMessage: 'Equipos' },
-  step4: { id: 'dz.step.4', defaultMessage: 'Sensores' },
-  step5: { id: 'dz.step.5', defaultMessage: 'Salidas extra' },
-  step6: { id: 'dz.step.6', defaultMessage: 'Contacto' },
-  step1Hint: { id: 'dz.step.1.hint', defaultMessage: 'Medidas interiores, en metros.' },
-  step2Hint: {
+  // object palette (one filterable list, no steps)
+  addTitle: { id: 'dz.add.title', defaultMessage: 'Agregar al diseño' },
+  inRoom: { id: 'dz.add.inRoom', defaultMessage: 'En esta sala' },
+  searchPh: { id: 'dz.add.searchPh', defaultMessage: 'Buscar…' },
+  noMatches: { id: 'dz.add.noMatches', defaultMessage: 'Nada coincide con la búsqueda.' },
+  filterAll: { id: 'dz.filter.all', defaultMessage: 'Todo' },
+  filterStructure: { id: 'dz.filter.structure', defaultMessage: 'Estructura' },
+  filterEquipment: { id: 'dz.filter.equipment', defaultMessage: 'Equipos' },
+  filterSensor: { id: 'dz.filter.sensor', defaultMessage: 'Sensores' },
+  filterAria: { id: 'dz.filter.aria', defaultMessage: 'Filtrar objetos' },
+
+  // finish step
+  finish: { id: 'dz.finish', defaultMessage: 'Terminar' },
+  finishHint: { id: 'dz.finish.hint', defaultMessage: 'Revisá el resumen, agregá lo que falte y descargá o envianos el diseño.' },
+  finishTitle: { id: 'dz.finish.title', defaultMessage: 'Revisar y enviar' },
+  downloadBtn: { id: 'dz.finish.download', defaultMessage: 'Descargar .json' },
+  roomLine: { id: 'dz.finish.roomLine', defaultMessage: '{w} × {l} × {h} m · {area} m²' },
+
+  // remaining step copy
+  roomTitle: { id: 'dz.step.1', defaultMessage: 'Sala' },
+  extrasTitle: { id: 'dz.step.5', defaultMessage: 'Salidas extra' },
+  contactTitle: { id: 'dz.step.6', defaultMessage: 'Contacto' },
+  roomHint: { id: 'dz.step.1.hint', defaultMessage: 'Medidas interiores, en metros.' },
+  addHint: {
     id: 'dz.step.2.hint',
     defaultMessage: 'Arrastralos en la vista 3D o en el plano. Se ajustan cada 10 cm.',
   },
-  step3Hint: { id: 'dz.step.3.hint', defaultMessage: 'Cada equipo controlable suma una salida. Podés cambiarlo.' },
-  step4Hint: { id: 'dz.step.4.hint', defaultMessage: 'Colgados del techo o a nivel del suelo.' },
-  step5Hint: {
+  extrasHint: {
     id: 'dz.step.5.hint',
     defaultMessage: 'Salidas que no se dibujan: bombas, extractores, electroválvulas…',
   },
-  step6Hint: { id: 'dz.step.6.hint', defaultMessage: 'Opcional. Se guarda dentro del archivo.' },
+  contactHint: { id: 'dz.step.6.hint', defaultMessage: 'Opcional. Se guarda dentro del archivo.' },
 
   // room
   roomName: { id: 'dz.room.name', defaultMessage: 'Nombre' },
@@ -220,5 +232,4 @@ export const D = defineMessages({
   // mobile panel tabs
   mDesign: { id: 'dz.m.design', defaultMessage: 'Diseño' },
   mItem: { id: 'dz.m.item', defaultMessage: 'Elemento' },
-  mSummary: { id: 'dz.m.summary', defaultMessage: 'Resumen' },
 })

@@ -90,13 +90,18 @@ export type ImportFailure = Extract<ParseResult, { ok: false }>
 export const useUi = create<{
   toast: { id: number; text: string } | null
   importError: ImportFailure | null
+  /** the export step: quote review, extra outputs and contact */
+  finishOpen: boolean
   showToast: (text: string) => void
   setImportError: (e: ImportFailure | null) => void
+  setFinishOpen: (open: boolean) => void
 }>((set) => ({
   toast: null,
   importError: null,
+  finishOpen: false,
   showToast: (text) => set((s) => ({ toast: { id: (s.toast?.id ?? 0) + 1, text } })),
   setImportError: (importError) => set({ importError }),
+  setFinishOpen: (finishOpen) => set({ finishOpen }),
 }))
 
 // ── designs ──────────────────────────────────────────────────────

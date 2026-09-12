@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { D } from './i18n/messages'
 import { useFileDrop, useMediaQuery, useShortcuts } from './hooks'
+import FinishDialog from './panels/FinishDialog'
 import ImportErrorDialog from './panels/ImportErrorDialog'
 import Inspector from './panels/Inspector'
-import StepsPanel from './panels/StepsPanel'
-import SummaryPanel from './panels/SummaryPanel'
+import LibraryPanel from './panels/LibraryPanel'
+import QuoteBar from './panels/QuoteBar'
 import TopBar from './panels/TopBar'
 import PlanView from './plan/PlanView'
 import DesignerCanvas from './scene/DesignerCanvas'
@@ -14,7 +15,7 @@ import Glyph from './ui/Glyph'
 import Segmented from './ui/Segmented'
 import Toast from './ui/Toast'
 
-type MobileTab = 'design' | 'item' | 'summary'
+type MobileTab = 'design' | 'item'
 
 const NARROW = '(max-width: 720px)'
 
@@ -50,8 +51,8 @@ export default function Workspace() {
     <div className="dz" data-mtab={mtab}>
       <TopBar />
 
-      <aside className="dz-left" aria-label={t(D.kicker)}>
-        <StepsPanel />
+      <aside className="dz-left" aria-label={t(D.addTitle)}>
+        <LibraryPanel />
       </aside>
 
       <main className="dz-stage">
@@ -72,9 +73,9 @@ export default function Workspace() {
         </div>
       </main>
 
-      <aside className="dz-right" aria-label={t(D.summary)}>
+      <aside className="dz-right" aria-label={t(D.inspectorEmpty)}>
         <Inspector />
-        <SummaryPanel />
+        <QuoteBar />
       </aside>
 
       <nav className="dz-mtabs" role="tablist">
@@ -82,7 +83,6 @@ export default function Workspace() {
           [
             ['design', 'list', D.mDesign],
             ['item', 'sliders', D.mItem],
-            ['summary', 'sum', D.mSummary],
           ] as const
         ).map(([key, glyph, msg]) => (
           <button
@@ -99,6 +99,7 @@ export default function Workspace() {
         ))}
       </nav>
 
+      <FinishDialog />
       <ImportErrorDialog />
       <Toast />
       {dropping && (
