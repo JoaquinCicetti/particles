@@ -5,6 +5,7 @@ import { bakeCurveTexture, CURVE_COUNT, CURVE_SAMPLES, ELEVATOR } from './curves
 import { sampleSvgPoints } from './svgSampler'
 import { createRandom } from '../../lib/random'
 import { scrollState } from '../../lib/scroll'
+import { ACTS_GLSL } from '../../lib/acts'
 
 const IS_MOBILE =
   typeof window !== 'undefined' &&
@@ -26,6 +27,8 @@ const LOGO_CENTER_Y = 6.2
  * an ordered, staggered left→right sweep, never a disordered cloud.
  */
 const vertexShader = /* glsl */ `
+ACTS_DEFINES
+
 uniform float uTime;
 uniform float uProgress;
 uniform float uPixelRatio;
@@ -55,8 +58,8 @@ void main() {
   float pp = clamp(uProgress + (aRand.w - 0.5) * 0.04, 0.0, 1.0);
 
   // flow → elevator stream → structured rows → (riser up into the logo)
-  float toTun  = smoothstep(0.30, 0.42, pp);
-  float toGrid = smoothstep(0.50, 0.58, pp);
+  float toTun  = smoothstep(GC_STREAM_IN, GC_STREAM_FULL, pp);
+  float toGrid = smoothstep(GC_BOARD_IN, GC_BOARD_FULL, pp);
   float wFlow = 1.0 - toTun;
   float wTun  = toTun * (1.0 - toGrid);
   float base  = toGrid; // weight of the rows→riser→logo branch
@@ -93,8 +96,8 @@ void main() {
   float jogX = mix(laneX, aLogo.x, 0.45 + laneHash * 0.2); // step toward the logo
 
   float order = clamp((aGrid.x + 8.0) / 16.0, 0.0, 1.0); // left→right sweep
-  float rstart = 0.58 + order * 0.08;
-  float rp = smoothstep(rstart, rstart + 0.24, pp);
+  float rstart = GC_RISE_AT + order * GC_RISE_STAGGER;
+  float rp = smoothstep(rstart, rstart + GC_RISE_SPAN, pp);
   float la = smoothstep(0.00, 0.22, rp);  // planes purge onto vertical lanes
   float lb = smoothstep(0.18, 0.46, rp);  // climb the vertical trace
   float lc = smoothstep(0.42, 0.58, rp);  // right-angle jog toward the logo
@@ -140,6 +143,7 @@ void main() {
   vAlpha *= mix(1.0, skyFade, wFlow);
 }
 `
+  .replace(/ACTS_DEFINES/, ACTS_GLSL)
   .replace(/LOGO_CENTER_Y_C/g, LOGO_CENTER_Y.toFixed(2))
   .replace(/TOWER_X_C/g, ELEVATOR.pos.x.toFixed(2))
   .replace(/TOWER_Z_C/g, ELEVATOR.pos.z.toFixed(2))

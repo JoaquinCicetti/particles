@@ -1,7 +1,8 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { scrollState } from '../lib/scroll'
+import { advanceScroll, scrollState } from '../lib/scroll'
+import { STORY_KNOTS, type Vec3 } from '../lib/acts'
 
 /**
  * Scroll-driven cinematic camera. Position and look-target each follow a
@@ -10,39 +11,13 @@ import { scrollState } from '../lib/scroll'
  *   inside the particle stream → pull back to the structured rows → tilt up
  *   to follow the data rising through the circuit lanes → the brand mark.
  * Subtle pointer parallax and idle breathing keep static moments alive.
+ *
+ * The knots live in src/lib/acts.ts — the timeline's single source of truth.
  */
 
-const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
+const V = (v: Vec3) => new THREE.Vector3(v[0], v[1], v[2])
 
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-
-const POSITIONS = [
-  V(-1, 6.2, 24), //   0.000  far, high, wide farm landscape
-  V(6.5, 5.8, 18), //  0.111  drift right toward the warehouse
-  V(-1.5, 8.0, 5.5), //0.222  descent toward the (relocated) elevator
-  V(-3.0, 5.2, 0.8), //into the stream
-  V(-3.6, 4.2, -1.0), //inside the stream, descending
-  V(-3.6, 2.2, -1.4), //deeper down inside the vortex (extra dwell)
-  V(0, 3.0, 12.5), //  pull back to the structured rows
-  V(0, 3.6, 12), //    0.667  rows settle, the riser begins
-  V(0, 5.0, 11.5), //  0.778  follow the data rising up the lanes
-  V(0, 6.2, 10), //    0.889  frame the brand mark forming
-  V(0, 6.2, 8.8), //   1.000  the brand mark
-]
-
-const TARGETS = [
-  V(0, 2.8, 0),
-  V(1.5, 3.2, 0),
-  V(-3.6, 7.0, -2), // look at the relocated tower
-  V(-3.6, 8.5, -2),
-  V(-3.6, 10.0, -2),
-  V(-3.6, 11.5, -2), // keep looking up the vortex while descending
-  V(0, 1.8, 0), // pan back to the data field at origin
-  V(0, 2.6, 0),
-  V(0, 4.2, 0),
-  V(0, 4.9, 0), // tilt down so the brand mark frames above center
-  V(0, 5.0, 0), // logo sits a bit above the middle, clear of the finale text
-]
 
 export default function CameraRig({ started }: { started: boolean }) {
   const parallax = useRef(new THREE.Vector2())
@@ -51,14 +26,17 @@ export default function CameraRig({ started }: { started: boolean }) {
   const intro = useRef(0)
 
   const { posCurve, tgtCurve } = useMemo(() => {
+    const K = STORY_KNOTS
     // mobile (portrait) crops the wide establishing shot, so reframe the
     // opening onto the silo cluster (left of the tower) before the descent
-    const positions = isMobile
-      ? [V(-3.4, 5.2, 16.5), V(1.5, 5.6, 16), ...POSITIONS.slice(2)]
-      : POSITIONS
-    const targets = isMobile
-      ? [V(-7.2, 3.0, -3), V(-2.5, 3.2, -1), ...TARGETS.slice(2)]
-      : TARGETS
+    const src = isMobile
+      ? {
+          p: [...K.mobilePositions, ...K.positions.slice(2)],
+          t: [...K.mobileTargets, ...K.targets.slice(2)],
+        }
+      : { p: K.positions, t: K.targets }
+    const positions = src.p.map(V)
+    const targets = src.t.map(V)
     return {
       posCurve: new THREE.CatmullRomCurve3(positions, false, 'centripetal'),
       tgtCurve: new THREE.CatmullRomCurve3(targets, false, 'centripetal'),
@@ -66,10 +44,10 @@ export default function CameraRig({ started }: { started: boolean }) {
   }, [])
 
   useFrame(({ camera, pointer, clock }, delta) => {
-    // single authority for scroll smoothing — runs even in free-cam mode so
-    // the particle choreography still tracks scroll while you orbit
-    const k = 1 - Math.exp(-delta * 3.2)
-    scrollState.smooth += (scrollState.target - scrollState.smooth) * k
+    // scroll smoothing lives in lib/scroll now (idempotent per frame), so the
+    // story survives this component unmounting; calling in keeps the camera in
+    // lockstep with the frame it is about to draw
+    advanceScroll(delta)
     const p = THREE.MathUtils.clamp(scrollState.smooth, 0, 1)
 
     // skip the first 6% of the path so it opens a bit closer to the warehouse

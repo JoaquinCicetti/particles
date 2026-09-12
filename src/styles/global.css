@@ -80,9 +80,11 @@ body {
 }
 
 /* length of the 3D story in scroll distance — every story threshold is a
-   fraction of this, so tuning it only changes the pacing */
+   fraction of this, so tuning it only changes the pacing.
+   `--story-vh` is published by bindScroll() as ACTS.length × ACT_VH: the
+   timeline in src/lib/acts.ts owns the pacing, this only renders it. */
 .scroll-track {
-  height: 800vh;
+  height: calc(var(--story-vh, 800) * 1vh);
 }
 
 .canvas-layer {

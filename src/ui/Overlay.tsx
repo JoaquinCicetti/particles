@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { scrollState } from '../lib/scroll'
+import { ACTS, copySpan, FINALE_IN } from '../lib/acts'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
 import { M } from '../i18n/messages'
 import SideNav from './SideNav'
@@ -19,9 +20,6 @@ const METRICS = [
 ] as const
 const METRIC_WINDOW: [number, number] = [0.17, 0.46]
 
-const PHASE_AT = [0, 0.16, 0.32, 0.5, 0.62, 0.88] as const
-const PHASE_MSG = [M.phase1, M.phase2, M.phase3, M.phase4, M.phase5, M.phase6] as const
-
 type Props = { onContact: () => void; onMenu: () => void }
 
 export default function Overlay({ onContact, onMenu }: Props) {
@@ -32,7 +30,7 @@ export default function Overlay({ onContact, onMenu }: Props) {
   // language without re-binding the animation each render
   const phasesRef = useRef<Array<[number, string]>>([])
   useEffect(() => {
-    phasesRef.current = PHASE_AT.map((at, i) => [at, intl.formatMessage(PHASE_MSG[i])])
+    phasesRef.current = ACTS.map((a) => [a.at, intl.formatMessage(a.label)])
   }, [intl])
 
   useEffect(() => {
@@ -96,7 +94,7 @@ export default function Overlay({ onContact, onMenu }: Props) {
       })
 
       if (finale) {
-        const o = smoothstep(0.92, 0.98, p) * stay
+        const o = smoothstep(FINALE_IN, FINALE_IN + 0.06, p) * stay
         finale.style.opacity = String(o)
         finale.style.pointerEvents = o > 0.5 ? 'auto' : 'none'
         finale.style.visibility = o < 0.01 ? 'hidden' : 'visible'
@@ -163,18 +161,6 @@ export default function Overlay({ onContact, onMenu }: Props) {
         </p>
       </header>
 
-      <section className="block block-center" data-window="0.16,0.3">
-        <span className="kicker">
-          <FormattedMessage {...M.sensorsKicker} />
-        </span>
-        <h2>
-          <FormattedMessage {...M.sensorsTitle} />
-        </h2>
-        <p>
-          <FormattedMessage {...M.sensorsBody} />
-        </p>
-      </section>
-
       {METRICS.map((m, i) => (
         <div key={m.icon} className={`metric metric-${i + 1}`} data-metric>
           <div className="metric-float" style={{ animationDelay: `${-i * 0.7}s` }}>
@@ -188,29 +174,27 @@ export default function Overlay({ onContact, onMenu }: Props) {
         </div>
       ))}
 
-      <section className="block block-left" data-window="0.5,0.6">
-        <span className="kicker">
-          <FormattedMessage {...M.dataKicker} />
-        </span>
-        <h2>
-          <FormattedMessage {...M.dataTitle} />
-        </h2>
-        <p>
-          <FormattedMessage {...M.dataBody} />
-        </p>
-      </section>
-
-      <section className="block block-left" data-window="0.64,0.85">
-        <span className="kicker">
-          <FormattedMessage {...M.tagline} />
-        </span>
-        <h2>
-          <FormattedMessage {...M.convergeTitle} />
-        </h2>
-        <p>
-          <FormattedMessage {...M.convergeBody} />
-        </p>
-      </section>
+      {ACTS.map((act, i) => {
+        if (!act.copy) return null
+        const [a, b] = copySpan(i)
+        return (
+          <section
+            key={act.id}
+            className={`block block-${act.copy.align}`}
+            data-window={`${a},${b}`}
+          >
+            <span className="kicker">
+              <FormattedMessage {...act.copy.kicker} />
+            </span>
+            <h2>
+              <FormattedMessage {...act.copy.title} />
+            </h2>
+            <p>
+              <FormattedMessage {...act.copy.body} />
+            </p>
+          </section>
+        )
+      })}
 
       <footer className="finale" data-finale>
         <span className="finale-word">
@@ -248,7 +232,7 @@ export default function Overlay({ onContact, onMenu }: Props) {
       </div>
 
       <div className="phase" data-phase aria-hidden>
-        {intl.formatMessage(M.phase1)}
+        {intl.formatMessage(ACTS[0].label)}
       </div>
 
       <div className="grain" aria-hidden />
