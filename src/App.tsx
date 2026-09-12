@@ -32,7 +32,9 @@ function App() {
   useEffect(() => {
     if (!started) return
     const id = location.hash.slice(1)
-    if (!isSectionId(id)) return
+    // 'top' is the 3D story itself — no element, and the loader already left
+    // the page pinned there, so there is nothing to jump to
+    if (!isSectionId(id) || id === 'top') return
     document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' })
   }, [started])
 
@@ -53,7 +55,7 @@ function App() {
           <Scene started={started} />
         </Canvas>
       </div>
-      <Overlay onContact={openContact} onMenu={openMenu} />
+      <Overlay onContact={openContact} onMenu={openMenu} menuOpen={menuOpen} />
       <LangPicker />
       <div className="scroll-track" ref={track} aria-hidden />
       <Solutions onContact={openContact} />

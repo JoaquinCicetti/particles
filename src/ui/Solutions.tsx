@@ -3,6 +3,8 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import type { MessageDescriptor } from 'react-intl'
 import { M } from '../i18n/messages'
 import { setSection } from '../lib/scroll'
+import { WHATSAPP_DISPLAY } from '../lib/contact'
+import ContactCta from './ContactCta'
 import SiloFigure from './SiloFigure'
 import GrowRoomFigure from './GrowRoomFigure'
 import CuringRoomFigure from './CuringRoomFigure'
@@ -283,14 +285,9 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
         <p>
           <FormattedMessage {...M.contactBody} />
         </p>
-        <button type="button" className="cta" onClick={onContact}>
-          <span className="cta-label">
-            <FormattedMessage {...M.finaleCta} />
-          </span>
-          <span className="cta-arrow" aria-hidden>→</span>
-        </button>
+        <ContactCta onClick={onContact} />
         <span className="contact-line">
-          <FormattedMessage {...M.contactLine} />
+          <FormattedMessage {...M.contactLine} values={{ phone: WHATSAPP_DISPLAY }} />
         </span>
         <span className="finale-fine">
           <FormattedMessage {...M.finaleFine} />

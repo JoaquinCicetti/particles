@@ -4,6 +4,7 @@ import { scrollState } from '../lib/scroll'
 import { fadeWindow, lerp, smoothstep } from '../lib/math'
 import { M } from '../i18n/messages'
 import SideNav from './SideNav'
+import ContactCta from './ContactCta'
 import SensorIcon from './SensorIcon'
 import { onAnchorClick } from './nav'
 
@@ -22,9 +23,9 @@ const METRIC_WINDOW: [number, number] = [0.17, 0.46]
 const PHASE_AT = [0, 0.16, 0.32, 0.5, 0.62, 0.88] as const
 const PHASE_MSG = [M.phase1, M.phase2, M.phase3, M.phase4, M.phase5, M.phase6] as const
 
-type Props = { onContact: () => void; onMenu: () => void }
+type Props = { onContact: () => void; onMenu: () => void; menuOpen: boolean }
 
-export default function Overlay({ onContact, onMenu }: Props) {
+export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
   const intl = useIntl()
   const root = useRef<HTMLDivElement>(null)
 
@@ -130,13 +131,17 @@ export default function Overlay({ onContact, onMenu }: Props) {
         <a className="brand" href="#top" onClick={onAnchorClick} aria-label={intl.formatMessage(M.brandAria)}>
           <span className="brand-mark" aria-hidden />
           <span className="wordmark">GROWCAST</span>
-          <span className="brand-sub">AGRO</span>
         </a>
         <div className="nav-right">
-          <button type="button" className="nav-cta" onClick={onContact}>
-            <FormattedMessage {...M.navCta} />
-          </button>
-          <button type="button" className="nav-menu" onClick={onMenu} aria-label={intl.formatMessage(M.navMenu)}>
+          <ContactCta variant="nav" onClick={onContact} />
+          <button
+            type="button"
+            className="nav-menu"
+            onClick={onMenu}
+            aria-label={intl.formatMessage(M.navMenu)}
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+          >
             <span className="nav-menu-lines" aria-hidden>
               <i />
               <i />
@@ -213,18 +218,11 @@ export default function Overlay({ onContact, onMenu }: Props) {
       </section>
 
       <footer className="finale" data-finale>
-        <span className="finale-word">
-          GROWCAST<span className="finale-sub">AGRO</span>
-        </span>
+        <span className="finale-word">GROWCAST</span>
         <span className="finale-tag">
           <FormattedMessage {...M.tagline} />
         </span>
-        <button type="button" className="cta" onClick={onContact}>
-          <span className="cta-label">
-            <FormattedMessage {...M.finaleCta} />
-          </span>
-          <span className="cta-arrow" aria-hidden>→</span>
-        </button>
+        <ContactCta onClick={onContact} />
         <a className="finale-more" href="#cultivo" onClick={onAnchorClick}>
           <FormattedMessage {...M.finaleMore} />
           <i aria-hidden />

@@ -53,9 +53,7 @@ export default function Loader({ ready, onDone }: { ready: boolean; onDone: () =
     <div className={`loader${doneRef.current ? ' is-done' : ''}`} role="status" aria-live="polite">
       <div className="loader-inner">
         <span className="loader-mark" aria-hidden />
-        <span className="loader-word">
-          GROWCAST<span className="loader-sub">AGRO</span>
-        </span>
+        <span className="loader-word">GROWCAST</span>
         <div className="loader-bar">
           <i style={{ width: `${progress}%` }} />
         </div>

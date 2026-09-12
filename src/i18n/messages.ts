@@ -6,8 +6,11 @@ import { defineMessages } from 'react-intl'
  * `en` / `pt` catalogs live in ./locales/*.json keyed by these same ids.
  */
 export const M = defineMessages({
-  navCta: { id: 'nav.cta', defaultMessage: 'COORDINAR REUNIÓN' },
-  brandAria: { id: 'nav.brandAria', defaultMessage: 'Growcast Agro — inicio' },
+  // one label for every contact CTA — header, finale, contact section and the
+  // dialog's own aria-label; the header form is uppercased in CSS
+  ctaContact: { id: 'cta.contact', defaultMessage: 'Coordinar una reunión' },
+  brandAria: { id: 'nav.brandAria', defaultMessage: 'Growcast — inicio' },
+  navBrand: { id: 'nav.brand', defaultMessage: 'GROWCAST' },
 
   heroKicker: { id: 'hero.kicker', defaultMessage: 'PLATAFORMA DE MONITOREO AGRÍCOLA' },
   heroTitle: { id: 'hero.title', defaultMessage: 'Tu campo,<br></br>en tiempo real<accent>.</accent>' },
@@ -41,8 +44,7 @@ export const M = defineMessages({
       'Medimos cada variable, controlamos riego y clima, y trazamos cada lote —del sensor a la decisión, en una sola fuente de verdad.',
   },
 
-  finaleCta: { id: 'finale.cta', defaultMessage: 'Coordinar una reunión' },
-  finaleFine: { id: 'finale.fine', defaultMessage: 'GROWCAST AGRO © 2026 — INTELIGENCIA AGRÍCOLA' },
+  finaleFine: { id: 'finale.fine', defaultMessage: 'GROWCAST © 2026 — INTELIGENCIA AGRÍCOLA' },
   hint: { id: 'hint', defaultMessage: 'DESPLAZÁ PARA EXPLORAR' },
 
   // sensor metric cards
@@ -74,7 +76,6 @@ export const M = defineMessages({
   dialogMsgLabel: { id: 'dialog.msgLabel', defaultMessage: 'Mensaje' },
   dialogSend: { id: 'dialog.send', defaultMessage: 'Enviar por WhatsApp' },
   dialogClose: { id: 'dialog.close', defaultMessage: 'Cerrar' },
-  dialogAria: { id: 'dialog.aria', defaultMessage: 'Coordinar una reunión' },
   dialogDefaultMsg: {
     id: 'dialog.defaultMsg',
     defaultMessage: 'Hola Growcast, me gustaría coordinar una reunión para conocer la plataforma.',
@@ -83,6 +84,7 @@ export const M = defineMessages({
   // ── solutions (in-flow sections after the finale) ─────────────
   // DRAFT copy — to be replaced with the client's material
   navMenu: { id: 'nav.menu', defaultMessage: 'Menú' },
+  navInicio: { id: 'nav.inicio', defaultMessage: 'INICIO' },
   navCultivo: { id: 'nav.cultivo', defaultMessage: 'CULTIVO' },
   navSilos: { id: 'nav.silos', defaultMessage: 'SILOS' },
   navMaduracion: { id: 'nav.maduracion', defaultMessage: 'MADURACIÓN' },
@@ -165,7 +167,7 @@ export const M = defineMessages({
     defaultMessage:
       'Contanos qué querés monitorear y armamos una propuesta a medida: sensores, control y trazabilidad, en una sola plataforma.',
   },
-  contactLine: { id: 'contact.line', defaultMessage: 'ROSARIO, SANTA FE · WHATSAPP +54 9 341 275 3179' },
+  contactLine: { id: 'contact.line', defaultMessage: 'ROSARIO, SANTA FE · WHATSAPP {phone}' },
   // solutions — intro, audience, measured variables, process
   solutionsKicker: { id: 'solutions.kicker', defaultMessage: 'SOLUCIONES' },
   solutionsTitle: { id: 'solutions.title', defaultMessage: 'Tres ambientes, una sola plataforma.' },

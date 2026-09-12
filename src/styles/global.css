@@ -1,36 +1,37 @@
-/* Aeonik (licensed) is loaded from /public/fonts at runtime — kept out of
-   the public repo. If the files are absent the UI falls back to system-ui. */
+/* Aeonik (licensed). The .otf sources stay untracked; the subset .woff2 faces
+   below are committed under /public/fonts, so a build from the repo ships the
+   real typeface. Regenerate them with `pnpm fonts` (scripts/fonts.mjs). */
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Thin.otf') format('opentype');
+  src: url('/fonts/Aeonik-Thin.woff2') format('woff2');
   font-weight: 200;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Light.otf') format('opentype');
+  src: url('/fonts/Aeonik-Light.woff2') format('woff2');
   font-weight: 300;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Regular.otf') format('opentype');
+  src: url('/fonts/Aeonik-Regular.woff2') format('woff2');
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Medium.otf') format('opentype');
+  src: url('/fonts/Aeonik-Medium.woff2') format('woff2');
   font-weight: 500;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Bold.otf') format('opentype');
+  src: url('/fonts/Aeonik-Bold.woff2') format('woff2');
   font-weight: 700;
   font-display: swap;
 }
@@ -171,19 +172,6 @@ body {
   font-size: 0.85rem;
   letter-spacing: 0.38em;
   color: var(--fg);
-}
-
-/* shadcn-style "AGRO" badge marking the agro branch */
-.brand-sub {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  font-weight: 400;
-  letter-spacing: 0.26em;
-  color: var(--copper);
-  border: 1px solid var(--copper-dim);
-  border-radius: calc(var(--radius) - 0.25rem);
-  padding: 0.12rem 0.4rem;
-  margin-left: -0.35rem;
 }
 
 .nav-right {
@@ -449,18 +437,6 @@ body {
   text-shadow: 0 0 28px rgba(200, 127, 61, 0.45);
 }
 
-.finale-sub {
-  font-family: var(--mono);
-  font-weight: 400;
-  font-size: 0.42em;
-  letter-spacing: 0.3em;
-  color: var(--copper);
-  border: 1px solid var(--copper-dim);
-  border-radius: calc(var(--radius) - 0.25rem);
-  padding: 0.2em 0.5em;
-  text-shadow: none;
-}
-
 .finale-tag {
   font-family: var(--mono);
   font-size: 0.66rem;
@@ -653,28 +629,38 @@ body {
   color: var(--fg-dim);
 }
 
-/* section index — sits left of the rail, mirrors its vertical centring */
+/* section index — a glass panel left of the rail, mirroring its vertical
+   centring. The list sits over a moving 3D scene, so it carries its own
+   surface instead of relying on tracked micro-type for contrast. The 1.6rem
+   right offset keeps the panel edge clear of the .rail beside it. */
 .sidenav {
   position: absolute;
-  right: calc(clamp(1.2rem, 2.6vw, 2.4rem) + 1.4rem + env(safe-area-inset-right));
+  right: calc(clamp(1.2rem, 2.6vw, 2.4rem) + 1.6rem + env(safe-area-inset-right));
   top: 50%;
   translate: 0 -50%;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 0.85rem;
+  align-items: stretch;
+  gap: 0.3rem;
+  padding: 0.85rem 1.1rem;
+  background: rgba(5, 3, 2, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--copper-faint);
+  border-radius: var(--radius);
   pointer-events: auto;
 }
 
 .sidenav-item {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
+  justify-content: space-between;
+  gap: 1.2rem;
   font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.34em;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
   color: var(--fg-dim);
-  opacity: 0.55;
+  opacity: 0.7;
   text-decoration: none;
   transition:
     opacity 0.25s ease,
@@ -1165,9 +1151,8 @@ body {
     padding: 0.5rem 0.8rem;
   }
 
-  /* mobile header: logo mark only — wordmark/badge crowd the CTA */
-  .wordmark,
-  .brand-sub {
+  /* mobile header: logo mark only — the wordmark crowds the CTA */
+  .wordmark {
     display: none;
   }
 
@@ -1445,17 +1430,6 @@ body {
   color: var(--fg);
 }
 
-.loader-sub {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  font-weight: 400;
-  letter-spacing: 0.26em;
-  color: var(--copper);
-  border: 1px solid var(--copper-dim);
-  border-radius: calc(var(--radius) - 0.25rem);
-  padding: 0.12rem 0.4rem;
-}
-
 .loader-bar {
   margin-top: 0.5rem;
   width: 11rem;
@@ -1684,6 +1658,30 @@ body {
 
 .phase {
   font-size: 0.66rem;
+}
+
+/* The readable-size rules above are unscoped and so also win over the small
+   screen block further up. On a phone the header carries the mark, the contact
+   CTA and the menu on one line, and the CTA label is a full sentence in every
+   locale — tighten the type (tap targets stay ≥ 48px via min-height) so the
+   row cannot run past the edge. */
+@media (max-width: 720px) {
+  .nav-right {
+    gap: 0.5rem;
+  }
+
+  .nav-cta {
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+    padding: 0.7rem 0.7rem;
+  }
+
+  .nav-menu {
+    gap: 0.45rem;
+    padding: 0 0.7rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+  }
 }
 
 /* ── schematic illustrations (silo / grow room / curing rack) ── */

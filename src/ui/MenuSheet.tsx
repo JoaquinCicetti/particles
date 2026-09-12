@@ -3,21 +3,50 @@ import { useIntl } from 'react-intl'
 import { M } from '../i18n/messages'
 import { NAV, onAnchorClick } from './nav'
 
-/** Mobile menu: same shell as the contact dialog, four large section links. */
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+/** Mobile menu: same shell as the contact dialog, one large link per section. */
 export default function MenuSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const intl = useIntl()
+  const sheet = useRef<HTMLDivElement>(null)
   const firstRef = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
     if (!open) return
+    const opener = document.activeElement as HTMLElement | null
     const t = setTimeout(() => firstRef.current?.focus(), 30)
+
+    // hold the page behind the sheet still while it is up
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+      // focus trap: Tab cycles inside the sheet instead of escaping to the page
+      const items = Array.from(sheet.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])
+      if (!items.length) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      const here = document.activeElement
+      const inside = here instanceof Node && sheet.current?.contains(here)
+      if (e.shiftKey && (here === first || !inside)) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && (here === last || !inside)) {
+        e.preventDefault()
+        first.focus()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => {
       clearTimeout(t)
       window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+      opener?.focus?.()
     }
   }, [open, onClose])
 
@@ -27,6 +56,7 @@ export default function MenuSheet({ open, onClose }: { open: boolean; onClose: (
     <div className="dialog-backdrop" onClick={onClose}>
       <div
         className="dialog sheet"
+        ref={sheet}
         role="dialog"
         aria-modal="true"
         aria-label={intl.formatMessage(M.navMenu)}
@@ -35,7 +65,7 @@ export default function MenuSheet({ open, onClose }: { open: boolean; onClose: (
         <button className="dialog-close" onClick={onClose} aria-label={intl.formatMessage(M.dialogClose)}>
           ×
         </button>
-        <span className="kicker">GROWCAST AGRO</span>
+        <span className="kicker">{intl.formatMessage(M.navBrand)}</span>
         <nav className="sheet-list">
           {NAV.map((n, i) => (
             <a

@@ -2,8 +2,13 @@ import type { MouseEvent } from 'react'
 import { M } from '../i18n/messages'
 import { scrollToSection } from '../lib/scroll'
 
-/** In-flow sections reachable from the side menu / mobile sheet. */
+/**
+ * Destinations reachable from the side index / mobile sheet. `top` is the 3D
+ * story itself: it has no DOM element, so `scrollToSection` sends it to y=0
+ * and it reads as active whenever no in-flow section is in view.
+ */
 export const NAV = [
+  { id: 'top', msg: M.navInicio },
   { id: 'cultivo', msg: M.navCultivo },
   { id: 'silos', msg: M.navSilos },
   { id: 'maduracion', msg: M.navMaduracion },

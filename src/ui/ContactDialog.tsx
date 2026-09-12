@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { M } from '../i18n/messages'
-
-// Growcast Agro WhatsApp line (Rosario, +54 9 341 …)
-const WHATSAPP = '5493412753179'
+import { whatsappUrl } from '../lib/contact'
 
 export default function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const intl = useIntl()
@@ -29,8 +27,7 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
   const send = () => {
     const prefix = name.trim() ? intl.formatMessage(M.dialogNamePrefix, { name: name.trim() }) : ''
     const text = prefix + msg.trim()
-    const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`
-    window.open(url, '_blank', 'noopener,noreferrer')
+    window.open(whatsappUrl(text), '_blank', 'noopener,noreferrer')
     onClose()
   }
 
@@ -40,7 +37,7 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
         className="dialog"
         role="dialog"
         aria-modal="true"
-        aria-label={intl.formatMessage(M.dialogAria)}
+        aria-label={intl.formatMessage(M.ctaContact)}
         onClick={(e) => e.stopPropagation()}
       >
         <button className="dialog-close" onClick={onClose} aria-label={intl.formatMessage(M.dialogClose)}>

@@ -27,5 +27,7 @@ dist-ssr
 # local verification screenshots
 scripts/*.png
 
-# Licensed Aeonik fonts — kept local, not redistributed
-public/fonts/
+# Licensed Aeonik fonts: the .otf sources stay local (not redistributed), but
+# the subset .woff2 faces the site actually loads ARE committed, so a build
+# from Git ships the real typeface. Regenerate with `pnpm fonts`.
+public/fonts/*.otf
