@@ -17,9 +17,10 @@ import { smoothstep } from '../lib/math'
 
 /**
  * Holographic farm structures: detailed wireframe grain silos, a gabled
- * warehouse (the main building), and the central grain-elevator tower. No
- * solid surfaces — only lines and luminous points. Bright sensor nodes mark
- * the data sources. Everything fades as the camera dives into the stream.
+ * warehouse (the main building), and the central grain-elevator tower. Pure
+ * wireframe — the surfaces carry no particle shimmer, so the line work stays
+ * legible. Bright sensor nodes mark the data sources. Everything fades as the
+ * camera dives into the stream.
  */
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
@@ -406,11 +407,10 @@ function linesGeometry(positions: number[]) {
 export default function Structures() {
   const groupRef = useRef<THREE.Group>(null)
 
-  const { lineGeo, shellGeo, growGeo, sensorGeo, gridGeo } = useMemo(() => {
+  const { lineGeo, growGeo, sensorGeo, gridGeo } = useMemo(() => {
     const random = createRandom(424242)
 
     const lines: number[] = []
-    const shellPts: number[] = []
     const growPts: number[] = []
     for (const s of SILOS) lines.push(...buildSiloLines(s.pos, s.radius, s.height))
     lines.push(...buildTowerLines(ELEVATOR.pos, ELEVATOR.width, ELEVATOR.height))
@@ -426,28 +426,6 @@ export default function Structures() {
       pushLine(lines, c.top, V(last.x, last.y - 0.12, last.z))
       for (const pr of c.probes) {
         pushLine(lines, V(pr.x - 0.075, pr.y, pr.z), V(pr.x + 0.075, pr.y, pr.z))
-      }
-    }
-
-    // shimmering particle shells on silo + warehouse surfaces
-    for (const s of SILOS) {
-      for (let i = 0; i < 2400; i++) {
-        const a = random() * Math.PI * 2
-        const y = random() * s.height
-        const r = s.radius + (random() - 0.5) * 0.05
-        shellPts.push(s.pos.x + Math.cos(a) * r, y, s.pos.z + Math.sin(a) * r)
-      }
-    }
-    // warehouse roof shimmer
-    {
-      const { pos, w, d, wall, ridge } = WAREHOUSE
-      for (let i = 0; i < 2600; i++) {
-        const side = random() < 0.5 ? -1 : 1
-        const t = random()
-        const z = pos.z - d / 2 + d * random()
-        const x = pos.x + side * (w / 2) * (1 - t)
-        const y = wall + (ridge - wall) * t
-        shellPts.push(x, y, z)
       }
     }
 
@@ -480,7 +458,6 @@ export default function Structures() {
 
     return {
       lineGeo: linesGeometry(lines),
-      shellGeo: linesGeometry(shellPts),
       growGeo: linesGeometry(growPts),
       sensorGeo: linesGeometry(sensors),
       gridGeo: linesGeometry(grid),
@@ -502,15 +479,6 @@ export default function Structures() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    const shell = new THREE.PointsMaterial({
-      color: '#d99550',
-      size: 0.026,
-      sizeAttenuation: true,
-      transparent: true,
-      opacity: 0.42,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
     const sensor = new THREE.PointsMaterial({
       color: '#ffe6bf',
       size: 0.28,
@@ -520,7 +488,7 @@ export default function Structures() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    // hydroponic grow nodes — brighter than shells, gently pulsing
+    // hydroponic grow nodes — the plants on the racks, gently pulsing
     const grow = new THREE.PointsMaterial({
       color: '#e8a85c',
       size: 0.06,
@@ -530,7 +498,7 @@ export default function Structures() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    return { line, grid, shell, sensor, grow }
+    return { line, grid, sensor, grow }
   }, [])
 
   useFrame(({ clock }) => {
@@ -539,7 +507,6 @@ export default function Structures() {
     if (group) group.visible = fade > 0.01
     materials.line.opacity = 0.6 * fade
     materials.grid.opacity = 0.16 * fade
-    materials.shell.opacity = 0.42 * fade
     // sensors pulse like live data sources
     materials.sensor.opacity = (0.7 + 0.3 * Math.sin(clock.elapsedTime * 2.6)) * fade
     // grow nodes breathe slowly
@@ -550,7 +517,6 @@ export default function Structures() {
     <group ref={groupRef}>
       <lineSegments geometry={lineGeo} material={materials.line} />
       <lineSegments geometry={gridGeo} material={materials.grid} />
-      <points geometry={shellGeo} material={materials.shell} />
       <points geometry={growGeo} material={materials.grow} />
       <points geometry={sensorGeo} material={materials.sensor} />
     </group>
