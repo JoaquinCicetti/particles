@@ -2155,3 +2155,83 @@ body {
     opacity: 0.5;
   }
 }
+
+/* ==========================================================================
+   TEMPORARY — camera path A/B switch. Delete this block along with
+   src/ui/CameraSwitch.tsx and src/scene/cameraModes.ts once a path is chosen.
+   ========================================================================== */
+.cam-switch {
+  position: fixed;
+  top: calc(5.4rem + env(safe-area-inset-top)); /* under the header CTA */
+  right: calc(clamp(1.2rem, 2.6vw, 2.4rem) + env(safe-area-inset-right));
+  z-index: 60; /* above the side index and the rail */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.28rem;
+  width: 11.5rem;
+  padding: 0.7rem;
+  background: rgba(5, 3, 2, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px dashed var(--copper-dim);
+  border-radius: var(--radius);
+  pointer-events: auto;
+}
+
+.cam-switch-kicker {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.26em;
+  color: var(--copper);
+  opacity: 0.8;
+  margin-bottom: 0.15rem;
+}
+
+.cam-switch-btn {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-align: left;
+  color: var(--fg-dim);
+  background: transparent;
+  border: 1px solid var(--copper-faint);
+  border-radius: 0.3rem;
+  padding: 0.36rem 0.45rem;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.cam-switch-btn:hover {
+  color: var(--fg);
+  border-color: var(--copper-dim);
+}
+
+.cam-switch-btn.is-active {
+  color: var(--bg);
+  background: var(--copper-bright);
+  border-color: var(--copper-bright);
+}
+
+.cam-switch-hint {
+  font-family: var(--mono);
+  font-size: 0.48rem;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--fg-dim);
+  opacity: 0.6;
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 720px) {
+  .cam-switch {
+    width: 9.5rem;
+    top: calc(4.6rem + env(safe-area-inset-top));
+  }
+  .cam-switch-hint {
+    display: none;
+  }
+}

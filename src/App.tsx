@@ -4,6 +4,8 @@ import Scene from './scene/Scene'
 import Overlay from './ui/Overlay'
 import Loader from './ui/Loader'
 import LangPicker from './ui/LangPicker'
+// TEMPORARY: camera path A/B switch — remove with src/scene/cameraModes.ts
+import CameraSwitch from './ui/CameraSwitch'
 import Solutions from './ui/Solutions'
 import ContactDialog from './ui/ContactDialog'
 import MenuSheet from './ui/MenuSheet'
@@ -57,6 +59,7 @@ function App() {
       </div>
       <Overlay onContact={openContact} onMenu={openMenu} menuOpen={menuOpen} />
       <LangPicker />
+      <CameraSwitch />
       <div className="scroll-track" ref={track} aria-hidden />
       <Solutions onContact={openContact} />
       <ContactDialog open={contactOpen} onClose={closeContact} />
