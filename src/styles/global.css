@@ -1,3 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The shadcn token contract, copied from the app so a component moved between
+   the two repos lands on identical values. The site runs dark-only: <html> is
+   stamped `class="dark"`, and the :root block is the app's light theme kept
+   verbatim so the contract stays a faithful copy rather than a fork. */
+@layer base {
+  :root {
+    --background: 60 6% 88%;
+    --foreground: 240 10% 3.9%;
+    --card: 60 20% 99%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 60 20% 99%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 74 60% 44%;
+    --primary-foreground: 68 58% 13%;
+    --secondary: 68 30% 88%;
+    --secondary-foreground: 68 58% 20%;
+    --muted: 60 6% 84%;
+    --muted-foreground: 240 6% 35%;
+    --accent: 68 45% 84%;
+    --accent-foreground: 68 58% 18%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 12%;
+    --info: 200 75% 42%;
+    --info-foreground: 200 75% 12%;
+    --success: 145 65% 35%;
+    --success-foreground: 145 65% 12%;
+    --border: 60 6% 70%;
+    --input: 60 6% 60%;
+    --ring: 74 60% 44%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 6% 12%;
+    --foreground: 0 0% 95%;
+    --card: 240 6% 15%;
+    --card-foreground: 0 0% 95%;
+    --popover: 240 6% 13%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 68 58% 64%;
+    --primary-foreground: 68 58% 15%;
+    --secondary: 68 20% 15%;
+    --secondary-foreground: 68 58% 85%;
+    --muted: 240 6% 18%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 68 40% 20%;
+    --accent-foreground: 68 58% 85%;
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 98%;
+    --warning: 38 92% 60%;
+    --warning-foreground: 38 92% 12%;
+    --info: 200 75% 60%;
+    --info-foreground: 200 75% 12%;
+    --success: 145 60% 55%;
+    --success-foreground: 145 65% 12%;
+    --border: 240 6% 20%;
+    --input: 240 6% 20%;
+    --ring: 68 58% 64%;
+  }
+}
+
 /* Aeonik (licensed). The .otf sources stay untracked; the subset .woff2 faces
    below are committed under /public/fonts, so a build from the repo ships the
    real typeface. Regenerate them with `pnpm fonts` (scripts/fonts.mjs). */
@@ -45,14 +112,14 @@
 }
 
 :root {
-  --bg: #1c1c20;
-  --fg: #f2f2f4;
+  --bg: hsl(var(--background));
+  --fg: hsl(var(--foreground));
   --fg-dim: rgba(242, 242, 246, 0.86);
-  --accent: #cad86e;
-  --accent-bright: #eef7b4;
-  --accent-hover: #b4c455; /* the brand lime, a touch deeper */
-  --accent-dim: rgba(202, 216, 110, 0.35);
-  --accent-faint: rgba(202, 216, 110, 0.14);
+  --brand: hsl(var(--primary));
+  --brand-bright: #eef7b4;
+  --brand-hover: #b4c455; /* the brand lime, a touch deeper */
+  --brand-dim: rgba(202, 216, 110, 0.35);
+  --brand-faint: rgba(202, 216, 110, 0.14);
   --radius: 0.5rem; /* shadcn-style corner radius */
   /* horizontal room the side index panel + rail take on the right, so floating
      chrome can stay clear of them at any viewport width */
@@ -64,7 +131,7 @@
 
 html {
   scrollbar-width: thin;
-  scrollbar-color: var(--accent-dim) transparent;
+  scrollbar-color: var(--brand-dim) transparent;
 }
 
 body {
@@ -75,7 +142,7 @@ body {
 }
 
 ::selection {
-  background: var(--accent);
+  background: var(--brand);
   color: var(--bg);
 }
 
@@ -109,13 +176,13 @@ body {
   font-size: 0.68rem;
   font-weight: 400;
   letter-spacing: 0.42em;
-  color: var(--accent-bright);
+  color: var(--brand-bright);
   margin-bottom: 1.4rem;
   text-shadow: 0 1px 3px rgba(28, 28, 32, 0.95);
 }
 
 .accent {
-  color: var(--accent-bright);
+  color: var(--brand-bright);
 }
 
 /* nav */
@@ -159,7 +226,7 @@ body {
 .brand-mark {
   width: 2rem;
   height: 2rem;
-  background: var(--accent);
+  background: var(--brand);
   -webkit-mask: url('/logo.svg') center / contain no-repeat;
   mask: url('/logo.svg') center / contain no-repeat;
   transition: transform 0.4s ease;
@@ -194,11 +261,11 @@ body {
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--brand);
   text-decoration: none;
   white-space: nowrap;
   background: transparent;
-  border: 1px solid var(--accent-dim);
+  border: 1px solid var(--brand-dim);
   border-radius: var(--radius);
   padding: 0.55rem 1.05rem;
   transition:
@@ -208,8 +275,8 @@ body {
 }
 
 .nav-cta:hover {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--brand);
+  border-color: var(--brand);
   color: var(--bg);
 }
 
@@ -300,7 +367,7 @@ body {
 .panel {
   position: relative;
   background: rgba(19, 19, 23, 0.82);
-  border: 1px solid var(--accent-dim);
+  border: 1px solid var(--brand-dim);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
 }
 
@@ -310,7 +377,7 @@ body {
   position: absolute;
   width: 0.85rem;
   height: 0.85rem;
-  border-color: var(--accent);
+  border-color: var(--brand);
   border-style: solid;
 }
 
@@ -339,7 +406,7 @@ body {
   align-items: center;
   gap: 0.7rem;
   padding: 0.62rem 1.25rem 0.62rem 0.95rem;
-  border: 1px solid var(--accent-dim);
+  border: 1px solid var(--brand-dim);
   border-radius: 999px;
   background: rgba(19, 19, 23, 0.72);
   box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
@@ -374,7 +441,7 @@ body {
   width: 1.7rem;
   height: 1.7rem;
   flex: none;
-  color: var(--accent);
+  color: var(--brand);
 }
 
 .metric-value {
@@ -382,7 +449,7 @@ body {
   font-weight: 300;
   font-size: 2.1rem;
   line-height: 1;
-  color: var(--accent-bright);
+  color: var(--brand-bright);
   white-space: nowrap;
 }
 
@@ -398,7 +465,7 @@ body {
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.34em;
-  color: var(--accent);
+  color: var(--brand);
 }
 
 /* scattered around the central stream, off the narrative copy */
@@ -432,9 +499,9 @@ body {
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  color: var(--accent-bright);
+  color: var(--brand-bright);
   background: rgba(25, 25, 29, 0.55);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--brand);
   border-radius: var(--radius);
   padding: 0.9rem 1.8rem;
   text-shadow: 0 0 10px rgba(238, 247, 180, 0.5);
@@ -451,7 +518,7 @@ body {
 .cta:hover {
   transform: translateY(-2px);
   color: #f8fde9;
-  border-color: var(--accent-bright);
+  border-color: var(--brand-bright);
   box-shadow:
     0 0 34px rgba(226, 240, 150, 0.5),
     inset 0 0 24px rgba(226, 240, 150, 0.14);
@@ -473,7 +540,7 @@ body {
   letter-spacing: 0.03em;
   text-transform: none;
   color: var(--bg);
-  background: var(--accent);
+  background: var(--brand);
   border-radius: var(--radius);
   text-shadow: none;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
@@ -481,8 +548,8 @@ body {
 
 .dialog-send:hover {
   color: var(--bg);
-  background: var(--accent-bright);
-  border-color: var(--accent-bright);
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
 }
 
@@ -506,13 +573,13 @@ body {
   font-family: var(--mono);
   font-size: 0.58rem;
   letter-spacing: 0.4em;
-  color: var(--accent);
+  color: var(--brand);
 }
 
 .hint i {
   width: 1px;
   height: 3.4rem;
-  background: linear-gradient(to bottom, var(--accent), transparent);
+  background: linear-gradient(to bottom, var(--brand), transparent);
   animation: hint-drop 2.2s ease-in-out infinite;
   transform-origin: top;
 }
@@ -542,13 +609,13 @@ body {
   position: relative;
   width: 1px;
   height: 38vh;
-  background: var(--accent-faint);
+  background: var(--brand-faint);
 }
 
 .rail-fill {
   position: absolute;
   inset: 0;
-  background: var(--accent);
+  background: var(--brand);
   transform: scaleY(0);
   transform-origin: top;
 }
@@ -560,7 +627,7 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent-bright);
+  background: var(--brand-bright);
   box-shadow: 0 0 10px rgba(238, 247, 180, 0.8);
 }
 
@@ -592,7 +659,7 @@ body {
   background: rgba(28, 28, 32, 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--accent-faint);
+  border: 1px solid var(--brand-faint);
   border-radius: var(--radius);
   pointer-events: auto;
 }
@@ -623,7 +690,7 @@ body {
 .sidenav-item:hover,
 .sidenav-item.is-active {
   opacity: 1;
-  color: var(--accent-bright);
+  color: var(--brand-bright);
 }
 
 .sidenav-item.is-active i {
@@ -640,7 +707,7 @@ body {
   width: 2.3rem;
   height: 2.3rem;
   background: transparent;
-  border: 1px solid var(--accent-dim);
+  border: 1px solid var(--brand-dim);
   border-radius: var(--radius);
   cursor: pointer;
   padding: 0 0.6rem;
@@ -649,7 +716,7 @@ body {
 .nav-menu i {
   display: block;
   height: 1px;
-  background: var(--accent);
+  background: var(--brand);
 }
 
 /* mobile sheet — reuses the dialog shell */
@@ -674,13 +741,13 @@ body {
   text-transform: uppercase;
   color: var(--fg);
   text-decoration: none;
-  border-top: 1px solid var(--accent-faint);
+  border-top: 1px solid var(--brand-faint);
   transition: color 0.2s ease;
 }
 
 .sheet-link:hover,
 .sheet-link:focus-visible {
-  color: var(--accent-bright);
+  color: var(--brand-bright);
   outline: none;
 }
 
@@ -688,7 +755,7 @@ body {
   font-family: var(--mono);
   font-size: 0.6rem;
   letter-spacing: 0.24em;
-  color: var(--accent);
+  color: var(--brand);
 }
 
 /* ── solutions (in-flow, after the story) ───────────────────── */
@@ -799,7 +866,7 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent-dim) 30%, var(--accent-dim) 70%, transparent);
+  background: linear-gradient(90deg, transparent, var(--brand-dim) 30%, var(--brand-dim) 70%, transparent);
 }
 
 /* soft lime glow behind the panels side of each section */
@@ -856,7 +923,7 @@ body {
   gap: 0.5rem;
   margin-top: 1.6rem;
   padding-left: 1rem;
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid var(--brand);
   color: var(--fg);
 }
 
@@ -893,7 +960,7 @@ body {
   font-size: 0.98rem;
   color: var(--fg);
   padding: 0.5rem 0.95rem;
-  border: 1px solid var(--accent-dim);
+  border: 1px solid var(--brand-dim);
   border-radius: 999px;
   background: rgba(202, 216, 110, 0.08);
 }
@@ -940,7 +1007,7 @@ body {
 .sol h3.metric-label {
   font-size: 0.74rem;
   font-weight: 400;
-  color: var(--accent-bright);
+  color: var(--brand-bright);
 }
 
 .sol-list {
@@ -957,7 +1024,7 @@ body {
   font-size: 1.05rem;
   line-height: 1.55;
   color: var(--fg);
-  border-top: 1px solid var(--accent-faint);
+  border-top: 1px solid var(--brand-faint);
 }
 
 .sol-list li:first-child {
@@ -974,7 +1041,7 @@ body {
   width: 1.2rem;
   height: 1.2rem;
   margin-top: 0.3rem;
-  background: var(--accent);
+  background: var(--brand);
   --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
   -webkit-mask: var(--icon) center / contain no-repeat;
   mask: var(--icon) center / contain no-repeat;
@@ -982,7 +1049,7 @@ body {
 
 .sol-icon[data-icon='check'] {
   --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E");
-  background: var(--accent-bright);
+  background: var(--brand-bright);
 }
 
 /* device on the wall */
@@ -1061,8 +1128,8 @@ body {
   font-family: var(--mono);
   font-size: 0.72rem;
   letter-spacing: 0.1em;
-  color: var(--accent-bright);
-  border: 1px solid var(--accent);
+  color: var(--brand-bright);
+  border: 1px solid var(--brand);
   border-radius: 50%;
   background: rgba(202, 216, 110, 0.1);
 }
@@ -1085,7 +1152,7 @@ body {
 /* schema slot — replace <FigurePlaceholder/> with the real connection diagram */
 .sol-figure {
   padding: 1.2rem 1.4rem 1.1rem;
-  color: var(--accent);
+  color: var(--brand);
 }
 
 .sol-figure .metric-note {
@@ -1122,7 +1189,7 @@ body {
   font-family: var(--mono);
   font-size: 0.6rem;
   letter-spacing: 0.3em;
-  color: var(--accent);
+  color: var(--brand);
 }
 
 .sol-contact .finale-fine {
@@ -1281,7 +1348,7 @@ body {
   position: relative;
   width: min(28rem, 100%);
   background: #141418;
-  border: 1px solid var(--accent-dim);
+  border: 1px solid var(--brand-dim);
   border-radius: var(--radius);
   padding: 2rem 1.8rem 1.8rem;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
@@ -1320,7 +1387,7 @@ body {
   font-size: 0.6rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--brand);
   margin-bottom: 0.45rem;
 }
 
@@ -1331,7 +1398,7 @@ body {
   font-size: 0.95rem;
   color: var(--fg);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--accent-faint);
+  border: 1px solid var(--brand-faint);
   border-radius: calc(var(--radius) - 0.2rem);
   padding: 0.7rem 0.85rem;
   resize: vertical;
@@ -1341,7 +1408,7 @@ body {
 .dialog-field input:focus,
 .dialog-field textarea:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--brand);
 }
 
 .dialog-field input::placeholder {
@@ -1418,7 +1485,7 @@ body {
 .loader-mark {
   width: 3.4rem;
   height: 3.4rem;
-  background: var(--accent);
+  background: var(--brand);
   -webkit-mask: url('/logo.svg') center / contain no-repeat;
   mask: url('/logo.svg') center / contain no-repeat;
   animation: loader-pulse 1.8s ease-in-out infinite;
@@ -1448,14 +1515,14 @@ body {
   margin-top: 0.5rem;
   width: 11rem;
   height: 2px;
-  background: var(--accent-faint);
+  background: var(--brand-faint);
   overflow: hidden;
 }
 
 .loader-bar i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+  background: linear-gradient(90deg, var(--brand), var(--brand-bright));
   box-shadow: 0 0 8px rgba(238, 247, 180, 0.55);
 }
 
@@ -1508,7 +1575,7 @@ body {
   position: relative;
   display: inline-flex;
   padding: 0.2rem;
-  border: 1px solid var(--accent-dim);
+  border: 1px solid var(--brand-dim);
   border-radius: 999px;
   background: rgba(19, 19, 23, 0.62);
   backdrop-filter: blur(6px);
@@ -1522,7 +1589,7 @@ body {
   width: 2.6rem;
   height: calc(100% - 0.4rem);
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--brand);
   transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 
@@ -1552,7 +1619,7 @@ body {
 
 /* ── accessibility: large targets, visible focus, readable sizes ── */
 :focus-visible {
-  outline: 3px solid var(--accent-bright);
+  outline: 3px solid var(--brand-bright);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -1584,7 +1651,7 @@ body {
   align-items: center;
   gap: 0.6rem;
   padding: 0 0.95rem;
-  color: var(--accent);
+  color: var(--brand);
   font-family: var(--body);
   font-size: 0.82rem;
   font-weight: 500;
@@ -1720,7 +1787,7 @@ body {
 }
 
 .fig-lbl-accent {
-  fill: var(--accent-bright);
+  fill: var(--brand-bright);
 }
 
 .fig-struct {
@@ -1746,7 +1813,7 @@ body {
 
 .fig-cable {
   fill: none;
-  stroke: var(--accent-bright);
+  stroke: var(--brand-bright);
   stroke-width: 1.2;
   opacity: 0.9;
 }
@@ -1758,12 +1825,12 @@ body {
 }
 
 .fig-node.in-grain {
-  fill: var(--accent);
-  stroke: var(--accent-bright);
+  fill: var(--brand);
+  stroke: var(--brand-bright);
 }
 
 .fig-pulse {
-  fill: var(--accent-bright);
+  fill: var(--brand-bright);
   filter: drop-shadow(0 0 3px rgba(238, 247, 180, 0.9));
   offset-rotate: 0deg;
   animation: fig-travel var(--d, 4s) linear infinite;
@@ -1772,7 +1839,7 @@ body {
 }
 
 .fig-pulse.cmd {
-  fill: var(--accent);
+  fill: var(--brand);
 }
 
 @keyframes fig-travel {
@@ -1794,7 +1861,7 @@ body {
 
 .fig-hot {
   fill: none;
-  stroke: var(--accent-bright);
+  stroke: var(--brand-bright);
   stroke-width: 1;
   transform-box: fill-box;
   transform-origin: center;
@@ -1843,7 +1910,7 @@ body {
 
 /* grow-room: breathing light cones, blinking controller LEDs; curing: mist */
 .fig-cone {
-  fill: var(--accent-bright);
+  fill: var(--brand-bright);
   animation: fig-breathe 4s ease-in-out infinite;
 }
 
@@ -1858,12 +1925,12 @@ body {
 }
 
 .fig-lamp {
-  fill: var(--accent-bright);
+  fill: var(--brand-bright);
   filter: drop-shadow(0 0 4px rgba(238, 247, 180, 0.8));
 }
 
 .fig-led {
-  fill: var(--accent-bright);
+  fill: var(--brand-bright);
   animation: fig-blink 1.8s steps(1) infinite;
 }
 
@@ -1888,7 +1955,7 @@ body {
 
 .fig-plant {
   fill: none;
-  stroke: var(--accent-bright);
+  stroke: var(--brand-bright);
   stroke-width: 1;
   stroke-linecap: round;
   opacity: 0.9;
@@ -1896,12 +1963,12 @@ body {
 
 .fig-cheese {
   fill: rgba(238, 247, 180, 0.16);
-  stroke: var(--accent-bright);
+  stroke: var(--brand-bright);
   stroke-width: 0.9;
 }
 
 .fig-mist {
-  fill: var(--accent-bright);
+  fill: var(--brand-bright);
   opacity: 0;
   animation: fig-mist 2.6s ease-out infinite;
   animation-delay: var(--delay, 0s);
@@ -1972,8 +2039,8 @@ body {
 }
 
 .fig-mark {
-  fill: var(--accent-bright);
-  stroke: var(--accent-bright);
+  fill: var(--brand-bright);
+  stroke: var(--brand-bright);
   stroke-width: 1;
   stroke-linejoin: round;
 }
@@ -1994,7 +2061,7 @@ body {
 
 .fig-sensor-glyph {
   fill: none;
-  stroke: var(--accent-bright);
+  stroke: var(--brand-bright);
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -2002,13 +2069,13 @@ body {
 
 .fig-chip {
   fill: rgba(238, 247, 180, 0.16);
-  stroke: var(--accent-bright);
+  stroke: var(--brand-bright);
   stroke-width: 0.5;
 }
 
 /* the app's "live" dot */
 .fig-live {
-  fill: var(--accent-bright);
+  fill: var(--brand-bright);
   animation: fig-live 1.6s ease-in-out infinite;
 }
 
@@ -2025,7 +2092,7 @@ body {
 /* the app's hero sparkline, drawn on and wiped */
 .fig-spark {
   fill: none;
-  stroke: var(--accent-bright);
+  stroke: var(--brand-bright);
   stroke-width: 1.2;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -2048,7 +2115,7 @@ body {
 
 /* the app's setpoint gauge */
 .fig-gauge {
-  fill: var(--accent-bright);
+  fill: var(--brand-bright);
   transform-box: fill-box;
   transform-origin: left center;
   animation: fig-gauge 5.2s ease-in-out infinite;
@@ -2067,7 +2134,7 @@ body {
 /* uplink: staggered arcs expanding toward the phone */
 .fig-uplink {
   fill: none;
-  stroke: var(--accent-bright);
+  stroke: var(--brand-bright);
   stroke-width: 1.1;
   stroke-linecap: round;
   opacity: 0;

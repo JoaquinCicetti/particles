@@ -24,9 +24,7 @@ export default function TopBar() {
       <a className="dz-brand" href="/" onClick={onNavClick} aria-label={t(D.backHome)} title={t(D.backHome)}>
         <span className="brand-mark" aria-hidden />
         <span className="dz-brand-text">
-          <span className="dz-wordmark">
-            GROWCAST<span className="brand-sub">AGRO</span>
-          </span>
+          <span className="dz-wordmark">GROWCAST</span>
           <span className="dz-brand-kicker">{t(D.kicker)}</span>
         </span>
       </a>
