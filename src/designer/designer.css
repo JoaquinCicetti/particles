@@ -1409,7 +1409,7 @@ textarea.dz-input {
 }
 
 /* ── overlays ── */
-.dz-modal {
+.dz-dialog, .dz-modal {
   z-index: 65;
 }
 
@@ -1421,8 +1421,8 @@ textarea.dz-input {
 }
 
 /* the export step: quote, extra outputs and contact, in one scroll */
-.dz .dialog.dz-finish {
-  width: min(44rem, 100%);
+.dz-finish {
+  /* width comes from the Tailwind max-w-3xl on DialogContent */
   max-height: min(86dvh, 60rem);
   display: flex;
   flex-direction: column;
@@ -1462,7 +1462,7 @@ textarea.dz-input {
     flex-direction: column-reverse;
   }
 
-  .dz-finish .dz-modal-actions .dz-btn {
+  .dz-finish .dz-modal-actions button {
     justify-content: center;
   }
 }

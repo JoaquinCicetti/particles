@@ -3,7 +3,8 @@ import { useIntl } from 'react-intl'
 import { D } from '../i18n/messages'
 import { useDesigner, type Tab } from '../store'
 import Glyph from '../ui/Glyph'
-import Modal from '../ui/Modal'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 
 type Menu = { id: string; x: number; y: number }
 
@@ -123,31 +124,34 @@ export default function TabStrip() {
         />
       )}
 
-      <Modal open={!!confirm} onClose={closeConfirm} label={t(D.tabClose)}>
-        {confirm && (
-          <>
-            <span className="kicker">{t(D.kicker)}</span>
-            <h3 className="dialog-title">{t(D.confirmCloseTitle, { name: confirm.design.name })}</h3>
-            <p className="dialog-sub">{t(D.confirmCloseBody, { count: confirm.design.items.length })}</p>
-            <div className="dz-modal-actions">
-              <button type="button" className="dz-btn" onClick={closeConfirm}>
-                {t(D.cancel)}
-              </button>
-              <button
-                type="button"
-                className="dz-btn dz-btn-danger"
-                autoFocus
-                onClick={() => {
-                  useDesigner.getState().closeTab(confirm.id)
-                  setConfirm(null)
-                }}
-              >
-                {t(D.confirmCloseOk)}
-              </button>
-            </div>
-          </>
-        )}
-      </Modal>
+      <Dialog open={!!confirm} onOpenChange={(o) => !o && closeConfirm()}>
+        <DialogContent className="dz-dialog">
+          <span className="kicker">{t(D.kicker)}</span>
+          <DialogTitle className="dialog-title">
+            {confirm ? t(D.confirmCloseTitle, { name: confirm.design.name }) : t(D.tabClose)}
+          </DialogTitle>
+          {confirm && (
+            <>
+              <p className="dialog-sub">{t(D.confirmCloseBody, { count: confirm.design.items.length })}</p>
+              <div className="dz-modal-actions">
+                <Button variant="outline" onClick={closeConfirm}>
+                  {t(D.cancel)}
+                </Button>
+                <Button
+                  variant="destructive"
+                  autoFocus
+                  onClick={() => {
+                    useDesigner.getState().closeTab(confirm.id)
+                    setConfirm(null)
+                  }}
+                >
+                  {t(D.confirmCloseOk)}
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

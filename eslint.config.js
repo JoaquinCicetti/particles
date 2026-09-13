@@ -22,6 +22,16 @@ export default defineConfig([
     },
   },
   {
+    // shadcn generates these verbatim from its registry, and its canonical
+    // shape exports a component next to its cva variants. Keeping the files
+    // unedited is what lets a component be re-added or copied from the app
+    // repo without a diff, so the fast-refresh rule yields here instead.
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
     // react-three-fiber scene code mutates Three.js objects (uniforms,
     // material opacity) inside useFrame — the imperative escape hatch the
     // immutability rule doesn't model.

@@ -8,7 +8,8 @@ import { computeSummary } from '../model/summary'
 import { fmt } from '../labels'
 import { useActiveDesign, useUi } from '../store'
 import Glyph from '../ui/Glyph'
-import Modal from '../ui/Modal'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ContactSection, ExtraOutputsSection } from './sections'
 
 /**
@@ -44,92 +45,94 @@ export default function FinishDialog() {
   ]
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)} label={t(D.finishTitle)} className="dz-finish">
-      <h2 className="dialog-title">{t(D.finishTitle)}</h2>
-      <p className="dz-hint">{t(D.finishHint)}</p>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="dz-dialog dz-finish sm:max-w-3xl">
+        <DialogTitle className="dialog-title">{t(D.finishTitle)}</DialogTitle>
+        <p className="dz-hint">{t(D.finishHint)}</p>
 
-      <div className="dz-finish-body">
-        <section className="dz-block">
-          <h3 className="dz-block-h">{t(D.summary)}</h3>
-          <p className="dz-sum-meta">
-            {t(D.roomLine, {
-              w: fmt(d.room.width, 1),
-              l: fmt(d.room.length, 1),
-              h: fmt(d.room.height, 1),
-              area: fmt(s.area, 1),
-            })}
-            {' · '}
-            {t(D.structures, { racks: s.racks, tables: s.tables })}
-          </p>
-          <div className="dz-totals">
-            <div className="dz-total">
-              <b>{s.totalSensors}</b>
-              <span>{t(D.sensorsTotal)}</span>
+        <div className="dz-finish-body">
+          <section className="dz-block">
+            <h3 className="dz-block-h">{t(D.summary)}</h3>
+            <p className="dz-sum-meta">
+              {t(D.roomLine, {
+                w: fmt(d.room.width, 1),
+                l: fmt(d.room.length, 1),
+                h: fmt(d.room.height, 1),
+                area: fmt(s.area, 1),
+              })}
+              {' · '}
+              {t(D.structures, { racks: s.racks, tables: s.tables })}
+            </p>
+            <div className="dz-totals">
+              <div className="dz-total">
+                <b>{s.totalSensors}</b>
+                <span>{t(D.sensorsTotal)}</span>
+              </div>
+              <div className="dz-total">
+                <b>{s.totalOutputs}</b>
+                <span>{t(D.outputsTotal)}</span>
+              </div>
             </div>
-            <div className="dz-total">
-              <b>{s.totalOutputs}</b>
-              <span>{t(D.outputsTotal)}</span>
-            </div>
-          </div>
 
-          <h4 className="dz-sub-h">{t(D.sensorsByKind)}</h4>
-          {sensorRows.length ? (
-            <ul className="dz-sum-list">
-              {sensorRows.map((k) => (
-                <li key={k} style={{ '--tint': SENSOR_SPECS[k].tint } as CSSProperties}>
-                  <Glyph name={SENSOR_SPECS[k].glyph} />
-                  <span>{t(SENSOR_SPECS[k].label)}</span>
-                  <b>{s.sensors[k]}</b>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="dz-empty">{t(D.none)}</p>
-          )}
+            <h4 className="dz-sub-h">{t(D.sensorsByKind)}</h4>
+            {sensorRows.length ? (
+              <ul className="dz-sum-list">
+                {sensorRows.map((k) => (
+                  <li key={k} style={{ '--tint': SENSOR_SPECS[k].tint } as CSSProperties}>
+                    <Glyph name={SENSOR_SPECS[k].glyph} />
+                    <span>{t(SENSOR_SPECS[k].label)}</span>
+                    <b>{s.sensors[k]}</b>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="dz-empty">{t(D.none)}</p>
+            )}
 
-          <h4 className="dz-sub-h">{t(D.outputsByKind)}</h4>
-          {outputRows.length ? (
-            <ul className="dz-sum-list">
-              {outputRows.map((r) => (
-                <li key={r.key}>
-                  <Glyph name={r.glyph} />
-                  <span>
-                    {r.label}
-                    {r.extra && <i className="dz-tag">{t(D.extraTag)}</i>}
-                  </span>
-                  <b>{r.n}</b>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="dz-empty">{t(D.none)}</p>
-          )}
-        </section>
+            <h4 className="dz-sub-h">{t(D.outputsByKind)}</h4>
+            {outputRows.length ? (
+              <ul className="dz-sum-list">
+                {outputRows.map((r) => (
+                  <li key={r.key}>
+                    <Glyph name={r.glyph} />
+                    <span>
+                      {r.label}
+                      {r.extra && <i className="dz-tag">{t(D.extraTag)}</i>}
+                    </span>
+                    <b>{r.n}</b>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="dz-empty">{t(D.none)}</p>
+            )}
+          </section>
 
-        <section className="dz-block">
-          <h3 className="dz-block-h">{t(D.extrasTitle)}</h3>
-          <p className="dz-hint dz-hint-sm">{t(D.extrasHint)}</p>
-          <ExtraOutputsSection />
-        </section>
+          <section className="dz-block">
+            <h3 className="dz-block-h">{t(D.extrasTitle)}</h3>
+            <p className="dz-hint dz-hint-sm">{t(D.extrasHint)}</p>
+            <ExtraOutputsSection />
+          </section>
 
-        <section className="dz-block">
-          <h3 className="dz-block-h">{t(D.contactTitle)}</h3>
-          <p className="dz-hint dz-hint-sm">{t(D.contactHint)}</p>
-          <ContactSection />
-        </section>
-      </div>
+          <section className="dz-block">
+            <h3 className="dz-block-h">{t(D.contactTitle)}</h3>
+            <p className="dz-hint dz-hint-sm">{t(D.contactHint)}</p>
+            <ContactSection />
+          </section>
+        </div>
 
-      <div className="dz-modal-actions">
-        <button type="button" className="dz-btn" onClick={exportFile} title={t(D.exportHint)}>
-          <Glyph name="download" />
-          {t(D.downloadBtn)}
-        </button>
-        <button type="button" className="dz-btn dz-btn-primary" onClick={send} title={t(D.sendHint)}>
-          <Glyph name="send" />
-          {t(D.sendBtn)}
-        </button>
-      </div>
-      <p className="dz-hint dz-hint-sm">{t(D.summaryNote)}</p>
-    </Modal>
+        <div className="dz-modal-actions">
+          <Button variant="outline" onClick={exportFile} title={t(D.exportHint)}>
+            <Glyph name="download" />
+            {t(D.downloadBtn)}
+          </Button>
+          <Button onClick={send} title={t(D.sendHint)}>
+            <Glyph name="send" />
+            {t(D.sendBtn)}
+          </Button>
+        </div>
+        <p className="dz-hint dz-hint-sm">{t(D.summaryNote)}</p>
+      </DialogContent>
+    </Dialog>
   )
 }
