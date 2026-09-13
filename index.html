@@ -15,6 +15,19 @@
       content="Growcast integra salas de cultivo, silos y cámaras de maduración en una sola plataforma de monitoreo y control. Telemetría en tiempo real — del campo a la decisión."
     />
     <meta name="theme-color" content="#1c1c20" />
+    <!-- Drop any incoming #fragment before the parser finishes, so the browser
+         never acquires a scroll target. Doing this from the app is too late:
+         by the time React mounts, the fragment scroll is already scheduled,
+         and it re-fires as the lazy sections grow the page under it. The story
+         has to start at the top — the loader, the camera rig and the particle
+         windows are all keyed to scroll 0. In-page navigation still writes the
+         hash as you travel (see setSection). -->
+    <script>
+      if (location.hash) {
+        history.replaceState(null, '', location.pathname + location.search)
+      }
+      history.scrollRestoration = 'manual'
+    </script>
     <!-- above-the-fold faces: body copy (400) and the hero headline (500) -->
     <link
       rel="preload"

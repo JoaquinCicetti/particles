@@ -83,6 +83,9 @@ export const M = defineMessages({
   // ── solutions (in-flow sections after the finale) ─────────────
   // DRAFT copy — to be replaced with the client's material
   navMenu: { id: 'nav.menu', defaultMessage: 'Menú' },
+  navSteps: { id: 'nav.steps', defaultMessage: 'Navegar por secciones' },
+  navPrev: { id: 'nav.prev', defaultMessage: 'Sección anterior' },
+  navNext: { id: 'nav.next', defaultMessage: 'Sección siguiente' },
   navInicio: { id: 'nav.inicio', defaultMessage: 'INICIO' },
   navCultivo: { id: 'nav.cultivo', defaultMessage: 'CULTIVO' },
   navSilos: { id: 'nav.silos', defaultMessage: 'SILOS' },
@@ -119,7 +122,7 @@ export const M = defineMessages({
   cultivoStat1: { id: 'sol.cultivo.stat.1', defaultMessage: 'TEMPERATURA' },
   cultivoStat2: { id: 'sol.cultivo.stat.2', defaultMessage: 'HUMEDAD' },
   cultivoStat3: { id: 'sol.cultivo.stat.3', defaultMessage: 'EC' },
-  cultivoFigure: { id: 'sol.cultivo.figure', defaultMessage: 'Sensores por sala → nodo → núcleo Growcast → actuadores de riego y clima' },
+  cultivoFigure: { id: 'sol.cultivo.figure', defaultMessage: 'Sensores por sala → tablero Growcast → riego, luces y ventilación' },
 
   // 02 — silos y depósitos
   silosKicker: { id: 'sol.silos.kicker', defaultMessage: '02 / SILOS Y DEPÓSITOS' },
@@ -140,7 +143,7 @@ export const M = defineMessages({
   silosStat1: { id: 'sol.silos.stat.1', defaultMessage: 'TEMP. GRANO' },
   silosStat2: { id: 'sol.silos.stat.2', defaultMessage: 'CO₂' },
   silosStat3: { id: 'sol.silos.stat.3', defaultMessage: 'HUMEDAD' },
-  silosFigure: { id: 'sol.silos.figure', defaultMessage: 'Sondas en silo → nodo → núcleo Growcast → aireadores' },
+  silosFigure: { id: 'sol.silos.figure', defaultMessage: 'Sondas en silo → tablero Growcast → aireadores' },
 
   // 03 — cámaras de maduración
   maduracionKicker: { id: 'sol.maduracion.kicker', defaultMessage: '03 / CÁMARAS DE MADURACIÓN' },
@@ -161,7 +164,7 @@ export const M = defineMessages({
   maduracionStat1: { id: 'sol.maduracion.stat.1', defaultMessage: 'TEMPERATURA' },
   maduracionStat2: { id: 'sol.maduracion.stat.2', defaultMessage: 'HUMEDAD' },
   maduracionStat3: { id: 'sol.maduracion.stat.3', defaultMessage: 'DÍAS DE CURA' },
-  maduracionFigure: { id: 'sol.maduracion.figure', defaultMessage: 'Sensores por cámara → nodo → núcleo Growcast → frío y humidificación' },
+  maduracionFigure: { id: 'sol.maduracion.figure', defaultMessage: 'Sensores por cámara → tablero Growcast → frío y humidificación' },
 
   // contact section
   contactKicker: { id: 'contact.kicker', defaultMessage: 'CONTACTO' },
@@ -215,10 +218,6 @@ export const M = defineMessages({
   maduracionStep2: { id: 'sol.maduracion.step.2', defaultMessage: 'Cargamos la curva de cada producto. La cámara sigue la curva sola, día a día, sin intervención.' },
   maduracionStep3: { id: 'sol.maduracion.step.3', defaultMessage: 'Cualquier desvío se avisa por WhatsApp. Cada lote queda con su registro completo, listo para auditorías.' },
   // shared hardware labels for the three schematics (short — rendered inside the SVG)
-  figExpander: { id: 'sol.fig.expander', defaultMessage: 'EXPANSOR' },
-  figModules: { id: 'sol.fig.modules', defaultMessage: 'MÓDULOS' },
-  figModule: { id: 'sol.fig.module', defaultMessage: 'MÓDULO' },
-  figSensors: { id: 'sol.fig.sensors', defaultMessage: 'SENSORES' },
   figPhone: { id: 'sol.fig.phone', defaultMessage: 'TU TELÉFONO' },
   figApp: { id: 'sol.fig.app', defaultMessage: 'APP GROWCAST' },
   figLive: { id: 'sol.fig.live', defaultMessage: 'EN VIVO' },
@@ -226,10 +225,9 @@ export const M = defineMessages({
   // silo illustration labels (short — rendered inside the SVG)
   siloLblProbes: { id: 'silo.lbl.probes', defaultMessage: 'SONDAS T° · HUMEDAD' },
   siloLblNode: { id: 'silo.lbl.node', defaultMessage: 'NODO' },
-  siloLblCore: { id: 'silo.lbl.core', defaultMessage: 'GROWCAST' },
   siloLblFan: { id: 'silo.lbl.fan', defaultMessage: 'AIREADOR' },
   siloLblHot: { id: 'silo.lbl.hot', defaultMessage: 'FOCO' },
-  siloAria: { id: 'silo.aria', defaultMessage: 'Esquema: sondas dentro del silo y un sensor de CO₂ en el techo envían sus lecturas al dispositivo Growcast; el expansor y su módulo comandan el aireador, y todo llega en vivo a tu teléfono.' },
+  siloAria: { id: 'silo.aria', defaultMessage: 'Esquema: sondas dentro del silo y un sensor de CO₂ en el techo envían sus lecturas al tablero Growcast; su módulo comanda el aireador, y todo llega en vivo a tu teléfono.' },
   // grow-room illustration labels
   grLblLights: { id: 'grow.lbl.lights', defaultMessage: 'LUCES · 18/6' },
   grLblFan: { id: 'grow.lbl.fan', defaultMessage: 'VENTILADOR' },
@@ -238,7 +236,7 @@ export const M = defineMessages({
   grLblEcph: { id: 'grow.lbl.ecph', defaultMessage: 'EC · pH' },
   grLblControl: { id: 'grow.lbl.control', defaultMessage: 'CONTROL' },
   grLblRoom: { id: 'grow.lbl.room', defaultMessage: 'SALA DE CULTIVO' },
-  grAria: { id: 'grow.aria', defaultMessage: 'Esquema: los sensores de la sala envían clima y EC/pH al dispositivo Growcast; su expansor y tres módulos comandan luces, ventilador y riego, y todo llega en vivo a tu teléfono.' },
+  grAria: { id: 'grow.aria', defaultMessage: 'Esquema: los sensores de la sala envían clima y EC/pH al tablero Growcast; sus tres módulos comandan luces, ventilador y riego, y todo llega en vivo a tu teléfono.' },
 
   // curing-room illustration labels
   crLblSensor: { id: 'cure.lbl.sensor', defaultMessage: 'T° · HR' },
@@ -247,5 +245,5 @@ export const M = defineMessages({
   crLblHum: { id: 'cure.lbl.hum', defaultMessage: 'HUMIDIFICADOR' },
   crLblScale: { id: 'cure.lbl.scale', defaultMessage: 'PESO' },
   crLblRack: { id: 'cure.lbl.rack', defaultMessage: 'ESTANTERÍA DE MADURACIÓN' },
-  crAria: { id: 'cure.aria', defaultMessage: 'Esquema: sensores en la estantería de quesos envían temperatura, humedad y CO₂ al dispositivo Growcast; su expansor y dos módulos comandan el frío y el humidificador, y todo llega en vivo a tu teléfono.' },
+  crAria: { id: 'cure.aria', defaultMessage: 'Esquema: sensores en la estantería de quesos envían temperatura, humedad y CO₂ al tablero Growcast; sus dos módulos comandan el frío y el humidificador, y todo llega en vivo a tu teléfono.' },
 })

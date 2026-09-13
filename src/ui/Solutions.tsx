@@ -267,12 +267,13 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
             </div>
           </div>
 
+          <figure className="sol-figure panel fig-panel">
+            <span className="metric-label">{intl.formatMessage(M.solFigureTag)}</span>
+            {FIGURES[s.id]}
+            <figcaption className="metric-note">{intl.formatMessage(s.figure)}</figcaption>
+          </figure>
+
           <div className="sol-side">
-            <figure className="sol-figure panel fig-panel">
-              <span className="metric-label">{intl.formatMessage(M.solFigureTag)}</span>
-              {FIGURES[s.id]}
-              <figcaption className="metric-note">{intl.formatMessage(s.figure)}</figcaption>
-            </figure>
             <div className="sol-steps">
               <h3 className="metric-label">{intl.formatMessage(M.solStepsTitle)}</h3>
               <ol>

@@ -1,24 +1,20 @@
-import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
-import { SECTION_EVENT, scrollState } from '../lib/scroll'
 import { M } from '../i18n/messages'
 import { NAV, onAnchorClick } from './nav'
+import NavStepper from './NavStepper'
+import { useActiveSection } from './useActiveSection'
 
 /**
- * Vertical section index pinned left of the progress rail (desktop only).
- * Active item follows the section currently in view, published by Solutions —
- * which publishes `null` for the whole 3D story, and that is exactly when the
- * first entry ('top' / INICIO) is the one we are looking at.
+ * Vertical section index pinned left of the progress rail (desktop only),
+ * with a prev/next stepper in its footer. Active item follows the section
+ * currently in view, published by Solutions — which publishes `null` for the
+ * whole 3D story, and that is exactly when the first entry ('top' / INICIO) is
+ * the one we are looking at. The stepper reads the same source, so the list
+ * and its footer can never disagree.
  */
 export default function SideNav() {
   const intl = useIntl()
-  const [active, setActive] = useState<string | null>(scrollState.section)
-
-  useEffect(() => {
-    const onSection = (e: Event) => setActive((e as CustomEvent<string | null>).detail)
-    window.addEventListener(SECTION_EVENT, onSection)
-    return () => window.removeEventListener(SECTION_EVENT, onSection)
-  }, [])
+  const active = useActiveSection()
 
   return (
     <nav className="sidenav" aria-label={intl.formatMessage(M.navMenu)}>
@@ -37,6 +33,7 @@ export default function SideNav() {
           </a>
         )
       })}
+      <NavStepper />
     </nav>
   )
 }

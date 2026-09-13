@@ -1,14 +1,14 @@
 import { useIntl } from 'react-intl'
 import { M } from '../i18n/messages'
-import { Fan, GrowcastStack, PHONE_PORT, PhoneCard, Pulse, SensorNode, UplinkArc, stackPorts } from './figures'
+import { Fan, GrowcastBoard, PHONE_PORT, PhoneCard, Pulse, SensorNode, UplinkArc, boardPorts } from './figures'
 
 /**
  * Animated grow-room schematic: a gabled room (echoing the 3D warehouse)
  * with three hanging grow lights breathing over a bench of plants, a wall
  * fan spinning, a climate pod hanging mid-air and an EC/pH pod in the
- * nutrient tank. Their readings pulse to the Growcast device on the rail to
- * the right; its expander drives three control modules that command lights,
- * fan and irrigation; the uplink carries everything to the phone below.
+ * nutrient tank. Their readings pulse to the Growcast control board on the
+ * right, which commands lights, fan and irrigation; the uplink carries
+ * everything to the phone below.
  *
  * The room lives inside a scaled group; the hardware, the pods and every
  * wire are authored in ROOT coordinates so they keep their true size at the
@@ -19,13 +19,14 @@ import { Fan, GrowcastStack, PHONE_PORT, PhoneCard, Pulse, SensorNode, UplinkArc
 const SX = (x: number) => -4 + 0.9 * x
 const SY = (y: number) => 10 + 0.9 * y
 
-const STACK_X = 214
+const STACK_X = 238
 const STACK_Y = 22
-const PHONE_X = 294
+// the phone rides the board centre line: BOARD_CX (44.8) − half a phone (25.3)
+const PHONE_X = 257.5
 const PHONE_Y = 138
 const PHONE_S = 1.15
 
-const P = stackPorts(STACK_X, STACK_Y)
+const P = boardPorts(STACK_X, STACK_Y)
 const PHONE = PHONE_PORT(PHONE_X, PHONE_Y, PHONE_S)
 
 // sensor pods (root coords) and the bus that carries their readings
@@ -37,11 +38,11 @@ const ECPH = { x: 28, y: 150 }
 const SENSE_CLIMATE = `M${CLIMATE.x + 6} ${CLIMATE.y} V44 H126 V30 H200 V${P.sensorIn.y} H${P.sensorIn.x}`
 const SENSE_ECPH = `M${ECPH.x + 6} ${ECPH.y} V144 H21 V30 H200 V${P.sensorIn.y} H${P.sensorIn.x}`
 
-// commands leave the modules, run down the gutter at x = 208 and into the room
-const CMD_LIGHTS = `M${P.modOut(0).x} ${P.modOut(0).y} H208 V46 H${SX(124)} V${SY(82) + 0.2}`
-const CMD_FAN = `M${P.modOut(1).x} ${P.modOut(1).y} H208 V${SY(108)} H${SX(213) + 8.1}`
-const CMD_IRRIG = `M${P.modOut(2).x} ${P.modOut(2).y} H208 V${SY(191)} H${SX(214)}`
-const UPLINK = `M278 50 H284 V${P.uplink.y} H${P.uplink.x}`
+// commands leave the board, run down the gutter at x = 208 and into the room
+const CMD_LIGHTS = `M${P.cmdOut(0).x} ${P.cmdOut(0).y} H208 V46 H${SX(124)} V${SY(82) + 0.2}`
+const CMD_FAN = `M${P.cmdOut(1).x} ${P.cmdOut(1).y} H208 V${SY(108)} H${SX(213) + 8.1}`
+const CMD_IRRIG = `M${P.cmdOut(2).x} ${P.cmdOut(2).y} H208 V${SY(191)} H${SX(214)}`
+const UPLINK = `M${P.uplinkOut.x} ${P.uplinkOut.y} V${P.uplink.y}`
 
 const PLANTS = [50, 82, 114, 146, 176]
 const LAMPS = [
@@ -135,18 +136,18 @@ export default function GrowRoomFigure() {
       <path d={`M${PHONE.x} ${P.uplink.y} V${PHONE.y}`} className="fig-link" />
 
       {/* climate pod hanging from the roof, EC/pH pod standing in the tank */}
-      <SensorNode x={CLIMATE.x} y={CLIMATE.y} kind="temp" />
+      <SensorNode x={CLIMATE.x} y={CLIMATE.y} />
       <text x={CLIMATE.x + 6} y="40" textAnchor="middle" className="fig-lbl" fontSize="6.5">
         {intl.formatMessage(M.grLblSensor)}
       </text>
-      <SensorNode x={ECPH.x} y={ECPH.y} kind="ec" />
+      <SensorNode x={ECPH.x} y={ECPH.y} />
 
-      {/* the product: device + expander + three control modules on a DIN rail */}
-      <GrowcastStack x={STACK_X} y={STACK_Y} modules={3} />
+      {/* the product: one Growcast control board */}
+      <GrowcastBoard x={STACK_X} y={STACK_Y} />
 
       {/* live uplink to the phone */}
       <UplinkArc cx={P.uplink.x} cy={P.uplink.y} />
-      <text x="300" y="130" textAnchor="end" className="fig-lbl fig-lbl-accent" fontSize="7">
+      <text x="302" y="121" className="fig-lbl fig-lbl-accent" fontSize="7">
         {intl.formatMessage(M.figLive)}
       </text>
       <PhoneCard x={PHONE_X} y={PHONE_Y} s={PHONE_S} metrics={['temp', 'hum']} />

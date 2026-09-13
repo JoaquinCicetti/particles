@@ -178,18 +178,21 @@ function Fan({ tone }: Props) {
           />
         ))}
         <Cyl size={[0.07, 0.075, 0.07]} rotation={[Math.PI / 2, 0, 0]} material={MAT.shell} tone={tone} />
-        {Array.from({ length: FAN_BLADES }, (_, i) => {
-          const a = (i * Math.PI * 2) / FAN_BLADES
-          return (
+        {/* Each blade is pitched inside a hub-angle group, so the pitch turns
+            about the blade's OWN long axis. Pitching and indexing in one Euler
+            can't do that: the default 'XYZ' order applies the hub angle first,
+            leaving the pitch on the world Y, and only the 12-o'clock blade
+            reads as a helix while the rest go edge-on. */}
+        {Array.from({ length: FAN_BLADES }, (_, i) => (
+          <group key={i} rotation={[0, 0, (-i * Math.PI * 2) / FAN_BLADES]}>
             <Box
-              key={i}
               size={[0.085, 0.135, 0.006]}
-              position={[Math.sin(a) * 0.085, Math.cos(a) * 0.085, 0.022]}
-              rotation={[0, 0.38, -a]}
+              position={[0, 0.085, 0.022]}
+              rotation={[0, 0.38, 0]}
               material={MAT.shell}
             />
-          )
-        })}
+          </group>
+        ))}
       </group>
     </group>
   )

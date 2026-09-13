@@ -280,6 +280,17 @@ body {
   color: var(--bg);
 }
 
+/* the glyph is the phone-width form of the CTA; see ContactCta */
+.nav-cta-icon {
+  display: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+
 /* hero */
 .hero {
   position: absolute;
@@ -312,12 +323,38 @@ body {
 }
 
 /* narrative blocks */
+/* Every scene's copy lands in ONE place — the corner the hero already owns —
+   so the eye never hunts for it between acts. Scattering the blocks (centre,
+   then left, then left) meant each act arrived somewhere new, over whatever
+   the particle field happened to be doing there. */
 .block {
   position: absolute;
-  max-width: 26rem;
+  left: calc(clamp(1.5rem, 6vw, 6rem) + env(safe-area-inset-left));
+  bottom: calc(clamp(5rem, 14vh, 9rem) + env(safe-area-inset-bottom));
+  max-width: 30rem;
   opacity: 0;
   z-index: 4; /* sit in front of the sensor cards */
   will-change: transform, opacity;
+}
+
+/* A text shadow alone could not hold this copy: it sits over a live particle
+   field that is bright and busy exactly where the paragraphs are, and a chip
+   can pass behind it. So each block carries its own scrim — soft-edged, so it
+   never reads as a box, and inside the block's own stacking context, so it
+   covers the chips (z 2) without touching the nav or the index. */
+.block::before {
+  content: '';
+  position: absolute;
+  inset: -2.6rem -3.4rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(16, 16, 20, 0.88) 0%,
+    rgba(16, 16, 20, 0.74) 42%,
+    rgba(16, 16, 20, 0.32) 70%,
+    rgba(16, 16, 20, 0) 88%
+  );
 }
 
 .block h2 {
@@ -327,9 +364,10 @@ body {
   line-height: 1.3;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  color: var(--fg);
   text-shadow:
-    0 2px 4px rgba(28, 28, 32, 0.92),
-    0 0 10px rgba(28, 28, 32, 0.7);
+    0 2px 4px rgba(16, 16, 20, 0.95),
+    0 0 14px rgba(16, 16, 20, 0.85);
 }
 
 .block p {
@@ -337,28 +375,10 @@ body {
   font-weight: 300;
   font-size: clamp(0.9rem, 1.15vw, 1.02rem);
   line-height: 1.7;
-  color: var(--fg-dim);
-  text-shadow: 0 1px 3px rgba(28, 28, 32, 0.95);
-}
-
-.block-right {
-  right: clamp(1.5rem, 7vw, 7rem);
-  top: 50%;
-  translate: 0 -50%;
-  text-align: right;
-}
-
-.block-left {
-  left: clamp(1.5rem, 7vw, 7rem);
-  top: 50%;
-  translate: 0 -50%;
-}
-
-.block-center {
-  left: 50%;
-  top: 16%;
-  translate: -50% 0;
-  text-align: center;
+  color: var(--fg);
+  text-shadow:
+    0 1px 3px rgba(16, 16, 20, 0.95),
+    0 0 10px rgba(16, 16, 20, 0.8);
 }
 
 /* holographic panel — shared by the sensor metric cards and the solution
@@ -399,18 +419,83 @@ body {
   opacity: 0;
   z-index: 2; /* behind the narrative text */
   will-change: transform, opacity;
+  /* --u / --v are a 0..1 scatter drawn per load in Overlay; this maps them
+     into the band the chips may occupy. The right stop is a hard one: past it
+     a card slides under the section index and the progress rail. */
+  --chip-w: 15rem;
+  --mx-max: calc(100% - var(--rail-reserve) - var(--chip-w));
+  left: clamp(1rem, calc(3% + var(--u, 0.5) * 63%), var(--mx-max));
+  top: calc(14% + var(--v, 0.5) * 62%);
 }
 
 .metric-float {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.62rem 1.25rem 0.62rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem 1.1rem 0.9rem;
   border: 1px solid var(--brand-dim);
-  border-radius: 999px;
-  background: rgba(19, 19, 23, 0.72);
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+  border-radius: calc(var(--radius) + 0.25rem);
+  background: rgba(19, 19, 23, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55);
   animation: chip-float 4.2s ease-in-out infinite;
+}
+
+.metric-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metric-name {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  color: var(--fg-dim);
+  white-space: nowrap;
+}
+
+/* reading on the left, its trace on the right, sharing a baseline */
+.metric-read {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.3rem;
+}
+
+.metric-spark {
+  width: 4.8rem;
+  height: auto;
+  flex: none;
+  margin-bottom: 0.3rem;
+  overflow: visible;
+}
+
+/* a few hairlines so the trace reads as a plot rather than a squiggle */
+.metric-spark-grid {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.6;
+  opacity: 0.3;
+}
+
+.metric-spark-area {
+  fill: var(--brand);
+  fill-opacity: 0.26;
+  stroke: none;
+}
+
+.metric-spark-line {
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.metric-float .metric-value {
+  font-size: 2.7rem;
 }
 
 @keyframes chip-float {
@@ -419,7 +504,7 @@ body {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-7px);
+    transform: translateY(calc(var(--bob, 7px) * -1));
   }
 }
 
@@ -438,8 +523,8 @@ body {
 }
 
 .sensor-icon {
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 1.25rem;
+  height: 1.25rem;
   flex: none;
   color: var(--brand);
 }
@@ -467,13 +552,6 @@ body {
   letter-spacing: 0.34em;
   color: var(--brand);
 }
-
-/* scattered around the central stream, off the narrative copy */
-.metric-1 { left: 10%; top: 30%; }
-.metric-2 { right: max(13%, var(--rail-reserve)); top: 36%; }
-.metric-3 { left: 15%; top: 58%; }
-.metric-4 { right: max(17%, var(--rail-reserve)); top: 52%; }
-.metric-5 { left: 27%; top: 76%; }
 
 /* the metric-* type styles are also used by the in-flow solution stats */
 .metric-note {
@@ -576,12 +654,53 @@ body {
   color: var(--brand);
 }
 
-.hint i {
-  width: 1px;
-  height: 3.4rem;
-  background: linear-gradient(to bottom, var(--brand), transparent);
+.hint-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hint-mouse {
+  width: 1.45rem;
+  height: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+/* the wheel falls down the body and fades, then restarts at the top */
+.hint-wheel {
+  fill: currentColor;
+  stroke: none;
+  animation: hint-wheel 2.2s ease-in-out infinite;
+}
+
+.hint-chevron {
+  width: 0.95rem;
+  height: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.65;
   animation: hint-drop 2.2s ease-in-out infinite;
-  transform-origin: top;
+}
+
+@keyframes hint-wheel {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  70%,
+  100% {
+    transform: translateY(11px);
+    opacity: 0;
+  }
 }
 
 @keyframes hint-drop {
@@ -698,6 +817,86 @@ body {
   box-shadow: 0 0 8px rgba(238, 247, 180, 0.6);
 }
 
+/* phone only: the stepper floats where the language switcher used to sit, on
+   the same glass pill so the corner reads unchanged */
+.step-float {
+  display: none;
+  position: fixed;
+  right: calc(1.1rem + env(safe-area-inset-right));
+  bottom: calc(1.1rem + env(safe-area-inset-bottom));
+  z-index: 30;
+  pointer-events: auto;
+}
+
+.step-float .nav-step {
+  margin-top: 0;
+  padding: 0.2rem 0.3rem;
+  border: 1px solid var(--brand-dim);
+  border-top: 1px solid var(--brand-dim);
+  border-radius: 999px;
+  background: rgba(19, 19, 23, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* index footer: walk the list one step at a time */
+.nav-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--brand-faint);
+}
+
+.nav-step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--radius) - 0.15rem);
+  color: var(--brand);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.nav-step-btn svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-step-btn:hover:not(:disabled) {
+  background: var(--brand-faint);
+  color: var(--brand-bright);
+}
+
+.nav-step-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.nav-step-count {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  color: var(--fg-dim);
+  min-width: 1.4rem;
+  text-align: center;
+}
+
 /* ☰ — mobile only */
 .nav-menu {
   display: none;
@@ -727,6 +926,14 @@ body {
 .sheet-list {
   display: flex;
   flex-direction: column;
+}
+
+.sheet-lang {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--brand-faint);
 }
 
 .sheet-link {
@@ -833,6 +1040,7 @@ body {
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   grid-template-areas:
     'head measure'
+    'fig fig'
     'panels side';
   gap: clamp(2.4rem, 5vw, 4.5rem) clamp(2rem, 5vw, 5rem);
   align-items: start;
@@ -855,6 +1063,7 @@ body {
 .sol-flip {
   grid-template-areas:
     'measure head'
+    'fig fig'
     'side panels';
 }
 
@@ -1079,7 +1288,7 @@ body {
 
 /* aeration fan */
 .sol-icon[data-icon='fan'] {
-  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='1.5'/%3E%3Cpath d='M8 6.5V2.4M9.3 8.8l3.5 2M6.7 8.8l-3.5 2'/%3E%3C/svg%3E");
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='1.5'/%3E%3Cpath d='M8 6.5V2.4M9.5 8V12.1M6.5 8V3.9M8 9.5V13.6M9.5 8H13.6M6.5 8H2.4'/%3E%3C/svg%3E");
 }
 
 /* phone */
@@ -1149,13 +1358,20 @@ body {
   line-height: 1.6;
 }
 
-/* schema slot — replace <FigurePlaceholder/> with the real connection diagram */
+/* the connection diagram: its own full-width row, capped so the drawing lands
+   at roughly 2× its authored size — big enough to read every label, not so big
+   the 364-unit viewBox turns into a banner */
 .sol-figure {
-  padding: 1.2rem 1.4rem 1.1rem;
+  grid-area: fig;
+  width: min(100%, 48rem);
+  margin-inline: auto;
+  padding: 1.4rem 1.6rem 1.2rem;
   color: var(--brand);
 }
 
 .sol-figure .metric-note {
+  display: block;
+  max-width: 34rem;
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   line-height: 1.5;
@@ -1237,50 +1453,94 @@ body {
     display: none;
   }
 
-  .block-right,
-  .block-left {
+  .block {
     left: 1.5rem;
     right: 1.5rem;
-    text-align: left;
     max-width: none;
+    bottom: calc(clamp(7.4rem, 20vh, 10rem) + env(safe-area-inset-bottom));
   }
 
-  /* drop the left narrative blocks to the bottom so the busy central
-     particle motion stays clear and the copy reads */
-  .block-left {
-    top: auto;
-    bottom: calc(9vh + env(safe-area-inset-bottom));
-    translate: 0;
-  }
-
-  /* chips gather in the lower half, clear of the "RED DE SENSORES" heading */
+  /* chips gather in the lower half, clear of the "RED DE SENSORES" heading.
+     The card is taller than the old pill, so the rows need real gaps or they
+     stack into one block the moment the rise brings them together. */
   .metric-float {
-    padding: 0.5rem 0.9rem 0.5rem 0.72rem;
-    gap: 0.55rem;
+    padding: 0.5rem 0.75rem 0.55rem;
+    gap: 0.25rem;
   }
 
-  .metric-value {
+  .metric-float .metric-value {
     font-size: 1.6rem;
   }
 
-  .sensor-icon {
-    width: 1.4rem;
-    height: 1.4rem;
+  .metric-name {
+    font-size: 0.54rem;
+    letter-spacing: 0.18em;
   }
 
-  .metric-1 { left: 6%; top: 44%; }
-  .metric-2 { right: 6%; top: 51%; }
-  .metric-3 { left: 10%; top: 60%; }
-  .metric-4 { right: 10%; top: 68%; }
-  .metric-5 { left: 8%; top: 77%; }
+  .metric-read {
+    gap: 0.8rem;
+  }
+
+  .metric-spark {
+    width: 3.4rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .sensor-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  /* out-of-phase bobbing closes the gap between two cards by twice this, and
+     the phone's rows have far less room to give than the desktop's */
+  .metric-float {
+    --bob: 3px;
+  }
+
+  /* no index or rail here, so the only right stop is the card's own width;
+     the band starts lower, under the hero copy */
+  .metric {
+    --chip-w: 12rem;
+    --mx-max: calc(100% - var(--chip-w));
+    left: clamp(0.75rem, calc(3% + var(--u, 0.5) * 58%), var(--mx-max));
+    /* The band stops above the caption rather than routing around it: at this
+       width the copy spans the full column, so there is no "around". Five
+       cards in 46 % of the height is a near-even stack — the scatter shows in
+       the horizontal stagger, and in when each one arrives. */
+    top: calc(11% + var(--v, 0.5) * 46%);
+  }
 
   .rail,
   .sidenav {
     display: none;
   }
 
-  .hint {
+  /* the switcher moves into the menu sheet and the stepper takes the corner.
+     Scoped off .lang-inline, or this hides the copy inside the sheet too. */
+  .lang:not(.lang-inline) {
     display: none;
+  }
+
+  .step-float {
+    display: block;
+  }
+
+  /* The hint stays, as the mouse glyph alone. The bottom edge of a phone is
+     already spoken for — the phase label runs across the left half and the
+     language picker sits right — so the glyph lifts clear of both, and the
+     hero lifts with it rather than landing on top of the glyph. */
+  .hint-label,
+  .hint-chevron {
+    display: none;
+  }
+
+  .hint {
+    gap: 0;
+    bottom: calc(4.6rem + env(safe-area-inset-bottom));
+  }
+
+  .hero {
+    bottom: calc(clamp(7.4rem, 20vh, 10rem) + env(safe-area-inset-bottom));
   }
 
   .nav-menu {
@@ -1297,6 +1557,7 @@ body {
     grid-template-areas:
       'head'
       'measure'
+      'fig'
       'panels'
       'side';
     gap: 2.2rem;
@@ -1316,7 +1577,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .grain,
-  .hint i,
+  .hint-wheel,
+  .hint-chevron,
   .metric-float {
     animation: none;
   }
@@ -1747,14 +2009,39 @@ body {
    locale — tighten the type (tap targets stay ≥ 48px via min-height) so the
    row cannot run past the edge. */
 @media (max-width: 720px) {
+  /* a phone header sits over the moving 3D scene the whole way down, and the
+     fading scrim below was never opaque enough to hold it. Give it a real
+     glass bar instead — .overlay is fixed, so this stays pinned. */
+  .nav {
+    background: rgba(20, 20, 24, 0.66);
+    backdrop-filter: blur(14px) saturate(1.3);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    border-bottom: 1px solid var(--brand-faint);
+    padding-bottom: 1rem;
+  }
+
+  .nav::before {
+    display: none;
+  }
+
   .nav-right {
     gap: 0.5rem;
   }
 
+  /* the CTA label is a whole sentence in every locale and cannot share the row
+     with the mark, the stepper and the menu — show the calendar glyph instead,
+     with the sentence kept as the button's accessible name */
   .nav-cta {
-    font-size: 0.7rem;
-    letter-spacing: 0.02em;
-    padding: 0.7rem 0.7rem;
+    padding: 0 0.75rem;
+    justify-content: center;
+  }
+
+  .nav-cta-label {
+    display: none;
+  }
+
+  .nav-cta-icon {
+    display: block;
   }
 
   .nav-menu {
@@ -1784,6 +2071,14 @@ body {
   font-size: 8.5px;
   letter-spacing: 0.12em;
   fill: var(--fg-dim);
+}
+
+/* the wordmark on the control board's door */
+.fig-wordmark {
+  font-size: 5.4px;
+  letter-spacing: 0.22em;
+  fill: var(--brand-bright);
+  opacity: 0.85;
 }
 
 .fig-lbl-accent {
@@ -2006,7 +2301,7 @@ body {
 }
 
 /* ── real Growcast hardware inside the schematics ──
-   device / expander / control modules / sensor pods / phone. Every new LED is
+   board / control modules / sensor pods / phone. Every new LED is
    a consecutive direct child of its OWN <g>: the .fig-led:nth-child stagger
    above selects by position and would otherwise bleed onto sibling shapes. */
 .fig-chassis {
@@ -2045,18 +2340,18 @@ body {
   stroke-linejoin: round;
 }
 
+/* the real logo geometry on the board door — solid fill, no stroke, or the
+   mark's thin arms close up at figure scale */
+.fig-logo {
+  fill: var(--brand-bright);
+  stroke: none;
+}
+
 .fig-link {
   fill: none;
   stroke: currentColor;
   stroke-width: 0.9;
   opacity: 0.6;
-}
-
-.fig-rail {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 0.7;
-  opacity: 0.3;
 }
 
 .fig-sensor-glyph {

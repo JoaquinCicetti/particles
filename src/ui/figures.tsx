@@ -3,30 +3,47 @@
    the components whose geometry they describe; the cost is HMR for this file. */
 
 import type { CSSProperties } from 'react'
-import { useIntl } from 'react-intl'
-import { M } from '../i18n/messages'
+import { BRAND_MARK, BRAND_MARK_VIEWBOX } from './brandMark'
 import { SENSOR_PATHS, type SensorIconKey } from './SensorIcon'
 
 /** Shared bits for the schematic SVG illustrations. */
 
 /** A dot that travels along `path` (CSS offset-path); `cmd` = command pulse. */
 export function Pulse({ path, d, delay, cmd = false }: { path: string; d: string; delay: string; cmd?: boolean }) {
-  const style = { offsetPath: `path('${path}')`, '--d': d, '--delay': delay } as CSSProperties
+  const style = {
+    offsetPath: `path('${path}')`,
+    '--d': d,
+    '--delay': delay,
+  } as CSSProperties
   return <circle className={`fig-pulse${cmd ? ' cmd' : ''}`} r="2.2" style={style} />
 }
 
-/** Three-blade fan glyph centred on (cx, cy), spinning. */
+/**
+ * One propeller blade, authored pointing up from a hub at the origin, for a
+ * guard of radius 11. Four of them at 90° give the blade set FOUR-FOLD
+ * rotational symmetry, which is what actually centres the spin: `.fig-fan-blades`
+ * turns about `transform-box: fill-box; transform-origin: center`, i.e. the
+ * centre of the blades' BOUNDING BOX. Only a 4-fold shape is guaranteed a
+ * square bbox centred on the hub — with the old three lopsided blades that
+ * centre sat off the hub and the whole helix wobbled.
+ */
+const FAN_BLADE = 'M0 -2.6 C3.6 -3.3 5.8 -5.7 5.3 -7.9 C4.8 -9.8 2.5 -10 1.2 -8.5 C0.4 -7.5 0.15 -5.2 0 -2.6 Z'
+const FAN_ANGLES = [0, 90, 180, 270]
+
+/** Four-blade fan glyph centred on (cx, cy), spinning about its hub. */
 export function Fan({ cx, cy, r = 11 }: { cx: number; cy: number; r?: number }) {
   const k = r / 11
   return (
     <g transform={`translate(${cx} ${cy}) scale(${k})`}>
       <circle r="11" className="fig-node" />
+      {/* finger guard, so the glyph reads as a guarded appliance */}
+      <circle r="10" className="fig-pin" fill="none" />
       <g className="fig-fan-blades" fill="currentColor" opacity="0.9">
-        <path d="M0 0 L0 -9 Q6 -6 2 0 Z" />
-        <path d="M0 0 L8 5 Q3 8 0 4 Z" />
-        <path d="M0 0 L-8 5 Q-8 -2 -2 -2 Z" />
+        {FAN_ANGLES.map((a) => (
+          <path key={a} d={FAN_BLADE} transform={`rotate(${a})`} />
+        ))}
       </g>
-      <circle r="1.6" fill="currentColor" />
+      <circle r="2" fill="currentColor" />
     </g>
   )
 }
@@ -63,8 +80,7 @@ export function Box({
 /* ────────────────────────────────────────────────────────────────────────
    Real Growcast hardware, abstracted to schematic line art.
    Geometry comes from the product SVGs; the load-bearing ratios are:
-     device   2.28:1 landscape, two screw-terminal blocks on the bottom edge
-     expander 1:4.03 portrait, pin column in groups of four
+     board    64 × 46 enclosure, hinged door, brand mark on the front
      module   square, two screw circles on the bottom edge, side pins, an LED
      sensor   1:2.64 portrait, trapezoid gland cap, bands at 31.6% / 79.4%,
               two symmetric louvre stacks at the bottom
@@ -72,8 +88,13 @@ export function Box({
    the same product reads identically in all three figures.
    ──────────────────────────────────────────────────────────────────────── */
 
-/** Growcast sensor pod (12 × 33.9 at s = 1). Cable gland on top. */
-export function SensorNode({ x, y, kind, s = 1 }: { x: number; y: number; kind: SensorIconKey; s?: number }) {
+/**
+ * Growcast sensor pod (12 × 33.9 at s = 1), cable gland on top. The face
+ * carries the brand mark rather than a per-variable glyph: what the pod
+ * measures is already said by the label beside it, and a thermometer or a CO₂
+ * cloud at this size read as generic instrumentation instead of as a product.
+ */
+export function SensorNode({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
       {/* cable gland cap */}
@@ -81,8 +102,8 @@ export function SensorNode({ x, y, kind, s = 1 }: { x: number; y: number; kind: 
       <rect className="fig-chassis" x="0" y="2.2" width="12" height="31.7" rx="0.9" />
       {/* seam bands at 31.6 % and 79.4 % of the body */}
       <path className="fig-pin" d="M0 12.2 H12 M0 27.4 H12" />
-      <g className="fig-sensor-glyph" transform="translate(2.4 4.4) scale(0.45)">
-        <path d={SENSOR_PATHS[kind]} />
+      <g className="fig-logo" transform={`translate(2.4 6) scale(${POD_MARK_S})`}>
+        <path d={BRAND_MARK} />
       </g>
       {/* two symmetric louvre stacks */}
       <g className="fig-vent">
@@ -95,79 +116,68 @@ export function SensorNode({ x, y, kind, s = 1 }: { x: number; y: number; kind: 
 }
 
 /** Where a sensor pod's cable leaves the gland cap. */
-export const SENSOR_PORT = (x: number, y: number, s = 1) => ({ x: x + 6 * s, y })
+export const SENSOR_PORT = (x: number, y: number, s = 1) => ({
+  x: x + 6 * s,
+  y,
+})
 
-/** The Growcast controller: 64 × 28 body, terminals overhanging to y = 30. */
-export function GrowcastDevice({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+export const BOARD_W = 64
+export const BOARD_H = 46
+
+/** Brand mark scale on the door: 86.56 × 83.22 → 24.2 × 23.3. */
+const MARK_S = 0.28
+/** and on a sensor pod face: 7.2 wide inside a 12-wide body. */
+const POD_MARK_S = 7.2 / BRAND_MARK_VIEWBOX.w
+/** the board is drawn big — it is the one piece of hardware in the frame */
+export const BOARD_S = 1.4
+const MARK_W = BRAND_MARK_VIEWBOX.w * MARK_S
+const MARK_H = BRAND_MARK_VIEWBOX.h * MARK_S
+/** Door interior runs x 9…61 (the hinge stile eats the first 9). */
+const DOOR_CX = 35
+
+/**
+ * The Growcast control board: a wall-mounted electrical enclosure, 64 × 46 at
+ * s = 1, hinged on the left, with the brand mark and wordmark on the front.
+ * What a client is actually delivered is the panel — the bare DIN controller
+ * the schematics used to draw was a part, not a product.
+ */
+export function ControlBoard({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <rect className="fig-chassis" x="0" y="0" width="64" height="28" rx="1.4" />
-      {/* linked-nodes brand mark */}
-      <g className="fig-mark">
-        <path d="M6 13 L11.5 7.5 L17.5 12" fill="none" />
-        <circle cx="6" cy="13" r="1.5" />
-        <circle cx="11.5" cy="7.5" r="1.5" />
-        <circle cx="17.5" cy="12" r="1.5" />
-      </g>
-      {/* louvre combs flanking the right-hand connector */}
-      <g className="fig-vent">
-        <path d="M49.5 7.6 V9.8 M52 7.6 V9.8 M54.5 7.6 V9.8 M57 7.6 V9.8 M59.5 7.6 V9.8" />
-        <path d="M49.5 19.2 V21.4 M52 19.2 V21.4 M54.5 19.2 V21.4 M57 19.2 V21.4 M59.5 19.2 V21.4" />
-      </g>
-      <rect className="fig-chassis" x="48" y="11" width="13" height="7" rx="0.8" />
-      <path className="fig-pin" d="M51 12.8 V16.2 M54.5 12.8 V16.2 M58 12.8 V16.2" />
-      {/* LED pair, top-right — own <g> so the .fig-led stagger stays local */}
-      <g>
-        <circle className="fig-led" cx="53" cy="4" r="1.3" />
-        <circle className="fig-led" cx="58.5" cy="4" r="1.3" />
-      </g>
-      {/* the identity cue: two screw-terminal blocks straddling the bottom edge */}
-      <g>
-        <rect className="fig-chassis" x="11.5" y="22" width="13" height="8" rx="0.8" />
-        <path className="fig-pin" d="M11.5 24.4 H24.5" />
-        <circle className="fig-pin" cx="15" cy="27" r="1.4" fill="none" />
-        <circle className="fig-pin" cx="21" cy="27" r="1.4" fill="none" />
-      </g>
-      <g>
-        <rect className="fig-chassis" x="27.5" y="22" width="13" height="8" rx="0.8" />
-        <path className="fig-pin" d="M27.5 24.4 H40.5" />
-        <circle className="fig-pin" cx="31" cy="27" r="1.4" fill="none" />
-        <circle className="fig-pin" cx="37" cy="27" r="1.4" fill="none" />
-      </g>
-    </g>
-  )
-}
+      {/* cable glands straddling the bottom edge, under the shell */}
+      {[16, 30, 44].map((gx) => (
+        <g key={gx}>
+          <rect className="fig-chassis" x={gx} y={BOARD_H - 4} width="10" height="7" rx="0.8" />
+          <path className="fig-pin" d={`M${gx} ${BOARD_H - 1} H${gx + 10}`} />
+        </g>
+      ))}
 
-/** The I/O expander: 12 × 48.4 at s = 1 (1 : 4.03). */
-export function Expander({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <rect className="fig-chassis" x="0" y="0" width="12" height="48.4" rx="1" />
-      <circle className="fig-mark" cx="3.4" cy="3.6" r="1.3" />
-      <circle className="fig-mark" cx="3.4" cy="44.8" r="1.3" />
-      <g className="fig-pin">
-        {[0, 1, 2].map((g) =>
-          [0, 1, 2, 3].map((i) => <path key={`${g}-${i}`} d={`M6.4 ${6.5 + g * 13 + i * 3} H10.6`} />),
-        )}
+      {/* enclosure shell, inset door, hinge stile */}
+      <rect className="fig-chassis" x="0" y="0" width={BOARD_W} height={BOARD_H} rx="2" />
+      <rect className="fig-pin" x="3" y="3" width={BOARD_W - 6} height={BOARD_H - 6} rx="1.2" fill="none" />
+      <path className="fig-pin" d={`M9 3 V${BOARD_H - 3}`} />
+      <g className="fig-chassis">
+        <rect x="1.4" y="9" width="3.4" height="6" rx="0.8" />
+        <rect x="1.4" y={BOARD_H - 15} width="3.4" height="6" rx="0.8" />
       </g>
-    </g>
-  )
-}
+      {/* quarter-turn latch on the lock stile */}
+      <circle className="fig-pin" cx={BOARD_W - 7} cy={BOARD_H / 2} r="2.6" fill="none" />
+      <path className="fig-pin" d={`M${BOARD_W - 9} ${BOARD_H / 2} H${BOARD_W - 5}`} />
 
-/** A control module: 16 × 15 at s = 1, terminals on the bottom edge. */
-export function ControlModule({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <rect className="fig-chassis" x="0" y="0" width="16" height="15" rx="1" />
-      <g className="fig-pin">
-        <path d="M1.2 3.4 H4.6 M1.2 6 H4.6 M1.2 8.6 H4.6 M1.2 11.2 H4.6" />
+      {/* the mark on the door, wordmark under it — this is the caption, so the
+          stack needs no text label below the box */}
+      <g className="fig-logo" transform={`translate(${DOOR_CX - MARK_W / 2} ${17 - MARK_H / 2}) scale(${MARK_S})`}>
+        <path d={BRAND_MARK} />
       </g>
+      <text x={DOOR_CX} y="34.5" textAnchor="middle" className="fig-wordmark">
+        GROWCAST
+      </text>
+
+      {/* status LEDs, low on the hinge side — own <g> for the .fig-led stagger */}
       <g>
-        <circle className="fig-led" cx="12" cy="4.2" r="1.4" />
+        <circle className="fig-led" cx="15" cy="38" r="1.4" />
+        <circle className="fig-led" cx="20" cy="38" r="1.4" />
       </g>
-      <path className="fig-pin" d="M7 8.4 H14" />
-      <circle className="fig-chassis" cx="4.6" cy="15" r="1.7" />
-      <circle className="fig-chassis" cx="11.4" cy="15" r="1.7" />
     </g>
   )
 }
@@ -193,7 +203,10 @@ const PHONE_W = 44
 const PHONE_H = 88
 
 /** Where the uplink meets the phone: the top edge, centred. */
-export const PHONE_PORT = (x: number, y: number, s = 1) => ({ x: x + (PHONE_W / 2) * s, y })
+export const PHONE_PORT = (x: number, y: number, s = 1) => ({
+  x: x + (PHONE_W / 2) * s,
+  y,
+})
 
 /**
  * A phone rendering the Growcast app. Deliberately TEXT-FREE: at the mobile
@@ -246,68 +259,29 @@ export function PhoneCard({ x, y, s = 1, metrics }: { x: number; y: number; s?: 
   )
 }
 
-/** Port coordinates of a <GrowcastStack> placed at (x, y). */
-export function stackPorts(x: number, y: number) {
+/**
+ * Port coordinates of a <GrowcastBoard> placed at (x, y). Field wiring all
+ * leaves the left edge, facing the room: the sense bus arrives high and the
+ * commands leave below it. The uplink drops straight out of the bottom, so
+ * board, arcs and phone all sit on ONE centre line — `BOARD_CX` is that line,
+ * and the figures place the phone on it too.
+ */
+export const BOARD_CX = (BOARD_W * BOARD_S) / 2
+
+export function boardPorts(x: number, y: number) {
   return {
-    /** left edge of the device, mid-height — where the sense bus arrives */
+    /** where the sense bus arrives */
     sensorIn: { x, y: y + 20 },
-    /** origin of the uplink arcs */
-    uplink: { x: x + 106, y: y + 96 },
-    /** left edge of control module i — where its command leaves for the room */
-    modOut: (i: number) => ({ x: x + 98, y: y + 2 + i * 22 + 6.75 }),
+    /** where command i leaves for the room */
+    cmdOut: (i: number) => ({ x, y: y + 34 + i * 12 }),
+    /** bottom edge, centred — where the uplink leaves */
+    uplinkOut: { x: x + BOARD_CX, y: y + 6 + BOARD_H * BOARD_S },
+    /** origin of the uplink arcs, on the same centre line */
+    uplink: { x: x + BOARD_CX, y: y + 96 },
   }
 }
 
-/**
- * The product itself: controller + expander + N control modules on a DIN
- * rail, wired together. One component, so the hardware reads identically in
- * every figure. Inter-part wires are drawn first so they tuck under the
- * filled chassis.
- */
-export function GrowcastStack({ x, y, modules }: { x: number; y: number; modules: number }) {
-  const intl = useIntl()
-  const n = Math.max(1, Math.min(3, modules))
-  const mods = Array.from({ length: n }, (_, i) => y + 2 + i * 22)
-  const cys = mods.map((my) => my + 6.75)
-  const busTop = Math.min(y + 17.4, cys[0])
-  const busBottom = Math.max(y + 17.4, cys[cys.length - 1])
-  const railBottom = Math.max(y + 34.9, mods[mods.length - 1] + 13.5)
-
-  return (
-    <g>
-      {/* inter-part links, drawn under the bodies */}
-      <g className="fig-link">
-        <path d={`M${x + 64} ${y + 20} H${x + 69} V${y + 17.4} H${x + 74}`} />
-        <path d={`M${x + 82.6} ${y + 17.4} H${x + 90}`} />
-        <path d={`M${x + 90} ${busTop} V${busBottom}`} />
-        {cys.map((cy) => (
-          <path key={cy} d={`M${x + 90} ${cy} H${x + 98}`} />
-        ))}
-      </g>
-
-      {/* DIN rail */}
-      <g className="fig-rail">
-        <path d={`M${x + 72} ${y - 4} H${x + 118} M${x + 72} ${y - 1} H${x + 118}`} />
-      </g>
-
-      <GrowcastDevice x={x} y={y + 6} />
-      <Expander x={x + 74} y={y} s={0.72} />
-      {mods.map((my) => (
-        <ControlModule key={my} x={x + 98} y={my} s={0.9} />
-      ))}
-
-      <text x={x + 32} y={y + 2} textAnchor="middle" className="fig-lbl" fontSize="7">
-        {intl.formatMessage(M.figSensors)}
-      </text>
-      <text x={x + 32} y={y + 48} textAnchor="middle" className="fig-lbl fig-lbl-accent">
-        {intl.formatMessage(M.siloLblCore)}
-      </text>
-      <text x={x + 93} y={railBottom + 9} textAnchor="middle" className="fig-lbl" fontSize="7">
-        {intl.formatMessage(M.figExpander)}
-      </text>
-      <text x={x + 93} y={railBottom + 18} textAnchor="middle" className="fig-lbl" fontSize="7">
-        {intl.formatMessage(n === 1 ? M.figModule : M.figModules)}
-      </text>
-    </g>
-  )
+/** The product in the frame: one Growcast control board, drawn big. */
+export function GrowcastBoard({ x, y }: { x: number; y: number }) {
+  return <ControlBoard x={x} y={y + 6} s={BOARD_S} />
 }

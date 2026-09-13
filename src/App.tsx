@@ -7,7 +7,6 @@ import LangPicker from './ui/LangPicker'
 import Solutions from './ui/Solutions'
 import ContactDialog from './ui/ContactDialog'
 import MenuSheet from './ui/MenuSheet'
-import { isSectionId } from './ui/nav'
 import { bindScroll } from './lib/scroll'
 
 function App() {
@@ -25,17 +24,6 @@ function App() {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [started])
-
-  // deep link (/#silos): the loader pins the page to the top, so jump once
-  // the reveal has started
-  useEffect(() => {
-    if (!started) return
-    const id = location.hash.slice(1)
-    // 'top' is the 3D story itself — no element, and the loader already left
-    // the page pinned there, so there is nothing to jump to
-    if (!isSectionId(id) || id === 'top') return
-    document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' })
   }, [started])
 
   const openContact = useCallback(() => setContactOpen(true), [])

@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { useIntl } from 'react-intl'
 import { M } from '../i18n/messages'
+import LangPicker from './LangPicker'
 import { NAV, onAnchorClick } from './nav'
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-/** Mobile menu: same shell as the contact dialog, one large link per section. */
+/** Mobile menu: same shell as the contact dialog, one large link per section,
+ *  with the language switcher in its footer. */
 export default function MenuSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const intl = useIntl()
   const sheet = useRef<HTMLDivElement>(null)
@@ -83,6 +85,11 @@ export default function MenuSheet({ open, onClose }: { open: boolean; onClose: (
             </a>
           ))}
         </nav>
+        {/* the floating switcher is a phone-only casualty of giving that corner
+            to the stepper, so its home on a phone is here */}
+        <div className="sheet-lang">
+          <LangPicker inline />
+        </div>
       </div>
     </div>
   )

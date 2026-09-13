@@ -1,13 +1,13 @@
 import { useIntl } from 'react-intl'
 import { M } from '../i18n/messages'
-import { GrowcastStack, PHONE_PORT, PhoneCard, Pulse, SensorNode, UplinkArc, stackPorts } from './figures'
+import { Fan, GrowcastBoard, PHONE_PORT, PhoneCard, Pulse, SensorNode, UplinkArc, boardPorts } from './figures'
 
 /**
  * Animated silo schematic: two thermometry cables hang inside the grain
  * mass, a CO₂ pod sits on the roof vent, and their readings pulse up to the
- * Growcast device on the rail to the right. Its expander drives one control
- * module, which commands the aeration fan; the uplink carries everything to
- * the phone below. A hot spot on the left cable throbs.
+ * Growcast control board to the right, which commands the aeration fan; the
+ * uplink carries everything to the phone below. A hot spot on the left cable
+ * throbs on the right cable.
  *
  * The silo lives inside <g transform="translate(4 10)">. CSS offset-path
  * resolves in the ELEMENT'S OWN coordinate system, so every <Pulse> below
@@ -16,20 +16,21 @@ import { GrowcastStack, PHONE_PORT, PhoneCard, Pulse, SensorNode, UplinkArc, sta
  */
 
 // pulse paths, in ROOT coordinates (= local + 4, + 10)
-const CABLE_L = 'M78 200 V59 L102 44 V6 H200 V42 H214'
-const CABLE_R = 'M126 200 V59 L102 44 V6 H200 V42 H214'
+const CABLE_L = 'M78 200 V59 L102 44 V6 H200 V42 H238'
+const CABLE_R = 'M126 200 V59 L102 44 V6 H200 V42 H238'
 /** the leg the cables share above the roof — the only part not already drawn in-group */
-const TRUNK = 'M102 44 V6 H200 V42 H214'
-const TO_FAN = 'M312 30.75 H208 V222 H185'
-const UPLINK = 'M278 50 H284 V118 H320'
+const TRUNK = 'M102 44 V6 H200 V42 H238'
+const TO_FAN = 'M238 56 H208 V222 H185'
+const UPLINK = 'M282.8 92.4 V118'
 
-const STACK_X = 214
+const STACK_X = 238
 const STACK_Y = 22
-const PHONE_X = 294
+// the phone rides the board centre line: BOARD_CX (44.8) − half a phone (25.3)
+const PHONE_X = 257.5
 const PHONE_Y = 138
 const PHONE_S = 1.15
 
-const P = stackPorts(STACK_X, STACK_Y)
+const P = boardPorts(STACK_X, STACK_Y)
 const PHONE = PHONE_PORT(PHONE_X, PHONE_Y, PHONE_S)
 
 const CO2 = { x: 96, y: 6 }
@@ -74,25 +75,21 @@ export default function SiloFigure() {
             <circle key={`${x}-${y}`} cx={x} cy={y} r="2.6" className={`fig-node${y > GRAIN_TOP_AT(x) ? ' in-grain' : ''}`} />
           )),
         )}
-        {/* hot spot on the left cable */}
-        <circle cx="74" cy="152" r="3" className="fig-hot" />
-        <circle cx="74" cy="152" r="3" className="fig-hot late" />
-        <path d="M70 152 H40" className="fig-wire" strokeDasharray="2 2" />
-        <text x="36" y="148" textAnchor="end" className="fig-lbl fig-lbl-accent">
+        {/* hot spot on the right cable — the callout needs the clear band
+            between the silo wall and the sense bus, and the left margin has
+            none once the figure is drawn at full width */}
+        <circle cx="122" cy="152" r="3" className="fig-hot" />
+        <circle cx="122" cy="152" r="3" className="fig-hot late" />
+        <path d="M126 152 H162" className="fig-wire" strokeDasharray="2 2" />
+        <text x="166" y="149" className="fig-lbl fig-lbl-accent">
           {intl.formatMessage(M.siloLblHot)}
         </text>
-        <text x="36" y="157" textAnchor="end" className="fig-lbl">
+        <text x="166" y="159" className="fig-lbl">
           24.1 °C
         </text>
 
         {/* aeration fan */}
-        <circle cx="170" cy="212" r="11" className="fig-node" />
-        <g className="fig-fan-blades" fill="currentColor" opacity="0.9">
-          <path d="M170 212 L170 203 Q176 206 172 212 Z" />
-          <path d="M170 212 L178 217 Q173 220 170 216 Z" />
-          <path d="M170 212 L162 217 Q162 210 168 210 Z" />
-        </g>
-        <circle cx="170" cy="212" r="1.6" fill="currentColor" />
+        <Fan cx={170} cy={212} r={11} />
         <text x="170" y="234" textAnchor="middle" className="fig-lbl">
           {intl.formatMessage(M.siloLblFan)}
         </text>
@@ -105,17 +102,17 @@ export default function SiloFigure() {
       <path d={`M${PHONE.x} ${P.uplink.y} V${PHONE.y}`} className="fig-link" />
 
       {/* headspace CO₂ pod, mounted on the roof vent */}
-      <SensorNode x={CO2.x} y={CO2.y} kind="co2" />
+      <SensorNode x={CO2.x} y={CO2.y} />
       <text x="92" y="24" textAnchor="end" className="fig-lbl" fontSize="7">
         CO₂
       </text>
 
-      {/* the product: device + expander + one control module on a DIN rail */}
-      <GrowcastStack x={STACK_X} y={STACK_Y} modules={1} />
+      {/* the product: one Growcast control board */}
+      <GrowcastBoard x={STACK_X} y={STACK_Y} />
 
       {/* live uplink to the phone */}
       <UplinkArc cx={P.uplink.x} cy={P.uplink.y} />
-      <text x="300" y="130" textAnchor="end" className="fig-lbl fig-lbl-accent" fontSize="7">
+      <text x="302" y="121" className="fig-lbl fig-lbl-accent" fontSize="7">
         {intl.formatMessage(M.figLive)}
       </text>
       <PhoneCard x={PHONE_X} y={PHONE_Y} s={PHONE_S} metrics={['temp', 'co2']} />
