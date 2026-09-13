@@ -76,7 +76,7 @@ function fade(g: THREE.BufferGeometry, tint: [number, number, number], bright: '
 export const CONE_GEO = (() => {
   const g = new THREE.CylinderGeometry(Math.SQRT1_2, Math.SQRT1_2 * 1.45, 1, 4, 8, true)
   g.rotateY(Math.PI / 4)
-  return fade(g, [1, 0.85, 0.63], 'top')
+  return fade(g, [0.79, 0.85, 0.43], 'top')
 })()
 
 /** Humidifier plume: tight at the nozzle, dissolving as it rises. */
@@ -86,17 +86,17 @@ export const MIST_GEO = (() => {
 })()
 
 export const MAT = {
-  floor: new THREE.MeshStandardMaterial({ color: '#0d0a08', roughness: 1, metalness: 0 }),
-  wall: new THREE.MeshStandardMaterial({ color: '#16110d', roughness: 1, metalness: 0 }),
-  body: new THREE.MeshStandardMaterial({ color: '#1d1611', roughness: 0.8, metalness: 0.2 }),
-  shell: new THREE.MeshStandardMaterial({ color: '#2d231b', roughness: 0.6, metalness: 0.1 }),
-  metal: new THREE.MeshStandardMaterial({ color: '#3b2e23', roughness: 0.45, metalness: 0.6 }),
-  tray: new THREE.MeshStandardMaterial({ color: '#241b14', roughness: 0.7 }),
-  water: new THREE.MeshStandardMaterial({ color: '#16242a', roughness: 0.25, metalness: 0.2 }),
-  plant: new THREE.MeshStandardMaterial({ color: '#5f7c46', roughness: 0.85, flatShading: true }),
-  pot: new THREE.MeshStandardMaterial({ color: '#17120e', roughness: 0.9 }),
-  louver: new THREE.MeshStandardMaterial({ color: '#2a211a', roughness: 0.5, metalness: 0.35 }),
-  led: new THREE.MeshStandardMaterial({ color: '#ffe3b8', emissive: '#ffd49a', emissiveIntensity: 1.5 }),
+  floor: new THREE.MeshStandardMaterial({ color: '#17171a', roughness: 1, metalness: 0 }),
+  wall: new THREE.MeshStandardMaterial({ color: '#202024', roughness: 1, metalness: 0 }),
+  body: new THREE.MeshStandardMaterial({ color: '#26262b', roughness: 0.8, metalness: 0.2 }),
+  shell: new THREE.MeshStandardMaterial({ color: '#313138', roughness: 0.6, metalness: 0.1 }),
+  metal: new THREE.MeshStandardMaterial({ color: '#3f3f47', roughness: 0.45, metalness: 0.6 }),
+  tray: new THREE.MeshStandardMaterial({ color: '#2b2b31', roughness: 0.7 }),
+  water: new THREE.MeshStandardMaterial({ color: '#1b2a30', roughness: 0.25, metalness: 0.2 }),
+  plant: new THREE.MeshStandardMaterial({ color: '#6d8a42', roughness: 0.85, flatShading: true }),
+  pot: new THREE.MeshStandardMaterial({ color: '#1f1f23', roughness: 0.9 }),
+  louver: new THREE.MeshStandardMaterial({ color: '#2e2e34', roughness: 0.5, metalness: 0.35 }),
+  led: new THREE.MeshStandardMaterial({ color: '#f4ffd2', emissive: '#e2f09c', emissiveIntensity: 1.5 }),
   // additive + DoubleSide means every face adds twice: keep alpha very low or
   // the volume turns into a grey wall that hides whatever is behind it
   cone: new THREE.MeshBasicMaterial({
@@ -116,21 +116,21 @@ export const MAT = {
     blending: THREE.AdditiveBlending,
   }),
   hit: new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
-  footprint: new THREE.MeshBasicMaterial({ color: '#c87f3d', transparent: true, opacity: 0.12, depthWrite: false }),
+  footprint: new THREE.MeshBasicMaterial({ color: '#cad86e', transparent: true, opacity: 0.12, depthWrite: false }),
 }
 
 export type Tone = 'idle' | 'hover' | 'selected'
 
 export const EDGE: Record<Tone, THREE.LineBasicMaterial> = {
-  idle: new THREE.LineBasicMaterial({ color: '#c87f3d', transparent: true, opacity: 0.5 }),
-  hover: new THREE.LineBasicMaterial({ color: '#e8a261', transparent: true, opacity: 0.95 }),
-  selected: new THREE.LineBasicMaterial({ color: '#ffd9a0' }),
+  idle: new THREE.LineBasicMaterial({ color: '#cad86e', transparent: true, opacity: 0.5 }),
+  hover: new THREE.LineBasicMaterial({ color: '#dcea8f', transparent: true, opacity: 0.95 }),
+  selected: new THREE.LineBasicMaterial({ color: '#eef7b4' }),
 }
 
 export const LINE = {
-  room: new THREE.LineBasicMaterial({ color: '#c87f3d', transparent: true, opacity: 0.8 }),
-  dim: new THREE.LineBasicMaterial({ color: '#c87f3d', transparent: true, opacity: 0.4 }),
-  wire: new THREE.LineBasicMaterial({ color: '#9a6a44', transparent: true, opacity: 0.75 }),
+  room: new THREE.LineBasicMaterial({ color: '#cad86e', transparent: true, opacity: 0.8 }),
+  dim: new THREE.LineBasicMaterial({ color: '#cad86e', transparent: true, opacity: 0.4 }),
+  wire: new THREE.LineBasicMaterial({ color: '#6f7550', transparent: true, opacity: 0.75 }),
 }
 
 export const SENSOR_MAT = Object.fromEntries(

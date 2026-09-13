@@ -3,11 +3,11 @@
    Aeonik for copy, IBM Plex Mono for labels and numbers. */
 
 .dz {
-  --dz-panel: #0a0705;
-  --dz-line: rgba(200, 127, 61, 0.16);
-  --dz-line-strong: rgba(200, 127, 61, 0.34);
-  --dz-text-2: rgba(244, 236, 224, 0.62);
-  --dz-field: rgba(255, 255, 255, 0.035);
+  --dz-panel: #212127;
+  --dz-line: rgba(242, 242, 246, 0.1);
+  --dz-line-strong: rgba(242, 242, 246, 0.2);
+  --dz-text-2: rgba(242, 242, 246, 0.62);
+  --dz-field: rgba(255, 255, 255, 0.05);
   --dz-danger: #f0a57e;
 
   position: fixed;
@@ -29,7 +29,7 @@
 }
 
 .dz :focus-visible {
-  outline: 2px solid var(--copper-bright);
+  outline: 2px solid var(--accent-bright);
   outline-offset: 1px;
 }
 
@@ -149,14 +149,14 @@
 
 .dz-tab:hover {
   color: var(--fg);
-  background: rgba(200, 127, 61, 0.06);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .dz-tab.is-active {
   color: var(--fg);
   border-color: var(--dz-line-strong);
-  background: rgba(200, 127, 61, 0.1);
-  box-shadow: inset 0 -2px 0 var(--copper);
+  background: rgba(202, 216, 110, 0.12);
+  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
 .dz-tab-btn {
@@ -183,11 +183,11 @@
   width: 0.42rem;
   height: 0.42rem;
   border-radius: 50%;
-  background: var(--copper-dim);
+  background: var(--accent-dim);
 }
 
 .dz-tab.is-active .dz-tab-dot {
-  background: var(--copper-bright);
+  background: var(--accent-bright);
   box-shadow: 0 0 6px rgba(255, 217, 160, 0.7);
 }
 
@@ -207,7 +207,7 @@
 .dz-tab-more:hover,
 .dz-tab-more[aria-expanded='true'] {
   opacity: 1;
-  background: rgba(200, 127, 61, 0.12);
+  background: rgba(202, 216, 110, 0.12);
 }
 
 .dz-tab-input {
@@ -218,7 +218,7 @@
   font-size: 0.82rem;
   color: var(--fg);
   background: var(--dz-field);
-  border: 1px solid var(--copper);
+  border: 1px solid var(--accent);
   border-radius: var(--radius);
   outline: none;
 }
@@ -229,7 +229,7 @@
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
-  color: var(--copper) !important;
+  color: var(--accent) !important;
   background: none;
   border: 1px dashed var(--dz-line-strong);
   border-radius: var(--radius);
@@ -237,8 +237,8 @@
 }
 
 .dz-tab-new:hover {
-  border-color: var(--copper);
-  background: rgba(200, 127, 61, 0.08);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .dz-menu {
@@ -248,7 +248,7 @@
   flex-direction: column;
   min-width: 11rem;
   padding: 0.3rem;
-  background: #0f0a07;
+  background: #26262c;
   border: 1px solid var(--dz-line-strong);
   border-radius: var(--radius);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
@@ -270,11 +270,11 @@
 
 .dz-menu button:hover,
 .dz-menu button:focus-visible {
-  background: rgba(200, 127, 61, 0.12);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .dz-menu .dz-glyph {
-  color: var(--copper);
+  color: var(--accent);
 }
 
 .dz-menu .is-danger,
@@ -313,8 +313,8 @@
 }
 
 .dz-btn:hover:not(:disabled) {
-  border-color: var(--copper);
-  background: rgba(200, 127, 61, 0.1);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .dz-btn:disabled {
@@ -323,13 +323,13 @@
 }
 
 .dz-btn .dz-glyph {
-  color: var(--copper);
+  color: var(--accent);
 }
 
 .dz-btn-primary {
   color: var(--bg) !important;
-  background: var(--copper);
-  border-color: var(--copper);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .dz-btn-primary .dz-glyph {
@@ -337,8 +337,8 @@
 }
 
 .dz-btn-primary:hover:not(:disabled) {
-  background: var(--copper-bright);
-  border-color: var(--copper-bright);
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
 }
 
 .dz-btn-danger {
@@ -394,7 +394,7 @@
 }
 
 .dz-save.is-pending i {
-  background: var(--copper);
+  background: var(--accent);
 }
 
 .dz-save.is-error i {
@@ -501,8 +501,8 @@
 
 .dz-filter.is-on {
   color: var(--bg);
-  background: var(--copper);
-  border-color: var(--copper);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .dz-search {
@@ -603,8 +603,8 @@ textarea.dz-input {
 .dz-select:focus,
 .dz-num-box:focus-within {
   outline: none;
-  border-color: var(--copper);
-  box-shadow: 0 0 0 3px rgba(200, 127, 61, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(202, 216, 110, 0.2);
 }
 
 .dz-input.is-invalid {
@@ -623,7 +623,7 @@ textarea.dz-input {
 
 .dz-select option {
   color: var(--fg);
-  background: #120c08;
+  background: #26262c;
 }
 
 .dz-num-box {
@@ -703,7 +703,7 @@ textarea.dz-input {
 .dz-lib-btn > .dz-glyph:first-child {
   width: 1.15rem;
   height: 1.15rem;
-  color: var(--tint, var(--copper));
+  color: var(--tint, var(--accent));
 }
 
 .dz-lib-btn span {
@@ -712,14 +712,14 @@ textarea.dz-input {
 
 .dz-lib-plus {
   width: 0.85rem;
-  color: var(--copper-bright);
+  color: var(--accent-bright);
   opacity: 0;
   transition: opacity 0.15s ease;
 }
 
 .dz-lib-btn:hover {
-  border-color: var(--copper);
-  background: rgba(200, 127, 61, 0.08);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .dz-lib-btn:hover .dz-lib-plus,
@@ -748,12 +748,12 @@ textarea.dz-input {
 }
 
 .dz-row:hover {
-  background: rgba(200, 127, 61, 0.05);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .dz-row.is-selected {
-  background: rgba(200, 127, 61, 0.14);
-  box-shadow: inset 2px 0 0 var(--copper-bright);
+  background: rgba(202, 216, 110, 0.14);
+  box-shadow: inset 2px 0 0 var(--accent-bright);
 }
 
 .dz-row-main {
@@ -772,7 +772,7 @@ textarea.dz-input {
 
 .dz-row-main .dz-glyph {
   width: 0.95rem;
-  color: var(--tint, var(--copper));
+  color: var(--tint, var(--accent));
 }
 
 .dz-row-name {
@@ -793,7 +793,7 @@ textarea.dz-input {
 
 .dz-row-meta em {
   font-style: normal;
-  color: var(--copper);
+  color: var(--accent);
 }
 
 .dz-row-del {
@@ -843,7 +843,7 @@ textarea.dz-input {
   gap: 0.4rem;
   padding: 0.35rem 0.65rem;
   font-size: 0.74rem;
-  background: rgba(200, 127, 61, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--dz-line);
   border-radius: 999px;
   cursor: pointer;
@@ -851,11 +851,11 @@ textarea.dz-input {
 
 .dz-chip .dz-glyph {
   width: 0.85rem;
-  color: var(--copper);
+  color: var(--accent);
 }
 
 .dz-chip:hover {
-  border-color: var(--copper);
+  border-color: var(--accent);
 }
 
 .dz-extras {
@@ -909,14 +909,14 @@ textarea.dz-input {
 .dz-stepper button {
   width: 2rem;
   font-size: 1rem;
-  color: var(--copper-bright) !important;
-  background: rgba(200, 127, 61, 0.07);
+  color: var(--accent-bright) !important;
+  background: rgba(255, 255, 255, 0.05);
   border: 0;
   cursor: pointer;
 }
 
 .dz-stepper button:hover:not(:disabled) {
-  background: rgba(200, 127, 61, 0.16);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .dz-stepper button:disabled {
@@ -969,7 +969,7 @@ textarea.dz-input {
 
 .dz-seg button.is-on {
   color: var(--bg);
-  background: var(--copper);
+  background: var(--accent);
 }
 
 .dz-seg .dz-glyph {
@@ -984,7 +984,7 @@ textarea.dz-input {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  background: #070504;
+  background: #17171b;
 }
 
 .dz-viewbar {
@@ -1049,7 +1049,7 @@ textarea.dz-input {
   font-size: 0.64rem;
   letter-spacing: 0.06em;
   white-space: nowrap;
-  color: var(--copper-bright);
+  color: var(--accent-bright);
   background: rgba(7, 5, 4, 0.82);
   border: 1px solid var(--dz-line);
   border-radius: 0.3rem;
@@ -1058,7 +1058,7 @@ textarea.dz-input {
 }
 
 .dz-chip3d {
-  border-color: var(--copper);
+  border-color: var(--accent);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
@@ -1081,30 +1081,30 @@ textarea.dz-input {
 }
 
 .dz-plan-floor {
-  fill: rgba(200, 127, 61, 0.035);
+  fill: rgba(202, 216, 110, 0.03);
 }
 
 .dz-plan-minor {
   fill: none;
-  stroke: rgba(200, 127, 61, 0.07);
+  stroke: rgba(202, 216, 110, 0.07);
   stroke-width: 1;
 }
 
 .dz-plan-major {
   fill: none;
-  stroke: rgba(200, 127, 61, 0.2);
+  stroke: rgba(202, 216, 110, 0.2);
   stroke-width: 1;
 }
 
 .dz-plan-wall {
   fill: none;
-  stroke: var(--copper);
+  stroke: var(--accent);
   stroke-width: 2.5;
 }
 
 .dz-plan-ruler {
   fill: none;
-  stroke: rgba(200, 127, 61, 0.5);
+  stroke: rgba(202, 216, 110, 0.5);
   stroke-width: 1;
 }
 
@@ -1115,7 +1115,7 @@ textarea.dz-input {
 
 .dz-plan-dim {
   font-family: var(--mono);
-  fill: var(--copper-bright);
+  fill: var(--accent-bright);
 }
 
 .dz-pi {
@@ -1124,7 +1124,7 @@ textarea.dz-input {
 
 .dz-pi-body {
   fill: rgba(29, 22, 17, 0.94);
-  stroke: var(--copper);
+  stroke: var(--accent);
   stroke-width: 1.2;
 }
 
@@ -1134,18 +1134,18 @@ textarea.dz-input {
 }
 
 .dz-pi:hover .dz-pi-body {
-  stroke: #e8a261;
+  stroke: #eef7b4;
 }
 
 .dz-pi.is-selected .dz-pi-body {
   fill: rgba(255, 217, 160, 0.1);
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 2;
 }
 
 .dz-pi-detail {
   fill: none;
-  stroke: rgba(200, 127, 61, 0.55);
+  stroke: rgba(202, 216, 110, 0.55);
   stroke-width: 1;
 }
 
@@ -1160,13 +1160,13 @@ textarea.dz-input {
 }
 
 .dz-pi-front {
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 3;
 }
 
 .dz-pi-glyph {
   fill: none;
-  stroke: var(--copper-bright);
+  stroke: var(--accent-bright);
   stroke-width: 1.2;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -1180,7 +1180,7 @@ textarea.dz-input {
 }
 
 .dz-pi-sensor .dz-pi-dot {
-  fill: #120c08;
+  fill: #1c1c20;
   stroke: var(--tint);
   stroke-width: 1.5;
 }
@@ -1196,7 +1196,7 @@ textarea.dz-input {
 
 .dz-pi-label {
   font-family: var(--mono);
-  fill: var(--copper-bright);
+  fill: var(--accent-bright);
   pointer-events: none;
 }
 
@@ -1218,7 +1218,7 @@ textarea.dz-input {
 .dz-insp-icon {
   width: 1.1rem;
   height: 1.1rem;
-  color: var(--tint, var(--copper));
+  color: var(--tint, var(--accent));
 }
 
 .dz-insp-title {
@@ -1387,7 +1387,7 @@ textarea.dz-input {
 }
 
 .dz-sum-list .dz-glyph {
-  color: var(--tint, var(--copper));
+  color: var(--tint, var(--accent));
 }
 
 .dz-sum-list span {
@@ -1495,8 +1495,8 @@ textarea.dz-input {
 .dz-issues code {
   font-family: var(--mono);
   font-size: 0.76rem;
-  color: var(--copper-bright);
-  background: rgba(200, 127, 61, 0.1);
+  color: var(--accent-bright);
+  background: rgba(255, 255, 255, 0.07);
   border-radius: 0.25rem;
   padding: 0.05rem 0.35rem;
 }
@@ -1511,8 +1511,8 @@ textarea.dz-input {
   padding: 0.7rem 1.1rem;
   font-size: 0.84rem;
   color: var(--fg);
-  background: #140d09;
-  border: 1px solid var(--copper-dim);
+  background: #26262c;
+  border: 1px solid var(--accent-dim);
   border-radius: var(--radius);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
   animation: dz-toast-in 0.25s ease;
@@ -1545,8 +1545,8 @@ textarea.dz-input {
   font-size: 0.8rem;
   letter-spacing: 0.12em;
   text-align: center;
-  color: var(--copper-bright);
-  border: 1.5px dashed var(--copper);
+  color: var(--accent-bright);
+  border: 1.5px dashed var(--accent);
   border-radius: 1rem;
 }
 
@@ -1660,8 +1660,8 @@ textarea.dz-input {
   }
 
   .dz-mtabs button.is-on {
-    color: var(--copper-bright);
-    box-shadow: inset 0 -2px 0 var(--copper);
+    color: var(--accent-bright);
+    box-shadow: inset 0 -2px 0 var(--accent);
   }
 
   .dz-view-hint {

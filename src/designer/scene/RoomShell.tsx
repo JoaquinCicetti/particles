@@ -56,10 +56,10 @@ function RoomShell({ room }: { room: Room }) {
         args={[W, L]}
         cellSize={0.1}
         cellThickness={0.5}
-        cellColor="#3b2416"
+        cellColor="#3a3c30"
         sectionSize={1}
         sectionThickness={1}
-        sectionColor="#8a5528"
+        sectionColor="#7d8a4e"
         fadeDistance={1000}
         fadeStrength={0}
         raycast={noRaycast}
@@ -69,10 +69,10 @@ function RoomShell({ room }: { room: Room }) {
         infiniteGrid
         cellSize={1}
         cellThickness={0.4}
-        cellColor="#1d130c"
+        cellColor="#24252a"
         sectionSize={5}
         sectionThickness={0.7}
-        sectionColor="#33200f"
+        sectionColor="#33362c"
         fadeDistance={span * 4}
         fadeStrength={1.5}
         raycast={noRaycast}

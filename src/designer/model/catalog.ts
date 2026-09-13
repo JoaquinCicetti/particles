@@ -86,11 +86,11 @@ export type SensorSpec = {
 }
 
 export const SENSOR_SPECS: Record<SensorKind, SensorSpec> = {
-  air_temp_humidity: { label: D.kindAir, short: 'T°·HR', glyph: 'air', tint: '#ffd9a0', ground: false },
-  co2: { label: D.kindCo2, short: 'CO₂', glyph: 'co2', tint: '#a9cdb8', ground: false },
+  air_temp_humidity: { label: D.kindAir, short: 'T°·HR', glyph: 'air', tint: '#f5c98d', ground: false },
+  co2: { label: D.kindCo2, short: 'CO₂', glyph: 'co2', tint: '#86b59b', ground: false },
   substrate_moisture_ec: { label: D.kindSubstrate, short: 'SUST', glyph: 'substrate', tint: '#d6a266', ground: true },
   water_ph_ec: { label: D.kindWater, short: 'pH·EC', glyph: 'water', tint: '#86bcd4', ground: true },
-  light_par: { label: D.kindPar, short: 'PAR', glyph: 'par', tint: '#f1e38c', ground: false },
+  light_par: { label: D.kindPar, short: 'PAR', glyph: 'par', tint: '#e0a7d8', ground: false },
 }
 
 /**
