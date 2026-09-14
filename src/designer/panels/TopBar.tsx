@@ -25,11 +25,11 @@ export default function TopBar() {
   return (
     <header className="dz-top">
       <a className="dz-brand" href="/" onClick={onNavClick} aria-label={t(D.backHome)} title={t(D.backHome)}>
-        <span className="brand-mark" aria-hidden />
-        <span className="dz-brand-text">
-          <span className="dz-wordmark">GROWCAST</span>
-          <span className="dz-brand-kicker">{t(KINDS[kind].text.kicker)}</span>
+        <span className="dz-logo">
+          <span className="brand-mark" aria-hidden />
+          <span className="dz-wordmark">Growcast</span>
         </span>
+        <span className="dz-brand-kicker">{t(KINDS[kind].text.kicker)}</span>
       </a>
 
       <KindNav />

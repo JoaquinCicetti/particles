@@ -70,41 +70,40 @@
   border-bottom: 1px solid var(--dz-line);
 }
 
+/* isotype + logotype on one baseline, the designer's name under them */
 .dz-brand {
   flex: none;
   display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
   padding-right: 1.1rem;
   border-right: 1px solid var(--dz-line);
   color: var(--fg);
   text-decoration: none;
 }
 
+.dz-logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.36rem;
+}
+
 .dz-brand .brand-mark {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .dz-brand:hover .brand-mark {
   transform: rotate(-8deg) scale(1.06);
 }
 
-.dz-brand-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  line-height: 1;
-}
-
 .dz-wordmark {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
   font-family: var(--display);
   font-weight: 700;
-  font-size: 0.76rem;
-  letter-spacing: 0.34em;
+  font-size: 1.02rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
 }
 
 .dz-brand-kicker {
@@ -1610,7 +1609,8 @@ textarea.dz-input {
     border-right: 0;
   }
 
-  .dz-brand-text,
+  .dz-wordmark,
+  .dz-brand-kicker,
   .dz-save {
     display: none;
   }

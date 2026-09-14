@@ -315,7 +315,7 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
       <nav className="nav">
         <a className="brand" href="#top" onClick={onAnchorClick} aria-label={intl.formatMessage(M.brandAria)}>
           <span className="brand-mark" aria-hidden />
-          <span className="wordmark">GROWCAST</span>
+          <span className="wordmark">Growcast</span>
         </a>
         <div className="nav-right">
           <LangPicker />
