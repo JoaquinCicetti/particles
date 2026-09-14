@@ -34,7 +34,7 @@ Navegación: INICIO · SILOS · CULTIVO/INDOOR · MADURACIÓN · CONTACTO. "CULT
 
 | Clave | Texto | Fuente |
 |---|---|---|
-| hero.kicker | MONITOREO, CONTROL Y AUTOMATIZACIÓN | §2 |
+| hero.kicker | MONITOREO, CONTROL Y TRAZABILIDAD | §2 |
 | hero.title | Su operación, en su mano. | §7 "disponible en su mano" |
 | hero.body | Growcast conecta una operación física con su teléfono, tablet o PC. Mide, registra, analiza, alerta y puede actuar sobre la operación. | §2 (dos frases en negrita) |
 | phase.1–6 | 01 / LA OPERACIÓN · 02 / MEDIMOS · 03 / CONECTAMOS · 04 / ANALIZAMOS · 05 / CONTROLAMOS Y REGISTRAMOS · 06 / GROWCAST | §3 (cinco etapas) |
