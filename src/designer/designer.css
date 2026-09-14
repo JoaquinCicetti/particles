@@ -1,6 +1,6 @@
 /* ── Grow Room Designer ─────────────────────────────────────────
    Full-viewport tool UI on the landing's tokens: copper on near-black,
-   Aeonik for copy, IBM Plex Mono for labels and numbers. */
+   Aeonik throughout. */
 
 .dz {
   --dz-panel: #212127;
@@ -395,20 +395,14 @@
   background: #e07a50;
 }
 
-.dz .lang-track {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
 .dz .lang-opt {
-  min-height: 0;
-  width: 2.4rem;
-  padding: 0.38rem 0;
-  font-size: 0.62rem;
+  width: 2rem;
+  height: 2.2rem;
 }
 
-.dz .lang-thumb {
-  width: 2.4rem;
+.dz .lang-flag {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 /* ── side columns ── */
@@ -1662,9 +1656,8 @@ textarea.dz-input {
     display: none;
   }
 
-  .dz .lang-opt,
-  .dz .lang-thumb {
-    width: 2.1rem;
+  .dz .lang-opt {
+    width: 1.8rem;
   }
 }
 

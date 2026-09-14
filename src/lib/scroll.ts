@@ -31,6 +31,13 @@ export function setSection(id: string | null) {
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
+/**
+ * Set by a section jump. The scroll event it causes snaps `smooth` straight
+ * onto the new target — otherwise CameraRig would still ease across the whole
+ * distance and replay the story behind the jump.
+ */
+let snapNext = false
+
 /** Gestures that mean the reader has taken over. */
 const GESTURE = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
 
@@ -64,6 +71,10 @@ export function bindScroll(track: HTMLElement | null) {
     const y = window.scrollY
     const storyMax = track ? track.offsetHeight - vh : document.documentElement.scrollHeight - vh
     scrollState.target = storyMax > 0 ? clamp01(y / storyMax) : 0
+    if (snapNext) {
+      snapNext = false
+      scrollState.smooth = scrollState.target
+    }
     scrollState.over = vh > 0 ? clamp01((y - storyMax) / vh) : 0
     const pageMax = document.documentElement.scrollHeight - vh
     scrollState.page = pageMax > 0 ? clamp01(y / pageMax) : 0
@@ -77,59 +88,26 @@ export function bindScroll(track: HTMLElement | null) {
   }
 }
 
-// ── eased anchor navigation ────────────────────────────────────
-// Native `scroll-behavior: smooth` covers any distance in the same short time,
-// so a jump from the hero across the whole story flashed by. This tween scales
-// its duration with the distance (clamped) and eases in/out; it bails out the
-// moment the user scrolls, so it never fights them.
-let tweenRaf = 0
-let tweenAbort: (() => void) | null = null
-
-// sine ease-in-out, not cubic. Cubic peaks at 3x the average velocity halfway
-// through the tween, which on a long jump whips past everything; sine peaks at
-// about half that, so the glide reads as a glide.
-const easeInOut = (t: number) => 0.5 * (1 - Math.cos(Math.PI * t))
-
-export function scrollToY(targetY: number) {
-  tweenAbort?.()
-  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  const maxY = document.documentElement.scrollHeight - window.innerHeight
-  const to = Math.max(0, Math.min(maxY, targetY))
-  const from = window.scrollY
-  const dist = Math.abs(to - from)
-  if (dist < 2 || reduce) {
-    window.scrollTo({ top: to, behavior: 'instant' })
-    return
-  }
-  // ~0.95s per viewport of travel, between 1.1s and 5.2s. Skipping the intro
-  // from the header covers six-odd viewports in one press; at the old 0.62s
-  // pace the whole 3D story flew past as a blur, so the glide reads as travel
-  // rather than as a cut. It still bails the instant the user scrolls.
-  const duration = Math.min(5200, Math.max(1100, (dist / window.innerHeight) * 950))
-  const start = performance.now()
-
-  const stop = () => {
-    cancelAnimationFrame(tweenRaf)
-    for (const ev of INTERRUPT) window.removeEventListener(ev, stop)
-    tweenAbort = null
-  }
-  const INTERRUPT = ['wheel', 'touchstart', 'keydown'] as const
-  for (const ev of INTERRUPT) window.addEventListener(ev, stop, { passive: true })
-  tweenAbort = stop
-
-  const step = (now: number) => {
-    const t = Math.min(1, (now - start) / duration)
-    window.scrollTo({ top: from + (to - from) * easeInOut(t), behavior: 'instant' })
-    if (t < 1) tweenRaf = requestAnimationFrame(step)
-    else stop()
-  }
-  tweenRaf = requestAnimationFrame(step)
+// ── anchor navigation ──────────────────────────────────────────
+/**
+ * Document y of an element's layout box. Summed offsets rather than
+ * getBoundingClientRect, so a section still sitting on its 28px reveal
+ * offset (see `.sol`) does not skew where the jump lands.
+ */
+const docTop = (el: HTMLElement) => {
+  let y = 0
+  for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) y += n.offsetTop
+  return y
 }
 
-/** Glide to an in-page section (or the top for 'top') and update the hash. */
+/** Jump straight to an in-page section (or the top for 'top') and update the hash. */
 export function scrollToSection(id: string) {
   const el = id === 'top' ? null : document.getElementById(id)
-  const y = el ? el.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.04 : 0
-  scrollToY(y)
+  const maxY = document.documentElement.scrollHeight - window.innerHeight
+  const y = Math.max(0, Math.min(maxY, el ? docTop(el) - window.innerHeight * 0.04 : 0))
+  if (Math.abs(y - window.scrollY) >= 1) {
+    snapNext = true
+    window.scrollTo({ top: y, behavior: 'instant' })
+  }
   history.replaceState(null, '', id === 'top' ? location.pathname : `#${id}`)
 }

@@ -14,8 +14,7 @@ type Props = {
  *
  * The header form carries BOTH a calendar glyph and the label, and CSS shows
  * one or the other: on a phone the sentence ("Coordinar una reunión") is wider
- * than the room left beside the mark, the stepper and the menu, so only the
- * glyph shows. The `aria-label` keeps the full name either way.
+ * than the room left beside the mark and the menu, so only the glyph shows. The `aria-label` keeps the full name either way.
  */
 export default function ContactCta({ onClick, variant = 'block' }: Props) {
   const intl = useIntl()

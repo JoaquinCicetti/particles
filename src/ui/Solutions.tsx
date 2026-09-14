@@ -3,7 +3,7 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import type { MessageDescriptor } from 'react-intl'
 import { M } from '../i18n/messages'
 import { setSection } from '../lib/scroll'
-import { WHATSAPP_DISPLAY } from '../lib/contact'
+import { EMAIL, WHATSAPP_DISPLAY, whatsappUrl } from '../lib/contact'
 import { DESIGNER_PATHS, loadDesigner, onNavClick } from '../lib/route'
 import ContactCta from './ContactCta'
 import SiloFigure from './SiloFigure'
@@ -42,37 +42,8 @@ const STEP_TITLES = [M.step1Title, M.step2Title, M.step3Title] as const
 // DRAFT data — values are illustrative
 const SOLUTIONS: Solution[] = [
   {
-    id: 'cultivo',
-    n: '01',
-    kicker: M.cultivoKicker,
-    title: M.cultivoTitle,
-    lede: M.cultivoLede,
-    who: M.cultivoWho,
-    measures: [M.varTemp, M.varHum, M.varCo2, M.varVpd, M.varSubstrate, M.varEc, M.varPh, M.varEquip],
-    steps: [M.cultivoStep1, M.cultivoStep2, M.cultivoStep3],
-    implement: [
-      { icon: 'fan', msg: M.cultivoImpl1 },
-      { icon: 'snow', msg: M.cultivoImpl2 },
-      { icon: 'valve', msg: M.cultivoImpl3 },
-      { icon: 'co2', msg: M.cultivoImpl4 },
-    ],
-    solve: [
-      { icon: 'check', msg: M.cultivoSolve1 },
-      { icon: 'check', msg: M.cultivoSolve2 },
-      { icon: 'check', msg: M.cultivoSolve3 },
-      { icon: 'check', msg: M.cultivoSolve4 },
-    ],
-    stats: [
-      { label: M.cultivoStat1, value: '24.1', unit: '°C' },
-      { label: M.cultivoStat2, value: '68', unit: '%HR' },
-      { label: M.cultivoStat3, value: '1.9', unit: 'mS/cm' },
-    ],
-    figure: M.cultivoFigure,
-    design: { path: DESIGNER_PATHS.grow, cta: M.cultivoDesignCta, note: M.designNote },
-  },
-  {
     id: 'silos',
-    n: '02',
+    n: '01',
     kicker: M.silosKicker,
     title: M.silosTitle,
     lede: M.silosLede,
@@ -98,6 +69,35 @@ const SOLUTIONS: Solution[] = [
     ],
     figure: M.silosFigure,
     design: { path: DESIGNER_PATHS.silo, cta: M.silosDesignCta, note: M.silosDesignNote },
+  },
+  {
+    id: 'cultivo',
+    n: '02',
+    kicker: M.cultivoKicker,
+    title: M.cultivoTitle,
+    lede: M.cultivoLede,
+    who: M.cultivoWho,
+    measures: [M.varTemp, M.varHum, M.varCo2, M.varVpd, M.varSubstrate, M.varEc, M.varPh, M.varEquip],
+    steps: [M.cultivoStep1, M.cultivoStep2, M.cultivoStep3],
+    implement: [
+      { icon: 'fan', msg: M.cultivoImpl1 },
+      { icon: 'snow', msg: M.cultivoImpl2 },
+      { icon: 'valve', msg: M.cultivoImpl3 },
+      { icon: 'co2', msg: M.cultivoImpl4 },
+    ],
+    solve: [
+      { icon: 'check', msg: M.cultivoSolve1 },
+      { icon: 'check', msg: M.cultivoSolve2 },
+      { icon: 'check', msg: M.cultivoSolve3 },
+      { icon: 'check', msg: M.cultivoSolve4 },
+    ],
+    stats: [
+      { label: M.cultivoStat1, value: '24.1', unit: '°C' },
+      { label: M.cultivoStat2, value: '68', unit: '%HR' },
+      { label: M.cultivoStat3, value: '1.9', unit: 'mS/cm' },
+    ],
+    figure: M.cultivoFigure,
+    design: { path: DESIGNER_PATHS.grow, cta: M.cultivoDesignCta, note: M.designNote },
   },
   {
     id: 'maduracion',
@@ -306,9 +306,29 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
           <FormattedMessage {...M.contactBody} />
         </p>
         <ContactCta onClick={onContact} />
-        <span className="contact-line">
-          <FormattedMessage {...M.contactLine} values={{ phone: WHATSAPP_DISPLAY }} />
-        </span>
+        <div className="contact-line">
+          <span>
+            <FormattedMessage {...M.contactLocation} />
+          </span>
+          <a className="contact-link" href={whatsappUrl()} target="_blank" rel="noopener noreferrer">
+            <svg className="contact-icon" viewBox="0 0 24 24" aria-hidden>
+              <path d="M4.3 19.7l1-3.6A8.2 8.2 0 1 1 8 18.8z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+              <path
+                d="M9.2 8.1c.2-.4.4-.5.7-.5h.5c.2 0 .3.1.4.3l.7 1.6c.1.2 0 .4-.1.5l-.5.6c-.1.1-.1.3 0 .4.5.9 1.3 1.6 2.2 2.1.1.1.3.1.4 0l.6-.7c.1-.1.3-.2.5-.1l1.6.7c.2.1.3.2.3.4v.5c0 .3-.1.6-.5.8-.5.3-1.4.5-2.7-.1-1.3-.5-2.6-1.8-3.3-3-.7-1.2-.7-2.3-.3-2.9z"
+                fill="currentColor"
+              />
+            </svg>
+            <span className="sr-only">WhatsApp </span>
+            {WHATSAPP_DISPLAY}
+          </a>
+          <a className="contact-link" href={`mailto:${EMAIL}`}>
+            <svg className="contact-icon" viewBox="0 0 24 24" aria-hidden>
+              <rect x="3" y="5.5" width="18" height="13" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M3.8 7.2 12 13l8.2-5.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            </svg>
+            {EMAIL}
+          </a>
+        </div>
         <span className="finale-fine">
           <FormattedMessage {...M.finaleFine} />
         </span>

@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer-core'
 
 const URL = process.env.URL ?? 'http://localhost:5174/'
 const STORY_STOPS = [0, 0.3, 0.55, 0.66, 0.74, 0.82, 0.9, 1.0]
-const SECTIONS = ['cultivo', 'silos', 'maduracion', 'contacto']
+const SECTIONS = ['silos', 'cultivo', 'maduracion', 'contacto']
 const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 810 },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true, deviceScaleFactor: 2 },

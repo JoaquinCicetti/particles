@@ -1,63 +1,65 @@
-import { useEffect, useRef } from 'react'
-import { scrollState } from '../lib/scroll'
-import { smoothstep } from '../lib/math'
+import type { ReactNode } from 'react'
 import { LOCALES, useLocale, type Locale } from '../i18n/I18nProvider'
 
-const LABELS: Record<Locale, string> = { es: 'ES', en: 'EN', pt: 'PT' }
+/** Each language in its own name — the flag's accessible label. */
+const NAMES: Record<Locale, string> = { es: 'Español', en: 'English', pt: 'Português' }
 
 /**
- * Smooth segmented language switcher pinned to the bottom-right. It only shows
- * at the start (hero) and at the finale — fading out of the way while the user
- * is travelling through the scene so it never distracts mid-experience.
- * `inline` renders it static (always visible) inside other chrome.
+ * Round flags, drawn inline rather than as emoji (Windows renders flag emoji
+ * as two bare letters). Spanish flies Argentina's — Growcast is in Rosario —
+ * and Portuguese, Brazil's. Authored on a 24×24 square; the round crop is CSS.
  */
-export default function LangPicker({ inline = false }: { inline?: boolean }) {
-  const { locale, setLocale } = useLocale()
-  const root = useRef<HTMLDivElement>(null)
-  const index = LOCALES.indexOf(locale)
+const FLAGS: Record<Locale, ReactNode> = {
+  es: (
+    <>
+      <rect width="24" height="24" fill="#74acdf" />
+      <rect y="8" width="24" height="8" fill="#fff" />
+      <circle cx="12" cy="12" r="2.6" fill="#f6b40e" />
+    </>
+  ),
+  en: (
+    <>
+      <rect width="24" height="24" fill="#fff" />
+      {[0, 2, 4, 6, 8, 10, 12].map((i) => (
+        <rect key={i} y={(i * 24) / 13} width="24" height={24 / 13} fill="#b22234" />
+      ))}
+      <rect width="11" height={(7 * 24) / 13} fill="#3c3b6e" />
+    </>
+  ),
+  pt: (
+    <>
+      <rect width="24" height="24" fill="#009c3b" />
+      <path d="M12 3.6 22.6 12 12 20.4 1.4 12z" fill="#ffdf00" />
+      <circle cx="12" cy="12" r="4.6" fill="#002776" />
+    </>
+  ),
+}
 
-  useEffect(() => {
-    const el = root.current
-    if (!el || inline) return
-    let raf = 0
-    const tick = () => {
-      const p = scrollState.smooth
-      // visible near the top and again at the finale, hidden in between —
-      // and hidden while reading the solutions (it would sit on the content)
-      // until the closing contact section
-      const story = Math.max(1 - smoothstep(0.02, 0.06, p), smoothstep(0.9, 0.96, p))
-      const past = smoothstep(0.05, 0.4, scrollState.over)
-      const contact = scrollState.section === 'contacto' ? 1 : 0
-      const vis = Math.max(story * (1 - past), contact)
-      el.style.opacity = String(vis)
-      el.style.pointerEvents = vis > 0.5 ? 'auto' : 'none'
-      el.style.visibility = vis < 0.01 ? 'hidden' : 'visible'
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [inline])
+/**
+ * Language switcher: one flag per locale. Lives in the landing header on a
+ * desktop, in the menu sheet on a phone, and in the designer's top bar.
+ */
+export default function LangPicker() {
+  const { locale, setLocale } = useLocale()
 
   return (
-    <div className={`lang${inline ? ' lang-inline' : ''}`} role="group" aria-label="Language" ref={root}>
-      <div className="lang-track">
-        <span
-          className="lang-thumb"
-          aria-hidden
-          style={{ transform: `translateX(${index * 100}%)` }}
-        />
-        {LOCALES.map((l) => (
-          <button
-            key={l}
-            type="button"
-            className={`lang-opt${l === locale ? ' is-active' : ''}`}
-            aria-pressed={l === locale}
-            onClick={() => setLocale(l)}
-          >
-            {LABELS[l]}
-          </button>
-        ))}
-      </div>
+    <div className="lang" role="group" aria-label="Language">
+      {LOCALES.map((l) => (
+        <button
+          key={l}
+          type="button"
+          lang={l}
+          className={`lang-opt${l === locale ? ' is-active' : ''}`}
+          aria-pressed={l === locale}
+          aria-label={NAMES[l]}
+          title={NAMES[l]}
+          onClick={() => setLocale(l)}
+        >
+          <span className="lang-flag" aria-hidden>
+            <svg viewBox="0 0 24 24">{FLAGS[l]}</svg>
+          </span>
+        </button>
+      ))}
     </div>
   )
 }

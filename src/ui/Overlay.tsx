@@ -6,7 +6,7 @@ import { createRandom } from '../lib/random'
 import { M } from '../i18n/messages'
 import SideNav from './SideNav'
 import ContactCta from './ContactCta'
-import NavStepper from './NavStepper'
+import LangPicker from './LangPicker'
 import SensorIcon from './SensorIcon'
 import { onAnchorClick } from './nav'
 
@@ -18,6 +18,7 @@ const METRICS = [
   { icon: 'co2', label: M.mCo2Label, value: '412', unit: 'PPM' },
   { icon: 'ec', label: M.mEcLabel, value: '1.9', unit: 'mS/cm' },
   { icon: 'ph', label: M.mPhLabel, value: '6.3', unit: 'pH' },
+  { icon: 'press', label: M.mPressLabel, value: '1.2', unit: 'bar' },
 ] as const
 // hold the chips back until the particle wall is building behind them — the
 // dense field is what gives the mono type enough contrast to read. Widened
@@ -85,7 +86,7 @@ const { METRIC_DELAY, METRIC_BUBBLE, METRIC_SPARK, METRIC_SPOT } = (() => {
     return xs
   }
 
-  const slots = [0, 0.03, 0.088, 0.108, 0.176].map((v) => v + rnd() * 0.026)
+  const slots = [0, 0.03, 0.088, 0.108, 0.128, 0.176].map((v) => v + rnd() * 0.026)
   const order = shuffle(METRICS.map((_, i) => i))
   const delay = new Array<number>(METRICS.length).fill(0)
   order.forEach((chip, k) => {
@@ -125,10 +126,10 @@ const { METRIC_DELAY, METRIC_BUBBLE, METRIC_SPARK, METRIC_SPOT } = (() => {
    * always ends up reading as one: the last one stacked three chips down the
    * left edge and left the middle empty.
    *
-   * Each draw is a LATIN HYPERCUBE sample — every chip gets its own fifth of
-   * the width and its own fifth of the height, jittered inside that cell.
+   * Each draw is a LATIN HYPERCUBE sample — every chip gets its own column of
+   * the width and its own row of the height, jittered inside that cell.
    * Plain uniform randomness clumps (two chips in one corner and a bare half
-   * is the common draw); stratifying both axes guarantees the five cover the
+   * is the common draw); stratifying both axes guarantees the chips cover the
    * frame however the dice land.
    *
    * Stratification alone is not enough, though: a card is wider than its own
@@ -152,12 +153,12 @@ const { METRIC_DELAY, METRIC_BUBBLE, METRIC_SPARK, METRIC_SPOT } = (() => {
    * below that keeps consecutive rows from eating into each other.
    */
   const MIN_U = PHONE ? 0.85 : 0.3
-  const MIN_V = PHONE ? 0.17 : 0.23
+  const MIN_V = PHONE ? 0.15 : 0.21
   /**
    * How much of its own cell a point may wander, per axis. The vertical figure
-   * is what guarantees phone spacing: there, consecutive rows are a fifth of
-   * the band apart and the jitter can only eat 0.12 of that, which keeps every
-   * gap above MIN_V by construction rather than by rejection.
+   * is what guarantees phone spacing: there, consecutive rows are a sixth of
+   * the band apart (0.167) and the jitter can only eat a tenth of that, which
+   * keeps every gap at MIN_V or above by construction rather than by rejection.
    */
   const JIT_U = 0.76
   const JIT_V = PHONE ? 0.1 : 0.76
@@ -317,6 +318,7 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
           <span className="wordmark">GROWCAST</span>
         </a>
         <div className="nav-right">
+          <LangPicker />
           <ContactCta variant="nav" onClick={onContact} />
           <button
             type="button"
@@ -442,12 +444,6 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
       </div>
 
       <SideNav />
-
-      {/* phone only — the side index is hidden there, and this takes over the
-          bottom-right corner the language switcher used to hold */}
-      <div className="step-float">
-        <NavStepper />
-      </div>
 
       <div className="rail" aria-hidden>
         <div className="rail-track">

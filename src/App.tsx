@@ -3,7 +3,6 @@ import { Canvas } from '@react-three/fiber'
 import Scene from './scene/Scene'
 import Overlay from './ui/Overlay'
 import Loader from './ui/Loader'
-import LangPicker from './ui/LangPicker'
 import Solutions from './ui/Solutions'
 import ContactDialog from './ui/ContactDialog'
 import MenuSheet from './ui/MenuSheet'
@@ -44,7 +43,6 @@ function App() {
         </Canvas>
       </div>
       <Overlay onContact={openContact} onMenu={openMenu} menuOpen={menuOpen} />
-      <LangPicker />
       <div className="scroll-track" ref={track} aria-hidden />
       <Solutions onContact={openContact} />
       <ContactDialog open={contactOpen} onClose={closeContact} />

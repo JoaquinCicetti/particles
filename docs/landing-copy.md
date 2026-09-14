@@ -23,7 +23,9 @@ Registro: **usted** ("su teléfono", "su mano"), como el manual.
 
 ## Rubros en la landing
 
-Solo tres (ver memoria del proyecto): §5.2 → `cultivo`, §5.1 → `silos`, §5.5 → `maduracion`.
+Solo tres (ver memoria del proyecto), en este orden: §5.1 → `silos`, §5.2 → `cultivo`, §5.5 → `maduracion`.
+
+Navegación: INICIO · SILOS · CULTIVO/INDOOR · MADURACIÓN · CONTACTO. "CULTIVO/INDOOR" y el orden son pedido de Joaquín (2026-09-14).
 §5.3 riego, §5.4 láctea y §5.6 laboratorios **no** van.
 
 ---
@@ -41,13 +43,13 @@ Solo tres (ver memoria del proyecto): §5.2 → `cultivo`, §5.1 → `silos`, §
 | sensors.body | Temperatura, humedad, CO₂, conductividad eléctrica, pH, presión, estado de equipos: cada rubro requiere medir variables distintas. | §3.1 |
 | data.kicker | ANALIZAMOS | §3.3 |
 | data.title | El dato se convierte en herramienta. | §3.3 última frase |
-| data.body | Condiciones actuales, gráficos históricos, tendencias, indicadores y alertas, desde un mismo lugar. | §3.3 lista, §3.2 |
+| data.body | Condiciones actuales, gráficos históricos, tendencias, indicadores, alertas y análisis de datos personalizado, desde un mismo lugar. | §3.3 lista, §3.2; "análisis de datos personalizado" es pedido de Joaquín (2026-09-14), apoyado en "análisis de información" de §2 |
 | converge.kicker | CONTROLAMOS Y REGISTRAMOS | §3.4, §3.5 |
 | converge.title | Todo converge en Growcast. | §3.2 "centralizar datos" — elegido por Joaquín, acompaña el morph del logo |
 | converge.body | Cuando la instalación lo permite, Growcast acciona equipos de forma automática o remota. Todo queda registrado: mediciones, alertas, estados de equipos y eventos. | §3.4, §3.5 |
 | finale.fine | GROWCAST © 2026 — MONITOREO, CONTROL Y TRAZABILIDAD | §2, §4.6 — elegido por Joaquín |
 
-Chips flotantes: TEMPERATURA · HUMEDAD · CO₂ · CONDUCTIVIDAD · pH (§3.1). Valores ilustrativos.
+Chips flotantes: TEMPERATURA · HUMEDAD · CO₂ · CONDUCTIVIDAD · pH · PRESIÓN (§3.1). Valores ilustrativos.
 
 ## Soluciones — intro
 
@@ -58,9 +60,9 @@ Chips flotantes: TEMPERATURA · HUMEDAD · CO₂ · CONDUCTIVIDAD · pH (§3.1).
 | Títulos de bloque | APLICACIONES · QUÉ MIDE · QUÉ CONTROLA · QUÉ PODEMOS RESOLVER · CÓMO ACTÚA GROWCAST | encabezados de §5 |
 | Pasos | Medimos · Analizamos y alertamos · Controlamos y registramos | §3 |
 
-## 01 — Producción bajo cubierta o salas (§5.2)
+## 02 — Producción bajo cubierta o salas (§5.2)
 
-- **Kicker:** 01 / BAJO CUBIERTA Y SALAS
+- **Kicker:** 02 / BAJO CUBIERTA Y SALAS
 - **Título:** Cada sala, en una misma plataforma. — "desde una misma plataforma"
 - **Lede:** Temperatura, humedad, CO₂, ventilación, riego, sustrato, agua y nutrición cambian permanentemente. Pequeños desvíos sostenidos en el tiempo pueden impactar en calidad, productividad, sanidad o eficiencia. — Contexto
 - **Aplicaciones:** Frutas y verduras, hongos, hidroponía, flores ornamentales, viveros, fitomejoramiento, procesos biotecnológicos y salas con ambiente controlado.
@@ -73,9 +75,9 @@ Chips flotantes: TEMPERATURA · HUMEDAD · CO₂ · CONDUCTIVIDAD · pH (§3.1).
   3. Growcast confecciona registros históricos por ciclo, sala o lote y, cuando la instalación lo permite, automatiza tareas repetitivas.
 - **Esquema:** Sensores por sala → tablero Growcast → riego y ventilación
 
-## 02 — Acopios de granos y plantas (§5.1)
+## 01 — Acopios de granos y plantas (§5.1)
 
-- **Kicker:** 02 / ACOPIOS DE GRANOS
+- **Kicker:** 01 / ACOPIOS DE GRANOS
 - **Título:** Cada silo, desde su propia mano. — Contexto
 - **Lede:** La temperatura, la humedad, el CO₂, las condiciones exteriores y el uso de la aireación influyen directamente en la calidad del producto almacenado y en el consumo energético. — Contexto
 - **Aplicaciones:** Acopios de granos, fábricas de alimentos balanceados, semilleros, molinos harineros, acondicionadoras y malterías. — título §5.1
@@ -125,4 +127,5 @@ una zona, como una sala en la app: una sala de cultivo, un silo (o celda) o una 
 |---|---|---|
 | contact.title | Hablemos de su operación. | — |
 | contact.body | ¿Existe algún proceso importante que hoy se resuelve "a ojo", sin datos? Cada implementación comienza entendiendo la operación. | §6 |
+| contact.location | ROSARIO, SANTA FE, ARGENTINA — seguido de WhatsApp (ícono + número, enlace wa.me) y ventas@growcast.io (mailto) | datos de contacto reales |
 | dialog.sub | Le respondemos por WhatsApp. Déjenos su nombre y un mensaje y abrimos la conversación. | canal de contacto real (wa.me) |

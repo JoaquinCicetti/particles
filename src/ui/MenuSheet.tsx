@@ -1,13 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type MouseEvent } from 'react'
 import { useIntl } from 'react-intl'
 import { M } from '../i18n/messages'
 import LangPicker from './LangPicker'
-import { NAV, onAnchorClick } from './nav'
+import { HOME, NAV, onAnchorClick } from './nav'
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-/** Mobile menu: same shell as the contact dialog, one large link per section,
- *  with the language switcher in its footer. */
+/** Mobile menu: same shell as the contact dialog. Home sits on its own above
+ *  one large link per section, and the language flags live in its footer. */
 export default function MenuSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const intl = useIntl()
   const sheet = useRef<HTMLDivElement>(null)
@@ -54,6 +54,11 @@ export default function MenuSheet({ open, onClose }: { open: boolean; onClose: (
 
   if (!open) return null
 
+  const go = (e: MouseEvent<HTMLAnchorElement>) => {
+    onClose()
+    onAnchorClick(e)
+  }
+
   return (
     <div className="dialog-backdrop" onClick={onClose}>
       <div
@@ -68,27 +73,22 @@ export default function MenuSheet({ open, onClose }: { open: boolean; onClose: (
           ×
         </button>
         <span className="kicker">{intl.formatMessage(M.navBrand)}</span>
+        <a ref={firstRef} href={`#${HOME.id}`} className="sheet-home" onClick={go}>
+          <svg viewBox="0 0 16 16" aria-hidden>
+            <path d="M3.6 10.2 L8 5.8 L12.4 10.2" />
+          </svg>
+          {intl.formatMessage(HOME.msg)}
+        </a>
         <nav className="sheet-list">
           {NAV.map((n, i) => (
-            <a
-              key={n.id}
-              ref={i === 0 ? firstRef : undefined}
-              href={`#${n.id}`}
-              className="sheet-link"
-              onClick={(e) => {
-                onClose()
-                onAnchorClick(e)
-              }}
-            >
+            <a key={n.id} href={`#${n.id}`} className="sheet-link" onClick={go}>
               <span className="sheet-num">0{i + 1}</span>
               {intl.formatMessage(n.msg)}
             </a>
           ))}
         </nav>
-        {/* the floating switcher is a phone-only casualty of giving that corner
-            to the stepper, so its home on a phone is here */}
         <div className="sheet-lang">
-          <LangPicker inline />
+          <LangPicker />
         </div>
       </div>
     </div>

@@ -37,7 +37,7 @@ export const M = defineMessages({
   dataBody: {
     id: 'data.body',
     defaultMessage:
-      'Condiciones actuales, gráficos históricos, tendencias, indicadores y alertas, desde un mismo lugar.',
+      'Condiciones actuales, gráficos históricos, tendencias, indicadores, alertas y análisis de datos personalizado, desde un mismo lugar.',
   },
 
   convergeKicker: { id: 'converge.kicker', defaultMessage: 'CONTROLAMOS Y REGISTRAMOS' },
@@ -57,6 +57,7 @@ export const M = defineMessages({
   mCo2Label: { id: 'metric.co2.label', defaultMessage: 'CO₂' },
   mEcLabel: { id: 'metric.ec.label', defaultMessage: 'CONDUCTIVIDAD' },
   mPhLabel: { id: 'metric.ph.label', defaultMessage: 'pH' },
+  mPressLabel: { id: 'metric.press.label', defaultMessage: 'PRESIÓN' },
 
   // scroll phase ticker — the manual's five stages (§3)
   phase1: { id: 'phase.1', defaultMessage: '01 / LA OPERACIÓN' },
@@ -86,11 +87,8 @@ export const M = defineMessages({
 
   // ── solutions (in-flow sections after the finale) ─────────────
   navMenu: { id: 'nav.menu', defaultMessage: 'Menú' },
-  navSteps: { id: 'nav.steps', defaultMessage: 'Navegar por secciones' },
-  navPrev: { id: 'nav.prev', defaultMessage: 'Sección anterior' },
-  navNext: { id: 'nav.next', defaultMessage: 'Sección siguiente' },
   navInicio: { id: 'nav.inicio', defaultMessage: 'INICIO' },
-  navCultivo: { id: 'nav.cultivo', defaultMessage: 'CULTIVO' },
+  navCultivo: { id: 'nav.cultivo', defaultMessage: 'CULTIVO/INDOOR' },
   navSilos: { id: 'nav.silos', defaultMessage: 'SILOS' },
   navMaduracion: { id: 'nav.maduracion', defaultMessage: 'MADURACIÓN' },
   navContacto: { id: 'nav.contacto', defaultMessage: 'CONTACTO' },
@@ -101,8 +99,8 @@ export const M = defineMessages({
   solSolveTitle: { id: 'sol.solveTitle', defaultMessage: 'QUÉ PODEMOS RESOLVER' },
   solFigureTag: { id: 'sol.figureTag', defaultMessage: 'ESQUEMA DE CONEXIÓN' },
 
-  // 01 — producción bajo cubierta o salas (manual §5.2)
-  cultivoKicker: { id: 'sol.cultivo.kicker', defaultMessage: '01 / BAJO CUBIERTA Y SALAS' },
+  // 02 — producción bajo cubierta o salas (manual §5.2)
+  cultivoKicker: { id: 'sol.cultivo.kicker', defaultMessage: '02 / BAJO CUBIERTA Y SALAS' },
   cultivoTitle: { id: 'sol.cultivo.title', defaultMessage: 'Cada sala, en una misma plataforma.' },
   cultivoLede: {
     id: 'sol.cultivo.lede',
@@ -135,8 +133,8 @@ export const M = defineMessages({
   cultivoStat3: { id: 'sol.cultivo.stat.3', defaultMessage: 'EC' },
   cultivoFigure: { id: 'sol.cultivo.figure', defaultMessage: 'Sensores por sala → tablero Growcast → riego y ventilación' },
 
-  // 02 — acopios de granos y plantas (manual §5.1)
-  silosKicker: { id: 'sol.silos.kicker', defaultMessage: '02 / ACOPIOS DE GRANOS' },
+  // 01 — acopios de granos y plantas (manual §5.1)
+  silosKicker: { id: 'sol.silos.kicker', defaultMessage: '01 / ACOPIOS DE GRANOS' },
   silosTitle: { id: 'sol.silos.title', defaultMessage: 'Cada silo, desde su propia mano.' },
   silosLede: {
     id: 'sol.silos.lede',
@@ -185,7 +183,7 @@ export const M = defineMessages({
     defaultMessage:
       '¿Existe algún proceso importante que hoy se resuelve "a ojo", sin datos? Cada implementación comienza entendiendo la operación.',
   },
-  contactLine: { id: 'contact.line', defaultMessage: 'ROSARIO, SANTA FE · WHATSAPP {phone}' },
+  contactLocation: { id: 'contact.location', defaultMessage: 'ROSARIO, SANTA FE, ARGENTINA' },
 
   // solutions — intro, applications, measured variables, how Growcast acts
   solutionsKicker: { id: 'solutions.kicker', defaultMessage: 'SOLUCIONES' },
