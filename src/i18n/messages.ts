@@ -92,6 +92,31 @@ export const M = defineMessages({
   navSilos: { id: 'nav.silos', defaultMessage: 'SILOS' },
   navMaduracion: { id: 'nav.maduracion', defaultMessage: 'MADURACIÓN' },
   navContacto: { id: 'nav.contacto', defaultMessage: 'CONTACTO' },
+  navApp: { id: 'nav.app', defaultMessage: 'Ingresar a la app' },
+
+  // ── legal: link labels and page chrome; the documents themselves are
+  //    Spanish-only copy in src/legal/content.ts ─────────────────────
+  legalNavAria: { id: 'legal.navAria', defaultMessage: 'Legales' },
+  legalTerms: { id: 'legal.terms', defaultMessage: 'Términos y condiciones' },
+  legalPrivacy: { id: 'legal.privacy', defaultMessage: 'Política de privacidad' },
+  legalRegret: { id: 'legal.regret', defaultMessage: 'Botón de arrepentimiento' },
+  legalBack: { id: 'legal.back', defaultMessage: 'Volver al inicio' },
+  legalSpanishOnly: { id: 'legal.spanishOnly', defaultMessage: 'Documento disponible solo en español.' },
+  regretFormTitle: { id: 'regret.formTitle', defaultMessage: 'Solicitar la revocación' },
+  regretFormSub: {
+    id: 'regret.formSub',
+    defaultMessage: 'Complete sus datos y se abrirá su correo con la solicitud lista para enviar a {email}.',
+  },
+  regretName: { id: 'regret.name', defaultMessage: 'Nombre y apellido' },
+  regretEmail: { id: 'regret.email', defaultMessage: 'Email' },
+  regretPhone: { id: 'regret.phone', defaultMessage: 'Teléfono' },
+  regretInvoice: { id: 'regret.invoice', defaultMessage: 'N.º de factura o de serie del producto' },
+  regretRefund: { id: 'regret.refund', defaultMessage: 'Reintegro' },
+  regretRefundBank: { id: 'regret.refundBank', defaultMessage: 'Devolución a mi cuenta bancaria' },
+  regretRefundVoucher: { id: 'regret.refundVoucher', defaultMessage: 'Voucher por el valor del reembolso' },
+  regretBank: { id: 'regret.bank', defaultMessage: 'CBU o alias de la cuenta' },
+  regretNotes: { id: 'regret.notes', defaultMessage: 'Comentarios (opcional)' },
+  regretSend: { id: 'regret.send', defaultMessage: 'Enviar solicitud por email' },
   finaleMore: { id: 'finale.more', defaultMessage: 'VER SOLUCIONES' },
 
   // block headings — the manual's own §5 headings

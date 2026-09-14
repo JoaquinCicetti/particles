@@ -4,6 +4,7 @@ import type { MessageDescriptor } from 'react-intl'
 import { M } from '../i18n/messages'
 import { setSection } from '../lib/scroll'
 import { EMAIL, WHATSAPP_FOOTER, WHATSAPP_FOOTER_DISPLAY, whatsappUrl } from '../lib/contact'
+import LegalLinks from './LegalLinks'
 import { DESIGNER_PATHS, loadDesigner, onNavClick } from '../lib/route'
 import ContactCta from './ContactCta'
 import SiloFigure from './SiloFigure'
@@ -329,6 +330,7 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
             {EMAIL}
           </a>
         </div>
+        <LegalLinks />
         <span className="finale-fine">
           <FormattedMessage {...M.finaleFine} />
         </span>
