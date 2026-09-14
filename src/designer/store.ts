@@ -1,12 +1,16 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware'
+import { designerKindAt } from '../lib/route'
 import { createDesign, createItem, newId } from './model/factory'
 import { clampAll, clampItem, findFreeSpot, snap } from './model/geometry'
+import { KINDS } from './model/kinds'
 import {
+  DESIGN_KINDS,
   parseDesign,
   type CameraView,
   type Contact,
   type Design,
+  type DesignKind,
   type ExtraOutput,
   type ExtraOutputKind,
   type Item,
@@ -107,7 +111,12 @@ export const useUi = create<{
 // ── designs ──────────────────────────────────────────────────────
 
 type State = {
+  /** which designer the current route shows */
+  kind: DesignKind
+  /** every design, of every kind; each designer lists only its own */
   tabs: Tab[]
+  /** the open tab per designer — `activeId` mirrors the current kind's */
+  activeIds: Record<DesignKind, string>
   activeId: string
   viewMode: ViewMode
   selectedId: string | null
@@ -115,6 +124,7 @@ type State = {
   /** bumped to ask the views to re-frame the room */
   frameNonce: number
 
+  setKind: (kind: DesignKind) => void
   newTab: (name: string) => void
   importDesign: (d: Design) => void
   duplicateTab: (id: string, name: string) => void
@@ -146,16 +156,36 @@ type State = {
   frame: () => void
 }
 
-export const activeTab = (s: Pick<State, 'tabs' | 'activeId'>) => s.tabs.find((t) => t.id === s.activeId) ?? s.tabs[0]
+export const activeTab = (s: Pick<State, 'tabs' | 'activeId' | 'kind'>) =>
+  s.tabs.find((t) => t.id === s.activeId) ?? s.tabs.find((t) => t.design.roomKind === s.kind) ?? s.tabs[0]
 
 const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 const now = () => new Date().toISOString()
-const firstTab = (): Tab => ({ id: newId(), design: createDesign('Sala 1') })
+const firstTab = (kind: DesignKind): Tab => ({ id: newId(), design: createDesign(kind, KINDS[kind].firstName) })
+
+/** Every designer always has a tab to show, and a valid open one. */
+function withEveryKind(tabs: Tab[], wanted: Partial<Record<DesignKind, unknown>>) {
+  const all = [...tabs]
+  const activeIds = {} as Record<DesignKind, string>
+  for (const k of DESIGN_KINDS) {
+    let own = all.filter((t) => t.design.roomKind === k)
+    if (!own.length) {
+      const t = firstTab(k)
+      all.push(t)
+      own = [t]
+    }
+    activeIds[k] = own.find((t) => t.id === wanted[k])?.id ?? own[0].id
+  }
+  return { tabs: all, activeIds }
+}
+
+const initialKind: DesignKind =
+  (typeof location !== 'undefined' && designerKindAt(location.pathname.replace(/\/+$/, ''))) || 'grow'
 
 export const useDesigner = create<State>()(
   persist(
     (set, get) => {
-      const initial = firstTab()
+      const initial = withEveryKind([], {})
 
       /** apply `fn` to the active design; `record` pushes an undo snapshot */
       const commit = (fn: (d: Design) => Design, record = true) =>
@@ -175,20 +205,30 @@ export const useDesigner = create<State>()(
 
       const findItem = (id: string) => activeTab(get()).design.items.find((i) => i.id === id)
 
+      /** a tab of another kind opens in its own designer, not in this one */
+      const focusTab = (s: State, tab: Tab, extra: Partial<State> = {}): Partial<State> => {
+        const k = tab.design.roomKind
+        const activeIds = { ...s.activeIds, [k]: tab.id }
+        return { ...extra, activeIds, ...(k === s.kind ? { activeId: tab.id, selectedId: null } : {}) }
+      }
+
       const openTab = (design: Design) => {
         const tab = { id: newId(), design }
-        set((s) => ({ tabs: [...s.tabs, tab], activeId: tab.id, selectedId: null }))
+        set((s) => focusTab(s, tab, { tabs: [...s.tabs, tab] }))
       }
 
       return {
-        tabs: [initial],
-        activeId: initial.id,
+        kind: initialKind,
+        tabs: initial.tabs,
+        activeIds: initial.activeIds,
+        activeId: initial.activeIds[initialKind],
         viewMode: 'split',
         selectedId: null,
         history: {},
         frameNonce: 0,
 
-        newTab: (name) => openTab(createDesign(name)),
+        setKind: (kind) => set((s) => (s.kind === kind ? s : { kind, activeId: s.activeIds[kind], selectedId: null })),
+        newTab: (name) => openTab(createDesign(get().kind, name)),
         importDesign: (d) => openTab(d),
         duplicateTab: (id, name) =>
           set((s) => {
@@ -196,8 +236,7 @@ export const useDesigner = create<State>()(
             if (i < 0) return s
             const t = now()
             const copy: Tab = { id: newId(), design: { ...structuredClone(s.tabs[i].design), name, createdAt: t, updatedAt: t } }
-            const tabs = [...s.tabs.slice(0, i + 1), copy, ...s.tabs.slice(i + 1)]
-            return { tabs, activeId: copy.id, selectedId: null }
+            return focusTab(s, copy, { tabs: [...s.tabs.slice(0, i + 1), copy, ...s.tabs.slice(i + 1)] })
           }),
         renameTab: (id, name) => {
           const n = name.trim().slice(0, 80)
@@ -210,29 +249,46 @@ export const useDesigner = create<State>()(
         },
         closeTab: (id) =>
           set((s) => {
-            const i = s.tabs.findIndex((t) => t.id === id)
-            if (i < 0) return s
-            const tabs = s.tabs.filter((t) => t.id !== id)
-            if (!tabs.length) tabs.push(firstTab())
-            const wasActive = s.activeId === id
+            const closing = s.tabs.find((t) => t.id === id)
+            if (!closing) return s
+            const k = closing.design.roomKind
+            const siblingsBefore = s.tabs.filter((t) => t.design.roomKind === k)
+            const at = siblingsBefore.findIndex((t) => t.id === id)
+            let tabs = s.tabs.filter((t) => t.id !== id)
+            let siblings = siblingsBefore.filter((t) => t.id !== id)
+            if (!siblings.length) {
+              const t = firstTab(k)
+              tabs = [...tabs, t]
+              siblings = [t]
+            }
             const history = { ...s.history }
             delete history[id]
+            const wasActive = s.activeIds[k] === id
+            const activeIds = { ...s.activeIds, [k]: wasActive ? siblings[Math.min(at, siblings.length - 1)].id : s.activeIds[k] }
             return {
               tabs,
               history,
-              activeId: wasActive ? tabs[Math.min(i, tabs.length - 1)].id : s.activeId,
-              selectedId: wasActive ? null : s.selectedId,
+              activeIds,
+              activeId: activeIds[s.kind],
+              selectedId: wasActive && k === s.kind ? null : s.selectedId,
             }
           }),
-        setActive: (id) => set((s) => (s.activeId === id ? s : { activeId: id, selectedId: null })),
+        setActive: (id) =>
+          set((s) => {
+            const tab = s.tabs.find((t) => t.id === id)
+            return !tab || s.activeId === id ? s : focusTab(s, tab)
+          }),
 
         setName: (name) => get().renameTab(get().activeId, name),
         updateRoom: (patch) => commit((d) => (sameJson({ ...d.room, ...patch }, d.room) ? d : clampAll({ ...d, room: { ...d.room, ...patch } }))),
 
-        addItem: (type, kind) => {
+        addItem: (type, sensorKind) => {
           const d = activeTab(get()).design
-          const probe = createItem(type, d.room, kind)
-          const item = clampItem({ ...probe, ...findFreeSpot(d, probe) }, d.room)
+          const probe = createItem(type, d.room, sensorKind)
+          // some designers have a natural place for things — a silo's
+          // extractor on its roof — the rest take the nearest free spot
+          const placed = KINDS[d.roomKind].place?.(type, sensorKind, d.room) ?? {}
+          const item = clampItem({ ...probe, ...findFreeSpot(d, probe), ...placed }, d.room, d.roomKind)
           commit((dd) => ({ ...dd, items: [...dd.items, item] }))
           set({ selectedId: item.id })
         },
@@ -241,7 +297,7 @@ export const useDesigner = create<State>()(
             let changed = false
             const items = d.items.map((it) => {
               if (it.id !== id) return it
-              const next = clampItem({ ...it, ...patch }, d.room)
+              const next = clampItem({ ...it, ...patch }, d.room, d.roomKind)
               if (sameJson(next, it)) return it
               changed = true
               return next
@@ -255,9 +311,9 @@ export const useDesigner = create<State>()(
         duplicateItem: (id) => {
           const src = findItem(id)
           if (!src) return
-          const room = activeTab(get()).design.room
-          const copy = clampItem({ ...src, id: newId(), x: snap(src.x + 0.5), z: snap(src.z + 0.5) }, room)
-          commit((d) => ({ ...d, items: [...d.items, copy] }))
+          const d = activeTab(get()).design
+          const copy = clampItem({ ...src, id: newId(), x: snap(src.x + 0.5), z: snap(src.z + 0.5) }, d.room, d.roomKind)
+          commit((dd) => ({ ...dd, items: [...dd.items, copy] }))
           set({ selectedId: copy.id })
         },
         rotateItem: (id, dir) => {
@@ -332,11 +388,11 @@ export const useDesigner = create<State>()(
       name: STORAGE_KEY,
       version: 1,
       storage: createJSONStorage(() => throttledStorage),
-      partialize: (s) => ({ tabs: s.tabs, activeId: s.activeId, viewMode: s.viewMode }),
+      partialize: (s) => ({ tabs: s.tabs, activeIds: s.activeIds, viewMode: s.viewMode }),
       // every stored tab goes through the same validation as an imported
       // file; a corrupt one is dropped rather than loaded half-way
       merge: (persisted, current) => {
-        const p = (persisted ?? {}) as { tabs?: unknown; activeId?: unknown; viewMode?: unknown }
+        const p = (persisted ?? {}) as { tabs?: unknown; activeIds?: unknown; activeId?: unknown; viewMode?: unknown }
         const tabs: Tab[] = []
         if (Array.isArray(p.tabs)) {
           for (const t of p.tabs as Array<{ id?: unknown; design?: unknown }>) {
@@ -347,9 +403,14 @@ export const useDesigner = create<State>()(
           }
         }
         if (!tabs.length) return current
-        const activeId = tabs.some((t) => t.id === p.activeId) ? (p.activeId as string) : tabs[0].id
+        // saves from before the split held grow rooms and a single `activeId`
+        const wanted =
+          p.activeIds && typeof p.activeIds === 'object'
+            ? (p.activeIds as Partial<Record<DesignKind, unknown>>)
+            : { grow: p.activeId }
+        const all = withEveryKind(tabs, wanted)
         const viewMode = p.viewMode === '3d' || p.viewMode === 'plan' || p.viewMode === 'split' ? p.viewMode : current.viewMode
-        return { ...current, tabs, activeId, viewMode }
+        return { ...current, ...all, activeId: all.activeIds[current.kind], viewMode }
       },
     },
   ),
@@ -357,3 +418,4 @@ export const useDesigner = create<State>()(
 
 export const useActiveDesign = () => useDesigner((s) => activeTab(s).design)
 export const getActiveDesign = () => activeTab(useDesigner.getState()).design
+export const useKind = () => useDesigner((s) => s.kind)

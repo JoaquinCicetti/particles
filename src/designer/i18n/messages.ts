@@ -3,11 +3,17 @@ import { defineMessages } from 'react-intl'
 /**
  * Designer strings. Like the landing catalog, `defaultMessage` is the Spanish
  * source; en/pt live in ./en.json and ./pt.json. Kept apart from the landing
- * messages so they only ship with the lazy designer chunk.
+ * messages so they only ship with the lazy designer chunk. Strings that differ
+ * between the three designers carry a `.silo` / `.curing` variant and are
+ * picked through `KINDS[kind].text` (model/kinds.ts).
  */
 export const D = defineMessages({
   kicker: { id: 'dz.kicker', defaultMessage: 'Diseñador de salas' },
+  kickerSilo: { id: 'dz.kicker.silo', defaultMessage: 'Diseñador de silos' },
+  kickerCuring: { id: 'dz.kicker.curing', defaultMessage: 'Diseñador de cámaras de maduración' },
   docTitle: { id: 'dz.docTitle', defaultMessage: 'Diseñador de salas de cultivo — Growcast Agro' },
+  docTitleSilo: { id: 'dz.docTitle.silo', defaultMessage: 'Diseñador de silos — Growcast Agro' },
+  docTitleCuring: { id: 'dz.docTitle.curing', defaultMessage: 'Diseñador de cámaras de maduración — Growcast Agro' },
   backHome: { id: 'dz.backHome', defaultMessage: 'Volver al inicio de Growcast Agro' },
   undo: { id: 'dz.undo', defaultMessage: 'Deshacer' },
   redo: { id: 'dz.redo', defaultMessage: 'Rehacer' },
@@ -27,14 +33,22 @@ export const D = defineMessages({
   remove: { id: 'dz.remove', defaultMessage: 'Quitar' },
   empty: { id: 'dz.empty', defaultMessage: 'Todavía no agregaste ninguno.' },
 
+  // switch between the three designers
+  kindNavAria: { id: 'dz.kindNav.aria', defaultMessage: 'Diseñadores' },
+  kindNavGrow: { id: 'dz.kindNav.grow', defaultMessage: 'Salas' },
+  kindNavSilo: { id: 'dz.kindNav.silo', defaultMessage: 'Silos' },
+  kindNavCuring: { id: 'dz.kindNav.curing', defaultMessage: 'Maduración' },
+
   // tabs
-  tabsAria: { id: 'dz.tabs', defaultMessage: 'Salas abiertas' },
-  tabNew: { id: 'dz.tab.new', defaultMessage: 'Nueva sala' },
+  tabsAria: { id: 'dz.tabs', defaultMessage: 'Diseños abiertos' },
+  tabNew: { id: 'dz.tab.new', defaultMessage: 'Nuevo diseño' },
   tabRename: { id: 'dz.tab.rename', defaultMessage: 'Renombrar' },
   tabDuplicate: { id: 'dz.tab.duplicate', defaultMessage: 'Duplicar' },
   tabClose: { id: 'dz.tab.close', defaultMessage: 'Cerrar' },
-  tabMenu: { id: 'dz.tab.menu', defaultMessage: 'Opciones de la sala' },
+  tabMenu: { id: 'dz.tab.menu', defaultMessage: 'Opciones del diseño' },
   defaultName: { id: 'dz.tab.defaultName', defaultMessage: 'Sala {n}' },
+  defaultNameSilo: { id: 'dz.tab.defaultName.silo', defaultMessage: 'Silo {n}' },
+  defaultNameCuring: { id: 'dz.tab.defaultName.curing', defaultMessage: 'Cámara {n}' },
   copyName: { id: 'dz.tab.copyName', defaultMessage: '{name} (copia)' },
   confirmCloseTitle: { id: 'dz.tab.confirmTitle', defaultMessage: '¿Cerrar «{name}»?' },
   confirmCloseBody: {
@@ -42,11 +56,11 @@ export const D = defineMessages({
     defaultMessage:
       'El diseño tiene {count, plural, one {# elemento} other {# elementos}}. Si no lo exportaste, se pierde.',
   },
-  confirmCloseOk: { id: 'dz.tab.confirmOk', defaultMessage: 'Cerrar sala' },
+  confirmCloseOk: { id: 'dz.tab.confirmOk', defaultMessage: 'Cerrar diseño' },
 
   // object palette (one filterable list, no steps)
   addTitle: { id: 'dz.add.title', defaultMessage: 'Agregar al diseño' },
-  inRoom: { id: 'dz.add.inRoom', defaultMessage: 'En esta sala' },
+  inRoom: { id: 'dz.add.inRoom', defaultMessage: 'En el diseño' },
   searchPh: { id: 'dz.add.searchPh', defaultMessage: 'Buscar…' },
   noMatches: { id: 'dz.add.noMatches', defaultMessage: 'Nada coincide con la búsqueda.' },
   filterAll: { id: 'dz.filter.all', defaultMessage: 'Todo' },
@@ -61,9 +75,16 @@ export const D = defineMessages({
   finishTitle: { id: 'dz.finish.title', defaultMessage: 'Revisar y enviar' },
   downloadBtn: { id: 'dz.finish.download', defaultMessage: 'Descargar .json' },
   roomLine: { id: 'dz.finish.roomLine', defaultMessage: '{w} × {l} × {h} m · {area} m²' },
+  roomLineRound: { id: 'dz.finish.roomLineRound', defaultMessage: 'Ø {w} × {h} m · {area} m²' },
 
   // remaining step copy
   roomTitle: { id: 'dz.step.1', defaultMessage: 'Sala' },
+  roomTitleSilo: { id: 'dz.room.title.silo', defaultMessage: 'Silo o celda' },
+  // a silo zone is round; the silo designer also covers rectangular storage cells
+  shapeAria: { id: 'dz.shape.aria', defaultMessage: 'Forma' },
+  shapeRound: { id: 'dz.shape.round', defaultMessage: 'Silo' },
+  shapeBox: { id: 'dz.shape.box', defaultMessage: 'Celda / galpón' },
+  roomTitleCuring: { id: 'dz.room.title.curing', defaultMessage: 'Cámara' },
   extrasTitle: { id: 'dz.step.5', defaultMessage: 'Salidas extra' },
   contactTitle: { id: 'dz.step.6', defaultMessage: 'Contacto' },
   roomHint: { id: 'dz.step.1.hint', defaultMessage: 'Medidas interiores, en metros.' },
@@ -75,6 +96,7 @@ export const D = defineMessages({
     id: 'dz.step.5.hint',
     defaultMessage: 'Salidas que no se dibujan: bombas, extractores, electroválvulas…',
   },
+  extrasHintOther: { id: 'dz.step.5.hint.other', defaultMessage: 'Salidas que no se dibujan en el diseño.' },
   contactHint: { id: 'dz.step.6.hint', defaultMessage: 'Opcional. Se guarda dentro del archivo.' },
 
   // room
@@ -94,6 +116,15 @@ export const D = defineMessages({
   typeFan: { id: 'dz.type.fan', defaultMessage: 'Ventilador' },
   typeHumidifier: { id: 'dz.type.humidifier', defaultMessage: 'Humidificador' },
   typeSensor: { id: 'dz.type.sensor', defaultMessage: 'Sensor' },
+  typeAerator: { id: 'dz.type.aerator', defaultMessage: 'Aireador' },
+  typeExtractor: { id: 'dz.type.extractor', defaultMessage: 'Extractor' },
+  typeCheeseRack: { id: 'dz.type.cheeseRack', defaultMessage: 'Estantería para quesos' },
+  typeHanger: { id: 'dz.type.hanger', defaultMessage: 'Colgadero para chacinados' },
+  typePallet: { id: 'dz.type.pallet', defaultMessage: 'Pallet / estiba' },
+  typeTrolley: { id: 'dz.type.trolley', defaultMessage: 'Carro móvil' },
+  typeCooler: { id: 'dz.type.cooler', defaultMessage: 'Equipo de frío' },
+  typeHeater: { id: 'dz.type.heater', defaultMessage: 'Calefactor' },
+  typeDehumidifier: { id: 'dz.type.dehumidifier', defaultMessage: 'Deshumidificador' },
 
   // sensor kinds
   kindAir: { id: 'dz.kind.air', defaultMessage: 'Temperatura y humedad' },
@@ -101,6 +132,8 @@ export const D = defineMessages({
   kindSubstrate: { id: 'dz.kind.substrate', defaultMessage: 'Humedad / EC de sustrato' },
   kindWater: { id: 'dz.kind.water', defaultMessage: 'pH / EC de agua' },
   kindPar: { id: 'dz.kind.par', defaultMessage: 'Luz (PAR)' },
+  kindInterior: { id: 'dz.kind.interior', defaultMessage: 'Temperatura y humedad interior' },
+  kindOutdoor: { id: 'dz.kind.outdoor', defaultMessage: 'Temperatura y humedad exterior' },
 
   // extra outputs
   exPump: { id: 'dz.extra.pump', defaultMessage: 'Bomba de riego' },
@@ -127,6 +160,14 @@ export const D = defineMessages({
     id: 'dz.contact.notesPh',
     defaultMessage: 'Cultivo, etapa, equipos que ya tenés, lo que quieras contarnos…',
   },
+  cNotesPhSilo: {
+    id: 'dz.contact.notesPh.silo',
+    defaultMessage: 'Granos que almacenás, equipos que ya tenés, lo que quieras contarnos…',
+  },
+  cNotesPhCuring: {
+    id: 'dz.contact.notesPh.curing',
+    defaultMessage: 'Productos que madurás, equipos que ya tenés, lo que quieras contarnos…',
+  },
   cEmailInvalid: { id: 'dz.contact.emailInvalid', defaultMessage: 'Revisá el email.' },
 
   // inspector
@@ -137,6 +178,7 @@ export const D = defineMessages({
   name: { id: 'dz.insp.name', defaultMessage: 'Nombre' },
   position: { id: 'dz.insp.position', defaultMessage: 'Posición' },
   size: { id: 'dz.insp.size', defaultMessage: 'Tamaño' },
+  diameter: { id: 'dz.insp.diameter', defaultMessage: 'Diámetro' },
   rotation: { id: 'dz.insp.rotation', defaultMessage: 'Rotación' },
   rotLeft: { id: 'dz.insp.rotLeft', defaultMessage: 'Girar 90° a la izquierda' },
   rotRight: { id: 'dz.insp.rotRight', defaultMessage: 'Girar 90° a la derecha' },
@@ -164,6 +206,7 @@ export const D = defineMessages({
   summary: { id: 'dz.sum.title', defaultMessage: 'Resumen para cotizar' },
   sensorsTotal: { id: 'dz.sum.sensors', defaultMessage: 'Sensores' },
   outputsTotal: { id: 'dz.sum.outputs', defaultMessage: 'Salidas' },
+  structuresByKind: { id: 'dz.sum.structuresByKind', defaultMessage: 'Estructuras' },
   sensorsByKind: { id: 'dz.sum.sensorsByKind', defaultMessage: 'Sensores por tipo' },
   outputsByKind: { id: 'dz.sum.outputsByKind', defaultMessage: 'Salidas por tipo' },
   extraTag: { id: 'dz.sum.extraTag', defaultMessage: 'Extra' },
@@ -172,17 +215,13 @@ export const D = defineMessages({
     id: 'dz.sum.note',
     defaultMessage: 'Los totales se calculan siempre a partir del diseño.',
   },
-  structures: {
-    id: 'dz.sum.structures',
-    defaultMessage: '{racks, plural, one {# rack} other {# racks}} · {tables, plural, one {# mesa} other {# mesas}}',
-  },
 
   // views
   viewAria: { id: 'dz.view.aria', defaultMessage: 'Vista' },
   view3d: { id: 'dz.view.3d', defaultMessage: '3D' },
   viewPlan: { id: 'dz.view.plan', defaultMessage: 'Plano' },
   viewSplit: { id: 'dz.view.split', defaultMessage: 'Dividido' },
-  frame: { id: 'dz.view.frame', defaultMessage: 'Encuadrar la sala' },
+  frame: { id: 'dz.view.frame', defaultMessage: 'Encuadrar el diseño' },
   hint3d: {
     id: 'dz.view.hint3d',
     defaultMessage: 'Arrastrá un elemento para moverlo · Arrastrá el fondo para girar · Rueda para zoom',
@@ -207,7 +246,7 @@ export const D = defineMessages({
   isRange: { id: 'dz.issue.range', defaultMessage: 'fuera de rango' },
   isRequired: { id: 'dz.issue.required', defaultMessage: 'falta el dato' },
   isNotAllowed: { id: 'dz.issue.notAllowed', defaultMessage: 'no corresponde a este tipo de elemento' },
-  isOutside: { id: 'dz.issue.outside', defaultMessage: 'queda fuera de la sala' },
+  isOutside: { id: 'dz.issue.outside', defaultMessage: 'queda fuera del espacio diseñado' },
   isDuplicate: { id: 'dz.issue.duplicate', defaultMessage: 'id repetido' },
   isInvalid: { id: 'dz.issue.invalid', defaultMessage: 'valor inválido' },
 
@@ -223,7 +262,19 @@ export const D = defineMessages({
     id: 'dz.wa.intro',
     defaultMessage: 'Hola Growcast, les comparto el diseño de mi sala «{name}» para cotizar.',
   },
+  waIntroSilo: {
+    id: 'dz.wa.intro.silo',
+    defaultMessage: 'Hola Growcast, les comparto el diseño de mi silo «{name}» para cotizar.',
+  },
+  waIntroCuring: {
+    id: 'dz.wa.intro.curing',
+    defaultMessage: 'Hola Growcast, les comparto el diseño de mi cámara «{name}» para cotizar.',
+  },
   waRoom: { id: 'dz.wa.room', defaultMessage: 'Sala: {w} × {l} × {h} m ({area} m²)' },
+  waRoomSilo: { id: 'dz.wa.room.silo', defaultMessage: 'Celda: {w} × {l} × {h} m ({area} m²)' },
+  waRoomRound: { id: 'dz.wa.room.round', defaultMessage: 'Silo: Ø {w} × {h} m ({area} m²)' },
+  waRoomCuring: { id: 'dz.wa.room.curing', defaultMessage: 'Cámara: {w} × {l} × {h} m ({area} m²)' },
+  waStructures: { id: 'dz.wa.structures', defaultMessage: 'Estructuras: {n}' },
   waSensors: { id: 'dz.wa.sensors', defaultMessage: 'Sensores: {n}' },
   waOutputs: { id: 'dz.wa.outputs', defaultMessage: 'Salidas a controlar: {n}' },
   waContact: { id: 'dz.wa.contact', defaultMessage: 'Contacto: {who}' },

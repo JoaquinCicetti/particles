@@ -117,9 +117,47 @@ export const MAT = {
   }),
   hit: new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
   footprint: new THREE.MeshBasicMaterial({ color: '#cad86e', transparent: true, opacity: 0.12, depthWrite: false }),
+  // see-through shells, so sensors inside silos and sheds stay visible
+  glass: new THREE.MeshStandardMaterial({
+    color: '#3a3d33',
+    roughness: 0.6,
+    metalness: 0.2,
+    transparent: true,
+    opacity: 0.16,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  }),
+  roof: new THREE.MeshStandardMaterial({
+    color: '#34362e',
+    roughness: 0.7,
+    metalness: 0.3,
+    transparent: true,
+    opacity: 0.32,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  }),
+  cheese: new THREE.MeshStandardMaterial({ color: '#d9b25a', roughness: 0.75 }),
+  meat: new THREE.MeshStandardMaterial({ color: '#8a3b2a', roughness: 0.65 }),
+  wood: new THREE.MeshStandardMaterial({ color: '#6b5238', roughness: 0.9 }),
+  crate: new THREE.MeshStandardMaterial({ color: '#3a3a40', roughness: 0.8 }),
 }
 
+/** Open cone, unit diameter and height, centred — a silo roof. */
+export const ROOF_GEO = new THREE.ConeGeometry(0.5, 1, 32, 1, true)
+/** Capsule, unit diameter, height 2 — scale Y by length / 2 for a hanging sausage. */
+export const SAUSAGE_GEO = new THREE.CapsuleGeometry(0.5, 1, 3, 8)
+
+/** Real height of the Growcast sensor, meters — assumed until the client confirms its size. */
+export const SENSOR_HEIGHT = 0.2
+
 export type Tone = 'idle' | 'hover' | 'selected'
+
+/** The sensor mesh is too dense for edge lines: selection brightens it instead. */
+export const SENSOR_BODY_MAT: Record<Tone, THREE.MeshStandardMaterial> = {
+  idle: new THREE.MeshStandardMaterial({ color: '#313138', roughness: 0.6, metalness: 0.1 }),
+  hover: new THREE.MeshStandardMaterial({ color: '#313138', roughness: 0.6, metalness: 0.1, emissive: '#cad86e', emissiveIntensity: 0.18 }),
+  selected: new THREE.MeshStandardMaterial({ color: '#313138', roughness: 0.6, metalness: 0.1, emissive: '#eef7b4', emissiveIntensity: 0.4 }),
+}
 
 export const EDGE: Record<Tone, THREE.LineBasicMaterial> = {
   idle: new THREE.LineBasicMaterial({ color: '#cad86e', transparent: true, opacity: 0.5 }),

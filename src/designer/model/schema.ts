@@ -1,49 +1,41 @@
 import { z } from 'zod'
-import { clampAll } from './geometry'
+import {
+  DESIGN_KINDS,
+  EXTRA_OUTPUT_KINDS,
+  ITEM_TYPES,
+  ROOM_SHAPES,
+  SENSOR_KINDS,
+  isControllable,
+  isMounted,
+} from './constants'
+import { clampAll, topAt } from './geometry'
+import { KINDS, allowsExtra, allowsItem } from './kinds'
+
+export * from './constants'
 
 /**
- * Room design file format (v1). Everything imported — files and the
- * localStorage autosave alike — goes through `parseDesign`: it either returns
- * a complete, normalized design or a list of issues, never a partial load.
+ * Design file format (v1): one zone per file. Everything imported — files and
+ * the localStorage autosave alike — goes through `parseDesign`: it either
+ * returns a complete, normalized design or a list of issues, never a partial
+ * load. `roomKind` says which designer the file belongs to and `room.shape`
+ * whether the zone is a box or a round silo; files from before either existed
+ * are box-shaped grow rooms.
  */
 
 export const FORMAT = 'growcast.room-design'
 export const VERSION = 1
 
-export const ITEM_TYPES = ['rack', 'table', 'light', 'climate', 'fan', 'humidifier', 'sensor'] as const
-export type ItemType = (typeof ITEM_TYPES)[number]
-
-export const SENSOR_KINDS = ['air_temp_humidity', 'co2', 'substrate_moisture_ec', 'water_ph_ec', 'light_par'] as const
-export type SensorKind = (typeof SENSOR_KINDS)[number]
-
-export const CONTROLLABLE_TYPES = ['light', 'climate', 'fan', 'humidifier'] as const
-export type ControllableType = (typeof CONTROLLABLE_TYPES)[number]
-
-/** Types placed at a mount height (`y`); the rest stand on the floor. */
-export const MOUNTED_TYPES = ['light', 'climate', 'fan', 'sensor'] as const
-
-export const EXTRA_OUTPUT_KINDS = [
-  'irrigation_pump',
-  'extractor',
-  'solenoid',
-  'dehumidifier',
-  'heater',
-  'co2_injector',
-  'other',
-] as const
-export type ExtraOutputKind = (typeof EXTRA_OUTPUT_KINDS)[number]
-
-export const isControllable = (t: ItemType): t is ControllableType =>
-  (CONTROLLABLE_TYPES as readonly string[]).includes(t)
-export const isMounted = (t: ItemType) => (MOUNTED_TYPES as readonly string[]).includes(t)
-
+/** Hard bounds for any design; each kind narrows the room further (kinds.ts). */
 export const LIMITS = {
   side: [1, 100],
-  height: [2, 12],
+  height: [2, 60],
   itemSize: [0.05, 100],
   outputs: [0, 64],
   quantity: [0, 999],
 } as const
+
+export type IssueCode = 'type' | 'range' | 'required' | 'not_allowed' | 'outside' | 'duplicate' | 'invalid'
+export type ImportIssue = { path: string; code: IssueCode }
 
 const num = (min: number, max: number) => z.number().min(min).max(max)
 const isoDate = z
@@ -59,7 +51,8 @@ export const ItemSchema = z
     name: z.string().max(80).optional(),
     x: num(-50, 50),
     z: num(-50, 50),
-    y: num(0, 12).optional(),
+    // up to a silo's roof peak, above its walls
+    y: num(0, 100).optional(),
     width: num(...LIMITS.itemSize),
     depth: num(...LIMITS.itemSize),
     rotation: z.number().int().min(0).max(3),
@@ -100,11 +93,12 @@ export const DesignSchema = z
   .object({
     format: z.literal(FORMAT),
     version: z.literal(VERSION),
-    roomKind: z.literal('grow').default('grow'),
+    roomKind: z.enum(DESIGN_KINDS).default('grow'),
     name: z.string().trim().min(1).max(80),
     createdAt: isoDate,
     updatedAt: isoDate,
     room: z.object({
+      shape: z.enum(ROOM_SHAPES).default('box'),
       width: num(...LIMITS.side),
       length: num(...LIMITS.side),
       height: num(...LIMITS.height),
@@ -115,19 +109,34 @@ export const DesignSchema = z
     camera: z.object({ position: vec3, target: vec3 }).optional(),
   })
   .superRefine((d, ctx) => {
+    const kind = KINDS[d.roomKind]
+    const add = (path: Array<string | number>, message: IssueCode) => ctx.addIssue({ code: 'custom', path, message })
+    const inRange = (v: number, [lo, hi]: readonly [number, number]) => v >= lo && v <= hi
+    if (!kind.shapes.includes(d.room.shape)) add(['room', 'shape'], 'not_allowed')
+    if (!inRange(d.room.width, kind.limits.side)) add(['room', 'width'], 'range')
+    if (!inRange(d.room.length, kind.limits.side)) add(['room', 'length'], 'range')
+    if (!inRange(d.room.height, kind.limits.height)) add(['room', 'height'], 'range')
+
     const seen = new Set<string>()
     const tol = 0.01
+    const round = d.room.shape === 'round'
     d.items.forEach((it, i) => {
-      if (seen.has(it.id)) ctx.addIssue({ code: 'custom', path: ['items', i, 'id'], message: 'duplicate' })
+      if (seen.has(it.id)) add(['items', i, 'id'], 'duplicate')
       seen.add(it.id)
+      // a grow-room light in a silo file is a wrong file, not something to drop
+      if (!allowsItem(kind, it)) add(['items', i, it.type === 'sensor' ? 'sensorKind' : 'type'], 'not_allowed')
       // an item whose centre is outside the walls is an error, not something
       // to silently move; small overhangs are trimmed by normalization
-      if (Math.abs(it.x) > d.room.width / 2 + tol)
-        ctx.addIssue({ code: 'custom', path: ['items', i, 'x'], message: 'outside' })
-      if (Math.abs(it.z) > d.room.length / 2 + tol)
-        ctx.addIssue({ code: 'custom', path: ['items', i, 'z'], message: 'outside' })
-      if (it.y !== undefined && it.y > d.room.height + tol)
-        ctx.addIssue({ code: 'custom', path: ['items', i, 'y'], message: 'outside' })
+      if (round) {
+        if (Math.hypot(it.x, it.z) > d.room.width / 2 + tol) add(['items', i, 'x'], 'outside')
+      } else {
+        if (Math.abs(it.x) > d.room.width / 2 + tol) add(['items', i, 'x'], 'outside')
+        if (Math.abs(it.z) > d.room.length / 2 + tol) add(['items', i, 'z'], 'outside')
+      }
+      if (it.y !== undefined && it.y > topAt(d.room, it.x, it.z) + tol) add(['items', i, 'y'], 'outside')
+    })
+    d.extraOutputs.forEach((e, i) => {
+      if (!allowsExtra(kind, e.kind)) add(['extraOutputs', i, 'kind'], 'not_allowed')
     })
   })
 
@@ -137,9 +146,6 @@ export type Room = Design['room']
 export type ExtraOutput = Design['extraOutputs'][number]
 export type Contact = Design['contact']
 export type CameraView = NonNullable<Design['camera']>
-
-export type IssueCode = 'type' | 'range' | 'required' | 'not_allowed' | 'outside' | 'duplicate' | 'invalid'
-export type ImportIssue = { path: string; code: IssueCode }
 
 export type ParseResult =
   | { ok: true; design: Design }
@@ -162,7 +168,7 @@ function toIssue(i: ZodIssue): ImportIssue {
     case 'too_big':
       return { path, code: 'range' }
     case 'custom': {
-      const known: IssueCode[] = ['required', 'not_allowed', 'outside', 'duplicate']
+      const known: IssueCode[] = ['range', 'required', 'not_allowed', 'outside', 'duplicate']
       return { path, code: known.find((k) => k === i.message) ?? 'invalid' }
     }
     default:

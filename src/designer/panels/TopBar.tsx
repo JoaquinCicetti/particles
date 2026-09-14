@@ -5,13 +5,16 @@ import { onNavClick } from '../../lib/route'
 import { D } from '../i18n/messages'
 import { openDesignFile } from '../actions'
 import { MOD_KEY } from '../labels'
-import { useDesigner, useSaveStatus, useUi } from '../store'
+import { KINDS } from '../model/kinds'
+import { DESIGN_KINDS } from '../model/schema'
+import { useDesigner, useKind, useSaveStatus, useUi } from '../store'
 import Glyph from '../ui/Glyph'
 import TabStrip from './TabStrip'
 
 export default function TopBar() {
   const intl = useIntl()
   const t = intl.formatMessage
+  const kind = useKind()
   const canUndo = useDesigner((s) => (s.history[s.activeId]?.past.length ?? 0) > 0)
   const canRedo = useDesigner((s) => (s.history[s.activeId]?.future.length ?? 0) > 0)
   const undo = useDesigner((s) => s.undo)
@@ -25,10 +28,11 @@ export default function TopBar() {
         <span className="brand-mark" aria-hidden />
         <span className="dz-brand-text">
           <span className="dz-wordmark">GROWCAST</span>
-          <span className="dz-brand-kicker">{t(D.kicker)}</span>
+          <span className="dz-brand-kicker">{t(KINDS[kind].text.kicker)}</span>
         </span>
       </a>
 
+      <KindNav />
       <TabStrip />
 
       <div className="dz-actions">
@@ -91,6 +95,29 @@ export default function TopBar() {
         <LangPicker inline />
       </div>
     </header>
+  )
+}
+
+/** The three designers are one engine on three routes; this hops between them. */
+function KindNav() {
+  const t = useIntl().formatMessage
+  const kind = useKind()
+  return (
+    <nav className="dz-kindnav" aria-label={t(D.kindNavAria)}>
+      {DESIGN_KINDS.map((k) => (
+        <a
+          key={k}
+          href={KINDS[k].path}
+          onClick={onNavClick}
+          className={k === kind ? 'is-on' : undefined}
+          aria-current={k === kind ? 'page' : undefined}
+          title={t(KINDS[k].text.kicker)}
+        >
+          <Glyph name={KINDS[k].glyph} />
+          <span>{t(KINDS[k].text.nav)}</span>
+        </a>
+      ))}
+    </nav>
   )
 }
 

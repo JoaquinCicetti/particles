@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, type ComponentRef } from 'react'
 import { OrbitControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { roofRise } from '../model/geometry'
 import type { Room } from '../model/schema'
 import { getActiveDesign, useDesigner } from '../store'
 
@@ -19,14 +20,26 @@ export default function CameraRig({ room }: { room: Room }) {
   const invalidate = useThree((s) => s.invalidate)
   const ref = useRef<ComponentRef<typeof OrbitControls>>(null)
   const lastNonce = useRef(nonce)
-  const span = Math.max(room.width, room.length, room.height)
+  const span = Math.max(room.width, room.length, room.height + roofRise(room))
+
+  // a big zone is seen from far away: push the near plane out with it, or
+  // depth precision runs out and the floor z-fights its grid
+  useEffect(() => {
+    const cam = camera as THREE.PerspectiveCamera
+    cam.near = Math.max(0.05, span * 0.004)
+    cam.updateProjectionMatrix()
+    invalidate()
+  }, [camera, span, invalidate])
 
   const fit = useCallback(() => {
     const c = ref.current
     if (!c) return
     const r = getActiveDesign().room
-    const dist = Math.max(4, Math.max(r.width, r.length) * 1.45 + r.height)
-    c.target.set(0, Math.min(r.height * 0.25, 0.8), 0)
+    const h = r.height + roofRise(r)
+    // a tall, narrow silo needs to be seen from further back than its footprint says
+    const dist = Math.max(4, Math.max(r.width, r.length) * 1.45 + h * (h > 6 ? 2 : 1))
+    // a tall silo is framed around its middle, a room just above the floor
+    c.target.set(0, h > 6 ? h * 0.4 : Math.min(h * 0.25, 0.8), 0)
     camera.position.copy(c.target).addScaledVector(VIEW_DIR, dist)
     c.update()
     invalidate()

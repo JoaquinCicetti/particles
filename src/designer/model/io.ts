@@ -1,3 +1,4 @@
+import { KINDS } from './kinds'
 import { parseDesign, type Design, type ParseResult } from './schema'
 import { computeSummary, summaryBlock } from './summary'
 
@@ -16,7 +17,7 @@ export function designFileName(d: Design): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 48)
-  return `${slug || 'sala'}.growcast.json`
+  return `${slug || KINDS[d.roomKind].fileSlug}.growcast.json`
 }
 
 /** Save the design as a .json file; returns the file name. */

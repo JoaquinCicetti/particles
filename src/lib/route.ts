@@ -6,7 +6,17 @@ import { useSyncExternalStore, type MouseEvent } from 'react'
  * links push history instead of reloading, so shared chunks stay warm.
  */
 
-export const DESIGNER_PATH = '/disenador'
+/** One designer engine, three catalogs: each kind has its own route. */
+export const DESIGNER_PATHS = {
+  grow: '/disenador',
+  silo: '/disenador/silos',
+  curing: '/disenador/maduracion',
+} as const
+
+export type DesignerKind = keyof typeof DESIGNER_PATHS
+
+export const designerKindAt = (path: string): DesignerKind | null =>
+  (Object.keys(DESIGNER_PATHS) as DesignerKind[]).find((k) => DESIGNER_PATHS[k] === path) ?? null
 
 /** The designer chunk — also used to prefetch it on hover. */
 export const loadDesigner = () => import('../designer/Designer')

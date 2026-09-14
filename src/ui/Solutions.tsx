@@ -4,7 +4,7 @@ import type { MessageDescriptor } from 'react-intl'
 import { M } from '../i18n/messages'
 import { setSection } from '../lib/scroll'
 import { WHATSAPP_DISPLAY } from '../lib/contact'
-import { DESIGNER_PATH, loadDesigner, onNavClick } from '../lib/route'
+import { DESIGNER_PATHS, loadDesigner, onNavClick } from '../lib/route'
 import ContactCta from './ContactCta'
 import SiloFigure from './SiloFigure'
 import GrowRoomFigure from './GrowRoomFigure'
@@ -33,6 +33,8 @@ type Solution = {
   solve: Bullet[]
   stats: Stat[]
   figure: MessageDescriptor
+  /** this solution's 3D designer */
+  design: { path: string; cta: MessageDescriptor; note: MessageDescriptor }
 }
 
 const STEP_TITLES = [M.step1Title, M.step2Title, M.step3Title] as const
@@ -66,6 +68,7 @@ const SOLUTIONS: Solution[] = [
       { label: M.cultivoStat3, value: '1.9', unit: 'mS/cm' },
     ],
     figure: M.cultivoFigure,
+    design: { path: DESIGNER_PATHS.grow, cta: M.cultivoDesignCta, note: M.designNote },
   },
   {
     id: 'silos',
@@ -94,6 +97,7 @@ const SOLUTIONS: Solution[] = [
       { label: M.silosStat3, value: '62', unit: '%HR' },
     ],
     figure: M.silosFigure,
+    design: { path: DESIGNER_PATHS.silo, cta: M.silosDesignCta, note: M.silosDesignNote },
   },
   {
     id: 'maduracion',
@@ -122,6 +126,7 @@ const SOLUTIONS: Solution[] = [
       { label: M.maduracionStat3, value: '650', unit: 'PPM' },
     ],
     figure: M.maduracionFigure,
+    design: { path: DESIGNER_PATHS.curing, cta: M.maduracionDesignCta, note: M.designNote },
   },
 ]
 
@@ -205,21 +210,19 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
               <span className="metric-label">{intl.formatMessage(M.solWhoTitle)}</span>
               {intl.formatMessage(s.who)}
             </p>
-            {s.id === 'cultivo' && (
-              <div className="sol-design">
-                <a
-                  className="cta"
-                  href={DESIGNER_PATH}
-                  onClick={onNavClick}
-                  onPointerEnter={() => void loadDesigner()}
-                  onFocus={() => void loadDesigner()}
-                >
-                  <span className="cta-label">{intl.formatMessage(M.cultivoDesignCta)}</span>
-                  <span className="cta-arrow" aria-hidden>→</span>
-                </a>
-                <span className="metric-note">{intl.formatMessage(M.cultivoDesignNote)}</span>
-              </div>
-            )}
+            <div className="sol-design">
+              <a
+                className="cta"
+                href={s.design.path}
+                onClick={onNavClick}
+                onPointerEnter={() => void loadDesigner()}
+                onFocus={() => void loadDesigner()}
+              >
+                <span className="cta-label">{intl.formatMessage(s.design.cta)}</span>
+                <span className="cta-arrow" aria-hidden>→</span>
+              </a>
+              <span className="metric-note">{intl.formatMessage(s.design.note)}</span>
+            </div>
           </div>
 
           <div className="sol-measure">

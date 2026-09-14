@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl'
 import { D } from '../i18n/messages'
 import { ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
 import { footprint, snap } from '../model/geometry'
-import type { Item } from '../model/schema'
+import type { Item, ItemType } from '../model/schema'
 import { glyphOf, itemTitle } from '../labels'
 import { getActiveDesign, useActiveDesign, useDesigner } from '../store'
 import { GLYPHS } from '../ui/glyphs'
@@ -11,7 +11,7 @@ import { GLYPHS } from '../ui/glyphs'
 /**
  * Top-down plan in meters (SVG user units = m; +x right, +z down, matching
  * the 3D view from the front). Drag items (0.1 m snap), drag the background
- * to pan, wheel / pinch to zoom.
+ * to pan, wheel / pinch to zoom. A round zone (a silo) is drawn as a circle.
  */
 
 type VB = { x: number; y: number; w: number; h: number }
@@ -39,7 +39,14 @@ function toSvg(svg: SVGSVGElement | null, cx: number, cy: number): Pt | null {
   return { x: p.x, y: p.y }
 }
 
+/** Grid pitch that stays legible from a 3 m room to a 100 m one: [minor, major]. */
+const gridSteps = (span: number): [number, number] => (span <= 20 ? [0.5, 1] : [1, 5])
+const rulerStep = (span: number) => (span <= 12 ? 1 : span <= 40 ? 5 : 10)
+
 const rank = (it: Item) => (it.type === 'sensor' ? 2 : ITEM_SPECS[it.type].mount === 'mounted' ? 1 : 0)
+
+/** Types whose top view is drawn in full, so a glyph on top would only clutter it. */
+const DRAWN = new Set<ItemType>(['rack', 'table', 'cheese_rack', 'hanger', 'pallet', 'trolley'])
 
 export default function PlanView() {
   const intl = useIntl()
@@ -48,6 +55,8 @@ export default function PlanView() {
   const nonce = useDesigner((s) => s.frameNonce)
   const selectedId = useDesigner((s) => s.selectedId)
   const { width: W, length: L } = design.room
+  const round = design.room.shape === 'round'
+  const clipId = `dz-plan-clip-${tabId}`
 
   // a pan/zoom sticks until the tab, the room size or a "frame" request changes
   const fitKey = `${tabId}|${W}|${L}|${nonce}`
@@ -151,18 +160,20 @@ export default function PlanView() {
   const unit = vb.w / 100
 
   const grid = useMemo(() => {
-    const minor: string[] = []
-    const major: string[] = []
-    const isMajor = (v: number) => Math.abs(v - Math.round(v)) < 1e-6
-    for (let v = Math.ceil((-W / 2) * 2) / 2; v <= W / 2 + 1e-6; v += 0.5)
-      (isMajor(v) ? major : minor).push(`M${v} ${-L / 2}V${L / 2}`)
-    for (let v = Math.ceil((-L / 2) * 2) / 2; v <= L / 2 + 1e-6; v += 0.5)
-      (isMajor(v) ? major : minor).push(`M${-W / 2} ${v}H${W / 2}`)
-    return { minor: minor.join(''), major: major.join('') }
+    const [minor, major] = gridSteps(Math.max(W, L))
+    const every = Math.round(major / minor)
+    const minorD: string[] = []
+    const majorD: string[] = []
+    // walk integer steps from the centre, so no float drift piles up
+    for (let i = Math.ceil(-W / 2 / minor); i * minor <= W / 2 + 1e-6; i++)
+      (i % every === 0 ? majorD : minorD).push(`M${i * minor} ${-L / 2}V${L / 2}`)
+    for (let i = Math.ceil(-L / 2 / minor); i * minor <= L / 2 + 1e-6; i++)
+      (i % every === 0 ? majorD : minorD).push(`M${-W / 2} ${i * minor}H${W / 2}`)
+    return { minor: minorD.join(''), major: majorD.join('') }
   }, [W, L])
 
   const rulers = useMemo(() => {
-    const step = Math.max(W, L) <= 12 ? 1 : Math.max(W, L) <= 40 ? 5 : 10
+    const step = rulerStep(Math.max(W, L))
     const off = unit * 2.4
     const tick = unit * 0.9
     const y0 = -L / 2 - off
@@ -202,10 +213,27 @@ export default function PlanView() {
       role="img"
       aria-label={intl.formatMessage(D.viewPlan)}
     >
-      <rect className="dz-plan-floor" x={-W / 2} y={-L / 2} width={W} height={L} />
-      <path className="dz-plan-minor" d={grid.minor} />
-      <path className="dz-plan-major" d={grid.major} />
-      <rect className="dz-plan-wall" x={-W / 2} y={-L / 2} width={W} height={L} />
+      {round && (
+        <defs>
+          <clipPath id={clipId}>
+            <circle r={W / 2} />
+          </clipPath>
+        </defs>
+      )}
+      {round ? (
+        <circle className="dz-plan-floor" r={W / 2} />
+      ) : (
+        <rect className="dz-plan-floor" x={-W / 2} y={-L / 2} width={W} height={L} />
+      )}
+      <g clipPath={round ? `url(#${clipId})` : undefined}>
+        <path className="dz-plan-minor" d={grid.minor} />
+        <path className="dz-plan-major" d={grid.major} />
+      </g>
+      {round ? (
+        <circle className="dz-plan-wall" r={W / 2} />
+      ) : (
+        <rect className="dz-plan-wall" x={-W / 2} y={-L / 2} width={W} height={L} />
+      )}
 
       <path className="dz-plan-ruler" d={rulers.d} />
       {rulers.labels.map((l) => (
@@ -214,16 +242,18 @@ export default function PlanView() {
         </text>
       ))}
       <text className="dz-plan-dim" x={0} y={-L / 2 - unit * 6} fontSize={unit * 1.5} textAnchor="middle">
-        {W.toFixed(2)} m
+        {round ? `Ø ${W.toFixed(2)} m` : `${W.toFixed(2)} m`}
       </text>
-      <text
-        className="dz-plan-dim"
-        transform={`translate(${-W / 2 - unit * 6.4} 0) rotate(-90)`}
-        fontSize={unit * 1.5}
-        textAnchor="middle"
-      >
-        {L.toFixed(2)} m
-      </text>
+      {!round && (
+        <text
+          className="dz-plan-dim"
+          transform={`translate(${-W / 2 - unit * 6.4} 0) rotate(-90)`}
+          fontSize={unit * 1.5}
+          textAnchor="middle"
+        >
+          {L.toFixed(2)} m
+        </text>
+      )}
 
       {ordered.map((it) => (
         <PlanItem
@@ -271,7 +301,7 @@ function PlanItem({
 
   const { w, d } = footprint(it)
   const gs = Math.min(Math.min(w, d) * 0.6, unit * 3.2)
-  const showGlyph = it.type !== 'rack' && it.type !== 'table' && gs > unit * 1.2
+  const showGlyph = !DRAWN.has(it.type) && gs > unit * 1.2
   return (
     <g className={cls} transform={`translate(${it.x} ${it.z})`} onPointerDown={onDown}>
       <title>{title}</title>
@@ -291,35 +321,79 @@ function PlanItem({
   )
 }
 
+/** A closed circle as path data (so many of them can share one <path>). */
+const ring = (cx: number, cz: number, r: number) =>
+  `M${cx - r} ${cz}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`
+
+/** A dot per cell of a `pitch` grid over w × d; null past `max` dots. */
+function dotGrid(w: number, d: number, pitch: number, radius: number, max = 600) {
+  const nx = Math.max(1, Math.floor(w / pitch))
+  const nz = Math.max(1, Math.floor(d / pitch))
+  if (nx * nz > max) return null
+  const r = Math.min(w / nx, d / nz) * radius
+  let out = ''
+  for (let i = 0; i < nx; i++)
+    for (let k = 0; k < nz; k++) out += ring(((i + 0.5) * w) / nx - w / 2, ((k + 0.5) * d) / nz - d / 2, r)
+  return out
+}
+
+/** Four corner posts, 4 cm square. */
+function posts(w: number, d: number) {
+  const p = 0.04
+  return `M${-w / 2} ${-d / 2}h${p}v${p}h${-p}zM${w / 2 - p} ${-d / 2}h${p}v${p}h${-p}zM${-w / 2} ${d / 2 - p}h${p}v${p}h${-p}zM${w / 2 - p} ${d / 2 - p}h${p}v${p}h${-p}z`
+}
+
 /** Type-specific top-view detail, in the unrotated local frame. */
 function Detail({ it }: { it: Item }) {
   const { width: w, depth: d } = it
   switch (it.type) {
     case 'rack':
     case 'table': {
-      const pitch = it.type === 'rack' ? 0.26 : 0.42
-      const nx = Math.max(1, Math.floor(w / pitch))
-      const nz = Math.max(1, Math.floor(d / pitch))
-      if (nx * nz > 600) return null
-      const r = Math.min(w / nx, d / nz) * 0.28
-      let dots = ''
-      for (let i = 0; i < nx; i++)
-        for (let k = 0; k < nz; k++) {
-          const cx = ((i + 0.5) * w) / nx - w / 2
-          const cz = ((k + 0.5) * d) / nz - d / 2
-          dots += `M${cx - r} ${cz}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`
-        }
-      const p = 0.04
-      const posts =
-        it.type === 'rack'
-          ? `M${-w / 2} ${-d / 2}h${p}v${p}h${-p}zM${w / 2 - p} ${-d / 2}h${p}v${p}h${-p}zM${-w / 2} ${d / 2 - p}h${p}v${p}h${-p}zM${w / 2 - p} ${d / 2 - p}h${p}v${p}h${-p}z`
-          : `M${-w / 2 + 0.05} ${-d / 2 + 0.05}h${w - 0.1}v${d - 0.1}h${-(w - 0.1)}z`
+      const dots = dotGrid(w, d, it.type === 'rack' ? 0.26 : 0.42, 0.28)
+      if (dots === null) return null
+      const outline = it.type === 'rack' ? posts(w, d) : `M${-w / 2 + 0.05} ${-d / 2 + 0.05}h${w - 0.1}v${d - 0.1}h${-(w - 0.1)}z`
       return (
         <>
-          <path className="dz-pi-detail" d={posts} />
+          <path className="dz-pi-detail" d={outline} />
           <path className="dz-pi-plant" d={dots} />
         </>
       )
+    }
+    case 'cheese_rack': {
+      const wheels = dotGrid(w, d, 0.35, 0.36)
+      return (
+        <>
+          <path className="dz-pi-detail" d={posts(w, d)} />
+          {wheels && <path className="dz-pi-cheese" d={wheels} />}
+        </>
+      )
+    }
+    case 'hanger': {
+      let bars = ''
+      let hanging = ''
+      const n = Math.min(120, Math.max(1, Math.floor(w / 0.16)))
+      for (const z of [-d * 0.22, d * 0.22]) {
+        bars += `M${-w / 2} ${z}H${w / 2}`
+        for (let i = 0; i < n; i++) hanging += ring(((i + 0.5) * w) / n - w / 2, z, 0.035)
+      }
+      return (
+        <>
+          <path className="dz-pi-detail" d={posts(w, d) + bars} />
+          <path className="dz-pi-sausage" d={hanging} />
+        </>
+      )
+    }
+    case 'pallet': {
+      let slats = ''
+      for (let i = 0; i < 5; i++) {
+        const x = -w / 2 + (w * (i + 0.5)) / 5
+        slats += `M${x - w * 0.06} ${-d / 2}h${w * 0.12}v${d}h${-w * 0.12}z`
+      }
+      return <path className="dz-pi-detail" d={slats} />
+    }
+    case 'trolley': {
+      const i = 0.08
+      return <path className="dz-pi-detail" d={`${posts(w, d)}M${-w / 2 + i} ${-d / 2 + i}h${w - 2 * i}v${d - 2 * i}h${-(w - 2 * i)}z`} />
     }
     case 'light': {
       const bars = Math.min(10, Math.max(2, Math.round(w / 0.16)))
@@ -328,7 +402,11 @@ function Detail({ it }: { it: Item }) {
       for (let i = 0; i < bars; i++) path += `M${-w / 2 + pitch * (i + 0.5)} ${-d * 0.46}V${d * 0.46}`
       return <path className="dz-pi-led" d={path} />
     }
+    // front-facing equipment: mark the face that blows or draws
     case 'climate':
+    case 'cooler':
+    case 'extractor':
+    case 'aerator':
       return <path className="dz-pi-front" d={`M${-w / 2} ${d / 2}H${w / 2}`} />
     case 'fan': {
       const r = Math.min(w, d) * 0.42

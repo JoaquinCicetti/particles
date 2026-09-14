@@ -1668,6 +1668,60 @@ textarea.dz-input {
   }
 }
 
+/* ── designer switch: salas · silos · maduración ── */
+.dz-kindnav {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.2rem;
+  border: 1px solid var(--dz-line);
+  border-radius: 0.5rem;
+}
+
+.dz-kindnav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 1.85rem;
+  padding: 0 0.6rem;
+  border-radius: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--dz-text-2);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dz-kindnav a:hover {
+  color: var(--fg);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dz-kindnav a.is-on {
+  color: var(--brand-bright);
+  background: rgba(202, 216, 110, 0.1);
+}
+
+@media (max-width: 1180px) {
+  .dz-kindnav a {
+    padding: 0 0.45rem;
+  }
+
+  .dz-kindnav span {
+    display: none;
+  }
+}
+
+.dz-pi-cheese {
+  fill: rgba(217, 178, 90, 0.55);
+  stroke: none;
+}
+
+.dz-pi-sausage {
+  fill: rgba(160, 72, 52, 0.7);
+  stroke: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .dz-toast,
   .dz-menu {

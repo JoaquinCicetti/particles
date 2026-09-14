@@ -1,14 +1,20 @@
 import { useMemo } from 'react'
 import { useIntl, type IntlShape } from 'react-intl'
 import { whatsappUrl } from '../lib/contact'
+import { navigate } from '../lib/route'
 import { D } from './i18n/messages'
 import { EXTRA_SPECS, ITEM_SPECS, SENSOR_SPECS } from './model/catalog'
 import { downloadDesign, readDesignFile } from './model/io'
-import { CONTROLLABLE_TYPES, EXTRA_OUTPUT_KINDS, SENSOR_KINDS, type Design } from './model/schema'
+import { KINDS } from './model/kinds'
+import { CONTROLLABLE_TYPES, isStructure, type Design } from './model/schema'
 import { computeSummary } from './model/summary'
 import { getActiveDesign, useDesigner, useUi } from './store'
 
-/** Import: a valid file opens in a new tab; anything else shows why, loads nothing. */
+/**
+ * Import: a valid file opens in a new tab — in its own designer, so a silo
+ * plant dropped on the grow-room page takes you to the silo page — and
+ * anything else shows why and loads nothing.
+ */
 export async function openDesignFile(file: File, intl: IntlShape) {
   const res = await readDesignFile(file)
   const ui = useUi.getState()
@@ -16,7 +22,9 @@ export async function openDesignFile(file: File, intl: IntlShape) {
     ui.setImportError(res)
     return
   }
-  useDesigner.getState().importDesign(res.design)
+  const store = useDesigner.getState()
+  store.importDesign(res.design)
+  if (res.design.roomKind !== store.kind) navigate(KINDS[res.design.roomKind].path)
   ui.showToast(intl.formatMessage(D.toastImported, { name: res.design.name }))
 }
 
@@ -26,18 +34,23 @@ const num = (n: number) => String(Math.round(n * 100) / 100)
 export function whatsappText(intl: IntlShape, d: Design, file: string) {
   const s = computeSummary(d)
   const t = intl.formatMessage
+  const kind = KINDS[d.roomKind]
   const lines = [
-    t(D.waIntro, { name: d.name }),
+    t(kind.text.waIntro, { name: d.name }),
     '',
-    t(D.waRoom, { w: num(d.room.width), l: num(d.room.length), h: num(d.room.height), area: num(s.area) }),
-    t(D.waSensors, { n: s.totalSensors }),
+    t(d.room.shape === 'round' ? D.waRoomRound : kind.text.waRoom, { w: num(d.room.width), l: num(d.room.length), h: num(d.room.height), area: num(s.area) }),
   ]
-  for (const k of SENSOR_KINDS) if (s.sensors[k]) lines.push(`  • ${s.sensors[k]} × ${t(SENSOR_SPECS[k].label)}`)
+  const structures = kind.structures.filter(isStructure).filter((k) => s.structures[k])
+  if (structures.length) {
+    lines.push(t(D.waStructures, { n: structures.reduce((n, k) => n + s.structures[k], 0) }))
+    for (const k of structures) lines.push(`  • ${s.structures[k]} × ${t(ITEM_SPECS[k].label)}`)
+  }
+  lines.push(t(D.waSensors, { n: s.totalSensors }))
+  for (const k of kind.sensors) if (s.sensors[k]) lines.push(`  • ${s.sensors[k]} × ${t(SENSOR_SPECS[k].label)}`)
   lines.push(t(D.waOutputs, { n: s.totalOutputs }))
   for (const k of CONTROLLABLE_TYPES)
     if (s.placedOutputs[k]) lines.push(`  • ${s.placedOutputs[k]} × ${t(ITEM_SPECS[k].label)}`)
-  for (const k of EXTRA_OUTPUT_KINDS)
-    if (s.extraOutputs[k]) lines.push(`  • ${s.extraOutputs[k]} × ${t(EXTRA_SPECS[k].label)}`)
+  for (const k of kind.extras) if (s.extraOutputs[k]) lines.push(`  • ${s.extraOutputs[k]} × ${t(EXTRA_SPECS[k].label)}`)
   const who = [d.contact.name, d.contact.location]
     .map((x) => x.trim())
     .filter(Boolean)

@@ -3,7 +3,7 @@ import { Html } from '@react-three/drei'
 import { useThree, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import { ITEM_SPECS } from '../model/catalog'
-import { bodyHeight, footprint, snap } from '../model/geometry'
+import { bodyHeight, footprint, snap, topAt } from '../model/geometry'
 import type { Item, Room } from '../model/schema'
 import { useDesigner } from '../store'
 import { EDGE, LINE, MAT, PLANE_GEO, noRaycast, type Tone } from './materials'
@@ -93,7 +93,7 @@ function ItemNode({ item, room }: { item: Item; room: Room }) {
           if (!drag.current) cursor('')
         }}
       >
-        <ItemModel item={item} room={room} tone={tone} />
+        <ItemModel item={item} room={room} tone={tone} top={topAt(room, item.x, item.z)} />
       </group>
       <Footprint x={item.x} z={item.z} w={w} d={d} y={baseY} mounted={mounted} selected={selected} />
       {selected && (

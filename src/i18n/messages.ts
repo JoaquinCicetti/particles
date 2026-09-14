@@ -109,10 +109,18 @@ export const M = defineMessages({
     defaultMessage:
       'Temperatura, humedad, CO₂, ventilación, riego, sustrato, agua y nutrición cambian permanentemente. Pequeños desvíos sostenidos en el tiempo pueden impactar en calidad, productividad, sanidad o eficiencia.',
   },
+  // one designer per solution — our own tool, not a claim from the manual
   cultivoDesignCta: { id: 'sol.cultivo.designCta', defaultMessage: 'Diseñe su sala' },
-  cultivoDesignNote: {
-    id: 'sol.cultivo.designNote',
+  silosDesignCta: { id: 'sol.silos.designCta', defaultMessage: 'Diseñe su silo' },
+  maduracionDesignCta: { id: 'sol.maduracion.designCta', defaultMessage: 'Diseñe su cámara' },
+  // sala and cámara are feminine, so they share one note; silo gets its own
+  designNote: {
+    id: 'sol.designNote',
     defaultMessage: 'ÁRMELA EN 3D Y PIDA SU COTIZACIÓN · GRATIS, SIN REGISTRO',
+  },
+  silosDesignNote: {
+    id: 'sol.silos.designNote',
+    defaultMessage: 'ÁRMELO EN 3D Y PIDA SU COTIZACIÓN · GRATIS, SIN REGISTRO',
   },
   cultivoImpl1: { id: 'sol.cultivo.impl.1', defaultMessage: 'Ventilación y extracción.' },
   cultivoImpl2: { id: 'sol.cultivo.impl.2', defaultMessage: 'Calefacción y refrigeración.' },

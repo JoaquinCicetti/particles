@@ -2,8 +2,9 @@ import type { CSSProperties, ReactNode } from 'react'
 import { useIntl, type MessageDescriptor } from 'react-intl'
 import { D } from '../i18n/messages'
 import { ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
-import { footprint } from '../model/geometry'
-import { SENSOR_KINDS, isControllable, type Item } from '../model/schema'
+import { footprint, maxMountY } from '../model/geometry'
+import { KINDS, type MountPreset } from '../model/kinds'
+import { isControllable, type Item } from '../model/schema'
 import { MOD_KEY, glyphOf, itemTitle } from '../labels'
 import { useActiveDesign, useDesigner } from '../store'
 import Glyph from '../ui/Glyph'
@@ -21,6 +22,12 @@ const KEYS: Array<[string[], MessageDescriptor]> = [
 ]
 
 const CANOPY = 1.5
+
+const PRESET_LABEL: Record<MountPreset, MessageDescriptor> = {
+  floor: D.mountFloor,
+  canopy: D.mountCanopy,
+  ceiling: D.mountCeiling,
+}
 
 function Group({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -49,17 +56,19 @@ export default function Inspector() {
 
   const s = useDesigner.getState()
   const spec = ITEM_SPECS[it.type]
+  const kind = KINDS[d.roomKind]
   const room = d.room
   const { w, d: dep } = footprint(it)
-  const maxY = Math.max(0, room.height - spec.height)
+  // under the ceiling — or, in a silo, up to the roof over this spot
+  const maxY = maxMountY(it, room, d.roomKind)
   const up = (patch: Partial<Item>) => s.updateItem(it.id, patch)
   const tint = it.type === 'sensor' && it.sensorKind ? SENSOR_SPECS[it.sensorKind].tint : undefined
   const autoTitle = itemTitle(intl, { ...it, name: undefined }, d.items)
+  const maxSide = Math.max(room.width, room.length)
 
-  const presets = { floor: 0, canopy: Math.min(CANOPY, maxY), ceiling: maxY }
+  const presets: Record<MountPreset, number> = { floor: 0, canopy: Math.min(CANOPY, maxY), ceiling: maxY }
   const y = it.y ?? 0
-  const preset =
-    (Object.keys(presets) as Array<keyof typeof presets>).find((k) => Math.abs(presets[k] - y) < 0.005) ?? null
+  const preset = kind.mountPresets.find((k) => Math.abs(presets[k] - y) < 0.005) ?? null
 
   return (
     <section className="dz-insp" style={tint ? ({ '--tint': tint } as CSSProperties) : undefined}>
@@ -82,7 +91,7 @@ export default function Inspector() {
       {it.type === 'sensor' && (
         <Group label={t(D.sensorKind)}>
           <div className="dz-kinds" role="radiogroup" aria-label={t(D.sensorKind)}>
-            {SENSOR_KINDS.map((k) => (
+            {kind.sensors.map((k) => (
               <button
                 key={k}
                 type="button"
@@ -110,8 +119,8 @@ export default function Inspector() {
       {spec.resizable && (
         <Group label={t(D.size)}>
           <div className="dz-grid2">
-            <NumberField label={t(D.width)} value={it.width} min={0.1} max={100} onChange={(width) => up({ width })} />
-            <NumberField label={t(D.depth)} value={it.depth} min={0.1} max={100} onChange={(depth) => up({ depth })} />
+            <NumberField label={t(D.width)} value={it.width} min={0.1} max={maxSide} onChange={(width) => up({ width })} />
+            <NumberField label={t(D.depth)} value={it.depth} min={0.1} max={maxSide} onChange={(depth) => up({ depth })} />
           </div>
         </Group>
       )}
@@ -145,16 +154,12 @@ export default function Inspector() {
       {spec.mount === 'mounted' && (
         <Group label={t(D.mount)}>
           <NumberField label="Y" value={y} min={0} max={maxY} onChange={(v) => up({ y: v })} />
-          {it.type === 'sensor' && (
+          {it.type === 'sensor' && kind.mountPresets.length > 0 && (
             <Segmented
               label={t(D.mount)}
               value={preset}
               onChange={(p) => up({ y: presets[p] })}
-              options={[
-                { value: 'floor', label: t(D.mountFloor) },
-                { value: 'canopy', label: t(D.mountCanopy) },
-                { value: 'ceiling', label: t(D.mountCeiling) },
-              ]}
+              options={kind.mountPresets.map((p) => ({ value: p, label: t(PRESET_LABEL[p]) }))}
             />
           )}
         </Group>

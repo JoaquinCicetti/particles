@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { useIntl, type MessageDescriptor } from 'react-intl'
 import { D } from '../i18n/messages'
+import { KINDS } from '../model/kinds'
 import type { IssueCode } from '../model/schema'
-import { useUi, type ImportFailure } from '../store'
+import { useKind, useUi, type ImportFailure } from '../store'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 
 const REASON: Record<ImportFailure['reason'], MessageDescriptor> = {
@@ -28,6 +29,7 @@ const SHOWN = 8
 export default function ImportErrorDialog() {
   const intl = useIntl()
   const t = intl.formatMessage
+  const kind = useKind()
   const err = useUi((s) => s.importError)
   const setErr = useUi((s) => s.setImportError)
   const close = useCallback(() => setErr(null), [setErr])
@@ -35,7 +37,7 @@ export default function ImportErrorDialog() {
   return (
     <Dialog open={!!err} onOpenChange={(o) => !o && close()}>
       <DialogContent className="dz-dialog">
-        <span className="kicker">{t(D.kicker)}</span>
+        <span className="kicker">{t(KINDS[kind].text.kicker)}</span>
         <DialogTitle className="dialog-title">{t(D.errTitle)}</DialogTitle>
         {err && (
           <>

@@ -1,7 +1,8 @@
 import { useMemo, useState, type CSSProperties } from 'react'
 import { useIntl } from 'react-intl'
 import { D } from '../i18n/messages'
-import { CATALOG, groupOf, type CatalogGroup } from '../model/catalog'
+import { groupOf, type CatalogGroup } from '../model/catalog'
+import { CATALOGS, KINDS } from '../model/kinds'
 import { useActiveDesign, useDesigner } from '../store'
 import Glyph from '../ui/Glyph'
 import { ItemList, RoomSection } from './sections'
@@ -36,13 +37,14 @@ export default function LibraryPanel() {
   const [filter, setFilter] = useState<Filter>('all')
   const [q, setQ] = useState('')
 
+  const kind = KINDS[d.roomKind]
   const needle = fold(q.trim())
   const entries = useMemo(
     () =>
-      CATALOG.filter((e) => filter === 'all' || e.group === filter).filter(
-        (e) => !needle || fold(t(e.label)).includes(needle),
-      ),
-    [filter, needle, t],
+      CATALOGS[d.roomKind]
+        .filter((e) => filter === 'all' || e.group === filter)
+        .filter((e) => !needle || fold(t(e.label)).includes(needle)),
+    [d.roomKind, filter, needle, t],
   )
 
   const placed = d.items.filter((it) => filter === 'all' || groupOf(it.type) === filter)
@@ -50,8 +52,8 @@ export default function LibraryPanel() {
   return (
     <div className="dz-lib-panel">
       <section className="dz-block">
-        <h2 className="dz-block-h">{t(D.roomTitle)}</h2>
-        <p className="dz-hint dz-hint-sm">{t(D.roomHint)}</p>
+        <h2 className="dz-block-h">{t(kind.text.roomTitle)}</h2>
+        <p className="dz-hint dz-hint-sm">{t(kind.text.roomHint)}</p>
         <RoomSection />
       </section>
 
@@ -100,7 +102,7 @@ export default function LibraryPanel() {
         ) : (
           <p className="dz-empty">{t(D.noMatches)}</p>
         )}
-        <p className="dz-hint dz-hint-sm">{t(D.addHint)}</p>
+        <p className="dz-hint dz-hint-sm">{t(kind.text.addHint)}</p>
       </section>
 
       <section className="dz-block">

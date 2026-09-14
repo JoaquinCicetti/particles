@@ -1,5 +1,17 @@
 import { ITEM_SPECS, SENSOR_SPECS } from './catalog'
-import { EMPTY_CONTACT, FORMAT, VERSION, isControllable, type Design, type Item, type ItemType, type Room, type SensorKind } from './schema'
+import { KINDS } from './kinds'
+import {
+  EMPTY_CONTACT,
+  FORMAT,
+  VERSION,
+  isControllable,
+  type Design,
+  type DesignKind,
+  type Item,
+  type ItemType,
+  type Room,
+  type SensorKind,
+} from './schema'
 
 /** randomUUID needs a secure context — keep LAN-IP testing on phones working. */
 export function newId(): string {
@@ -8,16 +20,16 @@ export function newId(): string {
   return Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('')
 }
 
-export function createDesign(name: string): Design {
+export function createDesign(kind: DesignKind, name: string): Design {
   const now = new Date().toISOString()
   return {
     format: FORMAT,
     version: VERSION,
-    roomKind: 'grow',
+    roomKind: kind,
     name,
     createdAt: now,
     updatedAt: now,
-    room: { width: 6, length: 4, height: 3 },
+    room: { ...KINDS[kind].room },
     items: [],
     extraOutputs: [],
     contact: { ...EMPTY_CONTACT },

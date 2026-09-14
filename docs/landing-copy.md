@@ -103,6 +103,22 @@ Chips flotantes: TEMPERATURA · HUMEDAD · CO₂ · CONDUCTIVIDAD · pH (§3.1).
   3. Registramos la evolución de las condiciones de cada lote y, cuando la instalación lo permite, nos integramos con los equipos de control ambiental.
 - **Esquema:** Sensores por cámara → tablero Growcast → refrigeración y humidificación
 
+## Diseñadores 3D
+
+Enlace en cada rubro a su diseñador. Es una herramienta propia de Growcast, no una
+afirmación del manual; sus catálogos sí siguen el manual: silos §5.1 (aireadores y
+extractores; T°/HR interior, CO₂, T°/HR exterior) y maduración §5.5 (frío, calefacción,
+humidificación, deshumidificación, ventilación, extracción; T°/HR y CO₂). Cada diseño es
+una zona, como una sala en la app: una sala de cultivo, un silo (o celda) o una cámara.
+
+| Clave | Texto | Destino |
+|---|---|---|
+| sol.cultivo.designCta | Diseñe su sala | /disenador |
+| sol.silos.designCta | Diseñe su silo | /disenador/silos |
+| sol.maduracion.designCta | Diseñe su cámara | /disenador/maduracion |
+| sol.designNote | ÁRMELA EN 3D Y PIDA SU COTIZACIÓN · GRATIS, SIN REGISTRO | sala, cámara |
+| sol.silos.designNote | ÁRMELO EN 3D Y PIDA SU COTIZACIÓN · GRATIS, SIN REGISTRO | silo |
+
 ## Contacto
 
 | Clave | Texto | Fuente |

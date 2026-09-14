@@ -1,12 +1,14 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import { useIntl } from 'react-intl'
 import { D } from '../i18n/messages'
-import { EXTRA_SPECS, SENSOR_SPECS } from '../model/catalog'
-import { EXTRA_OUTPUT_KINDS, type ExtraOutputKind, type Item } from '../model/schema'
+import { EXTRA_SPECS, ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
+import { KINDS } from '../model/kinds'
+import type { ExtraOutputKind, Item } from '../model/schema'
 import { fmt, glyphOf, itemTitle } from '../labels'
 import { useActiveDesign, useDesigner } from '../store'
 import Glyph from '../ui/Glyph'
 import NumberField from '../ui/NumberField'
+import Segmented from '../ui/Segmented'
 import Stepper from '../ui/Stepper'
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -27,7 +29,11 @@ export function RoomSection() {
   const updateRoom = useDesigner((s) => s.updateRoom)
   const setName = useDesigner((s) => s.setName)
   const [name, setNameDraft] = useState<string | null>(null)
-  const { width, length, height } = d.room
+  const { width, length, height, shape } = d.room
+  const kind = KINDS[d.roomKind]
+  const [sideMin, sideMax] = kind.limits.side
+  const round = shape === 'round'
+  const area = round ? Math.PI * (width / 2) ** 2 : width * length
 
   return (
     <div className="dz-stack">
@@ -46,19 +52,50 @@ export function RoomSection() {
           }}
         />
       </Field>
-      <div className="dz-grid3">
-        <NumberField label={t(D.width)} value={width} min={1} max={100} onChange={(v) => updateRoom({ width: v })} />
-        <NumberField label={t(D.length)} value={length} min={1} max={100} onChange={(v) => updateRoom({ length: v })} />
-        <NumberField label={t(D.height)} value={height} min={2} max={12} onChange={(v) => updateRoom({ height: v })} />
+      {/* a silo zone is round; the same designer also covers storage cells */}
+      {kind.shapes.length > 1 && (
+        <Segmented
+          label={t(D.shapeAria)}
+          value={shape}
+          onChange={(next) => updateRoom({ shape: next })}
+          options={kind.shapes.map((s) => ({
+            value: s,
+            label: (
+              <>
+                <Glyph name={s === 'round' ? 'silo' : 'cell'} />
+                {t(s === 'round' ? D.shapeRound : D.shapeBox)}
+              </>
+            ),
+          }))}
+        />
+      )}
+      <div className={round ? 'dz-grid2' : 'dz-grid3'}>
+        <NumberField
+          label={t(round ? D.diameter : D.width)}
+          value={width}
+          min={sideMin}
+          max={sideMax}
+          onChange={(v) => updateRoom(round ? { width: v, length: v } : { width: v })}
+        />
+        {!round && (
+          <NumberField label={t(D.length)} value={length} min={sideMin} max={sideMax} onChange={(v) => updateRoom({ length: v })} />
+        )}
+        <NumberField
+          label={t(D.height)}
+          value={height}
+          min={kind.limits.height[0]}
+          max={kind.limits.height[1]}
+          onChange={(v) => updateRoom({ height: v })}
+        />
       </div>
       <div className="dz-roomstats">
         <div>
           <span>{t(D.area)}</span>
-          <b>{fmt(width * length, 1)} m²</b>
+          <b>{fmt(area, 1)} m²</b>
         </div>
         <div>
           <span>{t(D.volume)}</span>
-          <b>{fmt(width * length * height, 1)} m³</b>
+          <b>{fmt(area * height, 1)} m³</b>
         </div>
       </div>
     </div>
@@ -68,7 +105,8 @@ export function RoomSection() {
 // ── placed-item lists ────────────────────────────────────────────
 
 function meta(it: Item) {
-  if (it.type === 'rack' || it.type === 'table' || it.type === 'light') return `${fmt(it.width)}×${fmt(it.depth)}`
+  const spec = ITEM_SPECS[it.type]
+  if (it.type === 'light' || (spec.resizable && spec.mount === 'floor')) return `${fmt(it.width)}×${fmt(it.depth)}`
   if (it.y !== undefined) return `↕ ${fmt(it.y)} m`
   return ''
 }
@@ -123,11 +161,12 @@ export function ExtraOutputsSection() {
   const addExtra = useDesigner((s) => s.addExtra)
   const updateExtra = useDesigner((s) => s.updateExtra)
   const removeExtra = useDesigner((s) => s.removeExtra)
+  const kinds = KINDS[d.roomKind].extras
 
   return (
     <div className="dz-stack">
       <div className="dz-chips" role="group" aria-label={t(D.extraQuickAdd)}>
-        {EXTRA_OUTPUT_KINDS.map((k) => (
+        {kinds.map((k) => (
           <button key={k} type="button" className="dz-chip" onClick={() => addExtra(k)}>
             <Glyph name={EXTRA_SPECS[k].glyph} />
             {t(EXTRA_SPECS[k].label)}
@@ -147,7 +186,7 @@ export function ExtraOutputsSection() {
                   aria-label={t(D.extrasTitle)}
                   onChange={(ev) => updateExtra(i, { kind: ev.target.value as ExtraOutputKind })}
                 >
-                  {EXTRA_OUTPUT_KINDS.map((k) => (
+                  {kinds.map((k) => (
                     <option key={k} value={k}>
                       {t(EXTRA_SPECS[k].label)}
                     </option>
@@ -186,7 +225,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export function ContactSection() {
   const intl = useIntl()
   const t = intl.formatMessage
-  const c = useActiveDesign().contact
+  const d = useActiveDesign()
+  const c = d.contact
   const setContact = useDesigner((s) => s.setContact)
   const emailBad = c.email.trim() !== '' && !EMAIL_RE.test(c.email.trim())
 
@@ -242,7 +282,7 @@ export function ContactSection() {
           rows={4}
           value={c.notes}
           maxLength={4000}
-          placeholder={t(D.cNotesPh)}
+          placeholder={t(KINDS[d.roomKind].text.notesPh)}
           onChange={(e) => setContact({ notes: e.target.value })}
         />
       </Field>

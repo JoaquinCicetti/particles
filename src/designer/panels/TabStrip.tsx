@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { D } from '../i18n/messages'
-import { useDesigner, type Tab } from '../store'
+import { KINDS } from '../model/kinds'
+import { useDesigner, useKind, type Tab } from '../store'
 import Glyph from '../ui/Glyph'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
@@ -12,7 +13,10 @@ type Menu = { id: string; x: number; y: number }
 export default function TabStrip() {
   const intl = useIntl()
   const t = intl.formatMessage
-  const tabs = useDesigner((s) => s.tabs)
+  const kind = useKind()
+  const allTabs = useDesigner((s) => s.tabs)
+  // every designer keeps its own tabs; the others' stay saved, just not listed
+  const tabs = useMemo(() => allTabs.filter((x) => x.design.roomKind === kind), [allTabs, kind])
   const activeId = useDesigner((s) => s.activeId)
   const [editing, setEditing] = useState<string | null>(null)
   const [menu, setMenu] = useState<Menu | null>(null)
@@ -24,7 +28,7 @@ export default function TabStrip() {
   const freeName = () => {
     const names = new Set(tabs.map((x) => x.design.name))
     for (let n = 1; ; n++) {
-      const name = t(D.defaultName, { n })
+      const name = t(KINDS[kind].text.defaultName, { n })
       if (!names.has(name)) return name
     }
   }
@@ -126,7 +130,7 @@ export default function TabStrip() {
 
       <Dialog open={!!confirm} onOpenChange={(o) => !o && closeConfirm()}>
         <DialogContent className="dz-dialog">
-          <span className="kicker">{t(D.kicker)}</span>
+          <span className="kicker">{t(KINDS[kind].text.kicker)}</span>
           <DialogTitle className="dialog-title">
             {confirm ? t(D.confirmCloseTitle, { name: confirm.design.name }) : t(D.tabClose)}
           </DialogTitle>

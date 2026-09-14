@@ -1,7 +1,8 @@
 import type { MessageDescriptor } from 'react-intl'
 import { D } from '../i18n/messages'
 import type { GlyphKey } from '../ui/glyphs'
-import { SENSOR_KINDS, type ExtraOutputKind, type ItemType, type Room, type SensorKind } from './schema'
+import { isStructure, type ExtraOutputKind, type ItemType, type SensorKind } from './constants'
+import type { Room } from './schema'
 
 /** What each placeable thing is: default size, how it mounts, how it's drawn. */
 export type ItemSpec = {
@@ -16,10 +17,13 @@ export type ItemSpec = {
   mount: 'floor' | 'mounted'
   defaultY?: (room: Room) => number
   resizable: boolean
+  /** drawn shorter to fit under a low ceiling */
+  shrink?: boolean
 }
 
 export const ITEM_SPECS: Record<ItemType, ItemSpec> = {
-  rack: { label: D.typeRack, glyph: 'rack', width: 1.2, depth: 0.6, height: 2, mount: 'floor', resizable: true },
+  // ── grow room ──
+  rack: { label: D.typeRack, glyph: 'rack', width: 1.2, depth: 0.6, height: 2, mount: 'floor', resizable: true, shrink: true },
   table: { label: D.typeTable, glyph: 'table', width: 2.4, depth: 1.2, height: 0.9, mount: 'floor', resizable: true },
   light: {
     label: D.typeLight,
@@ -60,20 +64,68 @@ export const ITEM_SPECS: Record<ItemType, ItemSpec> = {
     mount: 'floor',
     resizable: false,
   },
+
+  // ── silo (manual §5.1) ──
+  aerator: { label: D.typeAerator, glyph: 'aerator', width: 0.9, depth: 1.1, height: 1, mount: 'floor', resizable: false },
+
+  // ── curing room (manual §5.5) ──
+  cheese_rack: {
+    label: D.typeCheeseRack,
+    glyph: 'cheese',
+    width: 2,
+    depth: 0.6,
+    height: 2,
+    mount: 'floor',
+    resizable: true,
+    shrink: true,
+  },
+  hanger: { label: D.typeHanger, glyph: 'hanger', width: 2, depth: 0.8, height: 2, mount: 'floor', resizable: true, shrink: true },
+  pallet: { label: D.typePallet, glyph: 'pallet', width: 1.2, depth: 1, height: 1.2, mount: 'floor', resizable: true, shrink: true },
+  trolley: { label: D.typeTrolley, glyph: 'trolley', width: 1, depth: 0.7, height: 1.8, mount: 'floor', resizable: true, shrink: true },
+  cooler: {
+    label: D.typeCooler,
+    glyph: 'cooler',
+    width: 1.4,
+    depth: 0.5,
+    height: 0.5,
+    mount: 'mounted',
+    defaultY: (r) => Math.max(0, Math.min(2.3, r.height - 0.6)),
+    resizable: true,
+  },
+  heater: { label: D.typeHeater, glyph: 'heater', width: 0.7, depth: 0.25, height: 0.6, mount: 'floor', resizable: false },
+  dehumidifier: {
+    label: D.typeDehumidifier,
+    glyph: 'dehumidifier',
+    width: 0.5,
+    depth: 0.4,
+    height: 0.8,
+    mount: 'floor',
+    resizable: false,
+  },
+
+  // ── shared ──
+  extractor: {
+    label: D.typeExtractor,
+    glyph: 'extractor',
+    width: 0.6,
+    depth: 0.35,
+    height: 0.6,
+    mount: 'mounted',
+    defaultY: (r) => Math.max(0, Math.min(2.2, r.height - 0.8)),
+    resizable: false,
+  },
+  // sized to the client's sensor model (scene/materials.ts, SENSOR_HEIGHT)
   sensor: {
     label: D.typeSensor,
     glyph: 'air',
-    width: 0.16,
-    depth: 0.16,
-    height: 0.08,
+    width: 0.12,
+    depth: 0.12,
+    height: 0.2,
     mount: 'mounted',
     defaultY: (r) => Math.min(1.5, r.height - 0.3),
     resizable: false,
   },
 }
-
-export const STRUCTURE_TYPES = ['rack', 'table'] as const satisfies readonly ItemType[]
-export const EQUIPMENT_TYPES = ['light', 'climate', 'fan', 'humidifier'] as const satisfies readonly ItemType[]
 
 export type SensorSpec = {
   label: MessageDescriptor
@@ -91,12 +143,15 @@ export const SENSOR_SPECS: Record<SensorKind, SensorSpec> = {
   substrate_moisture_ec: { label: D.kindSubstrate, short: 'SUST', glyph: 'substrate', tint: '#d6a266', ground: true },
   water_ph_ec: { label: D.kindWater, short: 'pH·EC', glyph: 'water', tint: '#86bcd4', ground: true },
   light_par: { label: D.kindPar, short: 'PAR', glyph: 'par', tint: '#e0a7d8', ground: false },
+  interior_temp_humidity: { label: D.kindInterior, short: 'T°·HR int.', glyph: 'air', tint: '#f5c98d', ground: false },
+  outdoor_temp_humidity: { label: D.kindOutdoor, short: 'T°·HR ext.', glyph: 'station', tint: '#9fc3e6', ground: false },
 }
 
 /**
  * One flat, filterable list of everything that can be placed — the panel shows
  * it as a single palette rather than as numbered steps, so a sensor is no
- * harder to reach than a rack. `group` only drives the filter chips.
+ * harder to reach than a rack. `group` only drives the filter chips. Each
+ * design kind builds its own list (see kinds.ts).
  */
 export type CatalogGroup = 'structure' | 'equipment' | 'sensor'
 
@@ -112,26 +167,7 @@ export type CatalogEntry = {
 }
 
 export const groupOf = (t: ItemType): CatalogGroup =>
-  t === 'sensor' ? 'sensor' : (STRUCTURE_TYPES as readonly ItemType[]).includes(t) ? 'structure' : 'equipment'
-
-export const CATALOG: readonly CatalogEntry[] = [
-  ...[...STRUCTURE_TYPES, ...EQUIPMENT_TYPES].map((type) => ({
-    key: type,
-    group: groupOf(type),
-    type,
-    label: ITEM_SPECS[type].label,
-    glyph: ITEM_SPECS[type].glyph,
-  })),
-  ...SENSOR_KINDS.map((k) => ({
-    key: `sensor:${k}`,
-    group: 'sensor' as const,
-    type: 'sensor' as const,
-    sensorKind: k,
-    label: SENSOR_SPECS[k].label,
-    glyph: SENSOR_SPECS[k].glyph,
-    tint: SENSOR_SPECS[k].tint,
-  })),
-]
+  t === 'sensor' ? 'sensor' : isStructure(t) ? 'structure' : 'equipment'
 
 export const EXTRA_SPECS: Record<ExtraOutputKind, { label: MessageDescriptor; glyph: GlyphKey }> = {
   irrigation_pump: { label: D.exPump, glyph: 'pump' },

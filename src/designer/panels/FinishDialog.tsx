@@ -3,7 +3,8 @@ import { useIntl } from 'react-intl'
 import { D } from '../i18n/messages'
 import { useHandoff } from '../actions'
 import { EXTRA_SPECS, ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
-import { CONTROLLABLE_TYPES, EXTRA_OUTPUT_KINDS, SENSOR_KINDS } from '../model/schema'
+import { KINDS } from '../model/kinds'
+import { CONTROLLABLE_TYPES, isStructure } from '../model/schema'
 import { computeSummary } from '../model/summary'
 import { fmt } from '../labels'
 import { useActiveDesign, useUi } from '../store'
@@ -25,8 +26,10 @@ export default function FinishDialog() {
   const d = useActiveDesign()
   const s = useMemo(() => computeSummary(d), [d])
   const { exportFile, send } = useHandoff()
+  const kind = KINDS[d.roomKind]
 
-  const sensorRows = SENSOR_KINDS.filter((k) => s.sensors[k] > 0)
+  const structureRows = kind.structures.filter(isStructure).filter((k) => s.structures[k] > 0)
+  const sensorRows = kind.sensors.filter((k) => s.sensors[k] > 0)
   const outputRows = [
     ...CONTROLLABLE_TYPES.filter((k) => s.placedOutputs[k] > 0).map((k) => ({
       key: k,
@@ -35,14 +38,18 @@ export default function FinishDialog() {
       n: s.placedOutputs[k],
       extra: false,
     })),
-    ...EXTRA_OUTPUT_KINDS.filter((k) => s.extraOutputs[k] > 0).map((k) => ({
-      key: `x-${k}`,
-      label: t(EXTRA_SPECS[k].label),
-      glyph: EXTRA_SPECS[k].glyph,
-      n: s.extraOutputs[k],
-      extra: true,
-    })),
+    ...kind.extras
+      .filter((k) => s.extraOutputs[k] > 0)
+      .map((k) => ({
+        key: `x-${k}`,
+        label: t(EXTRA_SPECS[k].label),
+        glyph: EXTRA_SPECS[k].glyph,
+        n: s.extraOutputs[k],
+        extra: true,
+      })),
   ]
+
+  const size = { w: fmt(d.room.width, 1), l: fmt(d.room.length, 1), h: fmt(d.room.height, 1), area: fmt(s.area, 1) }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -53,16 +60,7 @@ export default function FinishDialog() {
         <div className="dz-finish-body">
           <section className="dz-block">
             <h3 className="dz-block-h">{t(D.summary)}</h3>
-            <p className="dz-sum-meta">
-              {t(D.roomLine, {
-                w: fmt(d.room.width, 1),
-                l: fmt(d.room.length, 1),
-                h: fmt(d.room.height, 1),
-                area: fmt(s.area, 1),
-              })}
-              {' · '}
-              {t(D.structures, { racks: s.racks, tables: s.tables })}
-            </p>
+            <p className="dz-sum-meta">{t(d.room.shape === 'round' ? D.roomLineRound : D.roomLine, size)}</p>
             <div className="dz-totals">
               <div className="dz-total">
                 <b>{s.totalSensors}</b>
@@ -73,6 +71,22 @@ export default function FinishDialog() {
                 <span>{t(D.outputsTotal)}</span>
               </div>
             </div>
+
+            {/* a silo holds no structures: only rooms list theirs */}
+            {kind.structures.length > 0 && <h4 className="dz-sub-h">{t(D.structuresByKind)}</h4>}
+            {kind.structures.length === 0 ? null : structureRows.length ? (
+              <ul className="dz-sum-list">
+                {structureRows.map((k) => (
+                  <li key={k}>
+                    <Glyph name={ITEM_SPECS[k].glyph} />
+                    <span>{t(ITEM_SPECS[k].label)}</span>
+                    <b>{s.structures[k]}</b>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="dz-empty">{t(D.none)}</p>
+            )}
 
             <h4 className="dz-sub-h">{t(D.sensorsByKind)}</h4>
             {sensorRows.length ? (
@@ -110,7 +124,7 @@ export default function FinishDialog() {
 
           <section className="dz-block">
             <h3 className="dz-block-h">{t(D.extrasTitle)}</h3>
-            <p className="dz-hint dz-hint-sm">{t(D.extrasHint)}</p>
+            <p className="dz-hint dz-hint-sm">{t(kind.text.extrasHint)}</p>
             <ExtraOutputsSection />
           </section>
 

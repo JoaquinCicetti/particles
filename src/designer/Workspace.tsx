@@ -10,7 +10,8 @@ import QuoteBar from './panels/QuoteBar'
 import TopBar from './panels/TopBar'
 import PlanView from './plan/PlanView'
 import DesignerCanvas from './scene/DesignerCanvas'
-import { useDesigner, type ViewMode } from './store'
+import { KINDS } from './model/kinds'
+import { useDesigner, useKind, type ViewMode } from './store'
 import Glyph from './ui/Glyph'
 import Segmented from './ui/Segmented'
 import Toast from './ui/Toast'
@@ -23,6 +24,7 @@ export default function Workspace() {
   const intl = useIntl()
   const t = intl.formatMessage
   const viewMode = useDesigner((s) => s.viewMode)
+  const kind = useKind()
   const narrow = useMediaQuery(NARROW)
   const [mtab, setMtab] = useState<MobileTab>('design')
   const dropping = useFileDrop(intl)
@@ -30,11 +32,11 @@ export default function Workspace() {
 
   useEffect(() => {
     const prev = document.title
-    document.title = t(D.docTitle)
+    document.title = t(KINDS[kind].text.docTitle)
     return () => {
       document.title = prev
     }
-  }, [t])
+  }, [t, kind])
 
   // on phones, picking something brings its inspector up
   useEffect(
