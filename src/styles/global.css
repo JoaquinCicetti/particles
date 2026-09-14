@@ -1353,11 +1353,11 @@ body {
 }
 
 /* the connection diagram: its own full-width row, capped so the drawing lands
-   at roughly 2.5× its authored size — big enough to read every label, not so
-   big the 364-unit viewBox turns into a banner */
+   at roughly 2× its authored size inside a padded frame — big enough to read
+   every label, not so big the 364-unit viewBox turns into a banner */
 .sol-figure {
   grid-area: fig;
-  width: min(100%, 58rem);
+  width: min(100%, 50rem);
   margin-inline: auto;
   padding: 1.4rem 1.6rem 1.2rem;
   color: var(--brand);
@@ -1734,6 +1734,39 @@ body {
   }
 }
 
+/* Radix dialogs (the designer's) are centred with translate(-50%, -50%).
+   tailwindcss-animate's zoom keyframes replaced that transform while they ran,
+   so the box flew in from the bottom-right; these keep the centring in every
+   frame — a short rise, scale and fade. */
+.dialog-anim[data-state='open'] {
+  animation: dialog-center-in 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.dialog-anim[data-state='closed'] {
+  animation: dialog-center-out 0.16s ease forwards;
+}
+
+@keyframes dialog-center-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 14px)) scale(0.97);
+  }
+}
+
+@keyframes dialog-center-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px)) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog-anim[data-state='open'],
+  .dialog-anim[data-state='closed'] {
+    animation-duration: 0.01s;
+  }
+}
+
 /* ── loading screen ─────────────────────────────────────────── */
 .loader {
   position: fixed;
@@ -2039,16 +2072,17 @@ body {
 }
 
 /* ── schematic illustrations (silo / grow room / curing rack) ── */
+/* generous inner margin: the drawing breathes inside its frame */
 .silo-figure,
 .fig-panel {
-  padding: 1.2rem 1.2rem 1rem;
+  padding: clamp(1.2rem, 3vw, 2.4rem) clamp(1.2rem, 3.6vw, 3rem) clamp(1rem, 2.4vw, 1.8rem);
 }
 
 .fig {
   display: block;
   width: 100%;
   height: auto;
-  margin: 0.6rem 0 0.4rem;
+  margin: 1.2rem 0 1rem;
   font-family: var(--mono);
   overflow: visible;
 }

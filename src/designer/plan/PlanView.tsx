@@ -3,8 +3,9 @@ import { useIntl } from 'react-intl'
 import { D } from '../i18n/messages'
 import { ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
 import { footprint, snap } from '../model/geometry'
-import type { Item, ItemType } from '../model/schema'
+import { isGrowcast, type Item, type ItemType } from '../model/schema'
 import { glyphOf, itemTitle } from '../labels'
+import { registerPlan } from '../snapshot'
 import { getActiveDesign, useActiveDesign, useDesigner } from '../store'
 import { GLYPHS } from '../ui/glyphs'
 
@@ -88,6 +89,9 @@ export default function PlanView() {
     svg.addEventListener('wheel', onWheel, { passive: false })
     return () => svg.removeEventListener('wheel', onWheel)
   }, [])
+
+  // the PDF snapshot reads the plan straight from this SVG
+  useEffect(() => registerPlan(() => svgRef.current), [])
 
   const setVb = (next: VB) => {
     vbRef.current = next
@@ -283,14 +287,17 @@ function PlanItem({
   onDown: (e: ReactPointerEvent) => void
 }) {
   const mounted = ITEM_SPECS[it.type].mount === 'mounted'
-  const cls = `dz-pi dz-pi-${it.type}${mounted ? ' is-mounted' : ''}${selected ? ' is-selected' : ''}`
+  const growcast = it.type === 'sensor' || isGrowcast(it.type)
+  const cls = `dz-pi dz-pi-${it.type}${mounted ? ' is-mounted' : ''}${growcast ? ' is-growcast' : ''}${selected ? ' is-selected' : ''}`
 
-  if (it.type === 'sensor') {
+  // sensors and the small Growcast devices are a few cm across: drawn to scale
+  // they vanish, so they get a legible marker instead (the panel stays to scale)
+  if (growcast && it.type !== 'growcast_industria') {
     const r = Math.max(0.09, unit * 1.05)
     const g = r * 1.3
-    const tint = SENSOR_SPECS[it.sensorKind ?? 'air_temp_humidity'].tint
+    const tint = it.type === 'sensor' ? SENSOR_SPECS[it.sensorKind ?? 'air_temp_humidity'].tint : '#cad86e'
     return (
-      <g className={cls} transform={`translate(${it.x} ${it.z})`} onPointerDown={onDown} style={{ '--tint': tint } as CSSProperties}>
+      <g className={`${cls} is-marker`} transform={`translate(${it.x} ${it.z})`} onPointerDown={onDown} style={{ '--tint': tint } as CSSProperties}>
         <title>{title}</title>
         <circle className="dz-pi-halo" r={r * 1.8} />
         <circle className="dz-pi-dot" r={r} />

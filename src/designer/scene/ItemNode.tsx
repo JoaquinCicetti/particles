@@ -104,7 +104,9 @@ function ItemNode({ item, room }: { item: Item; room: Room }) {
           pointerEvents="none"
           className="dz-chip3d"
         >
-          {w.toFixed(2)} × {d.toFixed(2)} m{mounted ? ` · ↑ ${baseY.toFixed(2)} m` : ''}
+          {w.toFixed(2)} × {d.toFixed(2)}
+          {item.type === 'sensor' ? '' : ` × ${bodyHeight(item, room).toFixed(2)}`} m
+          {mounted ? ` · ↑ ${baseY.toFixed(2)} m` : ''}
         </Html>
       )}
     </>

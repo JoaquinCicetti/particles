@@ -991,6 +991,12 @@ textarea.dz-input {
   pointer-events: auto;
 }
 
+/* snapshot + frame, together at the right end */
+.dz-viewbar-tools {
+  display: flex;
+  gap: 0.4rem;
+}
+
 .dz-views {
   flex: 1;
   display: grid;
@@ -1160,24 +1166,30 @@ textarea.dz-input {
   stroke-linejoin: round;
 }
 
-.dz-pi-sensor .dz-pi-halo {
-  fill: color-mix(in srgb, var(--tint) 12%, transparent);
+/* Growcast hardware reads lime in the plan too, apart from the customer's things */
+.dz-pi.is-growcast .dz-pi-body {
+  fill: rgba(202, 216, 110, 0.2);
+  stroke: var(--brand-bright);
+}
+
+.dz-pi.is-marker .dz-pi-halo {
+  fill: color-mix(in srgb, var(--brand) 22%, transparent);
   stroke: var(--tint);
-  stroke-opacity: 0.45;
+  stroke-opacity: 0.55;
   stroke-width: 1;
 }
 
-.dz-pi-sensor .dz-pi-dot {
-  fill: #1c1c20;
+.dz-pi.is-marker .dz-pi-dot {
+  fill: color-mix(in srgb, var(--brand) 30%, #1c1c20);
   stroke: var(--tint);
   stroke-width: 1.5;
 }
 
-.dz-pi-sensor .dz-pi-glyph {
-  stroke: var(--tint);
+.dz-pi.is-marker .dz-pi-glyph {
+  stroke: #f2f2f6;
 }
 
-.dz-pi-sensor.is-selected .dz-pi-halo {
+.dz-pi.is-marker.is-selected .dz-pi-halo {
   stroke-opacity: 1;
   stroke-width: 2;
 }

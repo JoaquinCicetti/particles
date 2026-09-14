@@ -1,4 +1,5 @@
 import { ITEM_SPECS, SENSOR_SPECS } from './catalog'
+import { bodyHeight } from './geometry'
 import { KINDS } from './kinds'
 import {
   EMPTY_CONTACT,
@@ -40,6 +41,8 @@ export function createItem(type: ItemType, room: Room, sensorKind?: SensorKind):
   const spec = ITEM_SPECS[type]
   const it: Item = { id: newId(), type, x: 0, z: 0, width: spec.width, depth: spec.depth, rotation: 0 }
   if (type === 'sensor') it.sensorKind = sensorKind ?? 'air_temp_humidity'
+  // everything but the sensor (a fixed product) starts at its default height
+  else it.height = bodyHeight(it, room)
   if (spec.mount === 'mounted') {
     it.y = type === 'sensor' && SENSOR_SPECS[it.sensorKind!].ground ? 0 : (spec.defaultY?.(room) ?? 0)
   }

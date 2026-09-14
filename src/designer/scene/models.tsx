@@ -1,18 +1,20 @@
 import { Suspense, useLayoutEffect, useMemo, useRef } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { ITEM_SPECS } from '../model/catalog'
 import { bodyHeight } from '../model/geometry'
-import type { Item, Room } from '../model/schema'
+import { isGrowcast, type Item, type ItemType, type Room } from '../model/schema'
 import {
   CONE_GEO,
   EDGE,
+  GC_MAT,
+  GLOW_MAT,
   HIT_GEO,
   LINE,
   MAT,
   MIST_GEO,
   SAUSAGE_GEO,
   SENSOR_HEIGHT,
-  SENSOR_MAT,
   TORUS_GEO,
   TORUS_MID_GEO,
   UNIT_BOX,
@@ -22,7 +24,7 @@ import {
   type Tone,
 } from './materials'
 import { Box, Cyl, Lines, Plants } from './parts'
-import SensorBody from './SensorModel'
+import { GrowcastPlusBody, SensorBody } from './SensorModel'
 
 /**
  * Procedural low-poly models, built in the item's local frame: origin at the
@@ -159,20 +161,24 @@ function Light({ item, room, tone }: Props) {
     () => (drop > 0.02 ? [-w * 0.35, 0.08, 0, -w * 0.35, 0.08 + drop, 0, w * 0.35, 0.08, 0, w * 0.35, 0.08 + drop, 0] : []),
     [w, drop],
   )
+  // the fixture follows its height; the cables and the light cone do not
+  const k = bodyHeight(item, room) / ITEM_SPECS.light.height
   return (
     <group>
-      {Array.from({ length: bars }, (_, i) => {
-        const x = -w / 2 + pitch * (i + 0.5)
-        return (
-          <group key={i}>
-            <Box size={[pitch * 0.55, 0.025, d]} position={[x, 0.02, 0]} material={MAT.shell} tone={tone} />
-            <Box size={[pitch * 0.42, 0.004, d * 0.97]} position={[x, 0.006, 0]} material={MAT.led} />
-          </group>
-        )
-      })}
-      <Box size={[w, 0.03, 0.035]} position={[0, 0.045, -d / 2 + 0.0175]} material={MAT.metal} tone={tone} />
-      <Box size={[w, 0.03, 0.035]} position={[0, 0.045, d / 2 - 0.0175]} material={MAT.metal} tone={tone} />
-      <Box size={[0.3, 0.05, 0.14]} position={[0, 0.085, 0]} material={MAT.body} tone={tone} />
+      <group scale={[1, k, 1]}>
+        {Array.from({ length: bars }, (_, i) => {
+          const x = -w / 2 + pitch * (i + 0.5)
+          return (
+            <group key={i}>
+              <Box size={[pitch * 0.55, 0.025, d]} position={[x, 0.02, 0]} material={MAT.shell} tone={tone} />
+              <Box size={[pitch * 0.42, 0.004, d * 0.97]} position={[x, 0.006, 0]} material={MAT.led} />
+            </group>
+          )
+        })}
+        <Box size={[w, 0.03, 0.035]} position={[0, 0.045, -d / 2 + 0.0175]} material={MAT.metal} tone={tone} />
+        <Box size={[w, 0.03, 0.035]} position={[0, 0.045, d / 2 - 0.0175]} material={MAT.metal} tone={tone} />
+        <Box size={[0.3, 0.05, 0.14]} position={[0, 0.085, 0]} material={MAT.body} tone={tone} />
+      </group>
       {cables.length > 0 && <Lines points={cables} material={LINE.wire} />}
       {y > 0.25 && (
         <mesh geometry={CONE_GEO} material={MAT.cone} position={[0, -y / 2, 0]} scale={[w, y, d]} raycast={noRaycast} />
@@ -578,16 +584,92 @@ function Dehumidifier({ item, tone }: Props) {
   )
 }
 
+// ── Growcast hardware: lime, with a halo ─────────────────────────
+
+/** Halo size for a piece of hardware of `size`: never smaller than a share of the zone, so it reads in a 15 m silo too. */
+const glowSize = (size: number, room: Room) => Math.max(0.45, size, Math.max(room.width, room.length, room.height) * 0.08)
+
+/** Additive halo behind Growcast hardware, so it reads from across a large zone. */
+function Glow({ size, y }: { size: number; y: number }) {
+  return <sprite material={GLOW_MAT} scale={[size, size, 1]} position={[0, y, 0]} raycast={noRaycast} />
+}
+
+/** Growcast+, from the client's model; a plain box stands in while it loads. */
+function GrowcastPlus({ tone }: Props) {
+  const { width, depth, height } = ITEM_SPECS.growcast_plus
+  return (
+    <Suspense fallback={<Box size={[width, height, depth]} position={[0, height / 2, 0]} material={GC_MAT[tone]} />}>
+      <GrowcastPlusBody tone={tone} height={height} />
+    </Suspense>
+  )
+}
+
+/** Growcast Industria: the rectangular wall panel — enclosure, door, handle, status LEDs, WiFi antenna. */
+function Industria({ item, room, tone }: Props) {
+  const { width: w, depth: d } = item
+  const h = bodyHeight(item, room)
+  const face = d / 2
+  return (
+    <group>
+      <Box size={[w, h, d]} position={[0, h / 2, 0]} material={GC_MAT[tone]} tone={tone} />
+      <Box size={[w * 0.86, h * 0.88, 0.01]} position={[0, h / 2, face + 0.005]} material={MAT.shell} />
+      <Box size={[0.02, h * 0.14, 0.02]} position={[w * 0.35, h / 2, face + 0.02]} material={MAT.metal} />
+      {[0, 1, 2].map((i) => (
+        <Box key={i} size={[0.022, 0.012, 0.006]} position={[-w * 0.33 + i * 0.04, h * 0.84, face + 0.013]} material={MAT.led} />
+      ))}
+      <Cyl size={[0.016, 0.16, 0.016]} position={[w * 0.38, h + 0.08, -d * 0.2]} material={MAT.body} />
+    </group>
+  )
+}
+
+/** Control module: a small square case, status LED on the front, two screws below. */
+function ControlModule({ tone }: Props) {
+  return (
+    <group>
+      <Box size={[0.12, 0.12, 0.06]} position={[0, 0.06, 0]} material={GC_MAT[tone]} tone={tone} />
+      <Box size={[0.012, 0.012, 0.004]} position={[0.035, 0.095, 0.031]} material={MAT.led} />
+      {[-0.03, 0.03].map((x) => (
+        <Cyl key={x} size={[0.016, 0.006, 0.016]} position={[x, 0.02, 0.031]} rotation={[Math.PI / 2, 0, 0]} material={MAT.metal} />
+      ))}
+    </group>
+  )
+}
+
+/** Expander: a flat strip of ports that chains modules and sensors to the device. */
+function Expander({ tone }: Props) {
+  return (
+    <group>
+      <Box size={[0.16, 0.1, 0.05]} position={[0, 0.05, 0]} material={GC_MAT[tone]} tone={tone} />
+      {[-0.056, -0.028, 0, 0.028, 0.056].map((x) => (
+        <Box key={x} size={[0.018, 0.022, 0.004]} position={[x, 0.045, 0.026]} material={MAT.body} />
+      ))}
+      <Box size={[0.01, 0.01, 0.004]} position={[0.06, 0.08, 0.026]} material={MAT.led} />
+    </group>
+  )
+}
+
+/** The customer's own equipment: a plain cabinet at the size they give it. */
+function Appliance({ item, room, tone }: Props) {
+  const { width: w, depth: d } = item
+  const h = bodyHeight(item, room)
+  return (
+    <group>
+      <Box size={[w, h, d]} position={[0, h / 2, 0]} material={MAT.shell} tone={tone} />
+      <Box size={[w * 0.8, Math.min(0.12, h * 0.15), 0.01]} position={[0, h * 0.82, d / 2 + 0.005]} material={MAT.body} />
+      <Box size={[0.03, 0.012, 0.006]} position={[w * 0.3, h * 0.82, d / 2 + 0.012]} material={MAT.led} />
+    </group>
+  )
+}
+
 // ── sensors (all kinds) ──────────────────────────────────────────
 
 /** Procedural stand-in while the sensor mesh loads. */
 function SensorPuck({ tone }: { tone: Tone }) {
-  return <Box size={[0.06, SENSOR_HEIGHT, 0.06]} position={[0, SENSOR_HEIGHT / 2, 0]} material={MAT.shell} tone={tone} />
+  return <Box size={[0.06, SENSOR_HEIGHT, 0.06]} position={[0, SENSOR_HEIGHT / 2, 0]} material={GC_MAT[tone]} />
 }
 
-function Sensor({ item, tone, top }: Props) {
+function Sensor({ item, room, tone, top }: Props) {
   const y = item.y ?? 0
-  const kind = item.sensorKind ?? 'air_temp_humidity'
   // hung from the ceiling (or a silo's roof) on its cable; one standing on the
   // roof, like the outdoor sensor, is already at the top and has none
   const up = top - y - SENSOR_HEIGHT
@@ -597,8 +679,8 @@ function Sensor({ item, tone, top }: Props) {
       <Suspense fallback={<SensorPuck tone={tone} />}>
         <SensorBody tone={tone} />
       </Suspense>
-      {/* kind identity: an emissive ring at the base */}
-      <Cyl size={[0.075, 0.012, 0.075]} position={[0, 0.006, 0]} material={SENSOR_MAT[kind]} />
+      {/* a 20 cm sensor vanishes in a 15 m silo: the halo grows with the zone */}
+      <Glow size={glowSize(0, room)} y={SENSOR_HEIGHT / 2} />
       {wire.length > 0 && <Lines points={wire} material={LINE.wire} />}
       {/* generous invisible hit volume: a slim sensor is hard to grab */}
       <mesh geometry={HIT_GEO} material={MAT.hit} scale={0.5} position={[0, SENSOR_HEIGHT / 2, 0]} />
@@ -606,7 +688,61 @@ function Sensor({ item, tone, top }: Props) {
   )
 }
 
+/** Models built from the item's own width and depth. */
+const FITS_FOOTPRINT = new Set<ItemType>([
+  'rack',
+  'table',
+  'light',
+  'climate',
+  'humidifier',
+  'cheese_rack',
+  'hanger',
+  'pallet',
+  'trolley',
+  'cooler',
+  'heater',
+  'dehumidifier',
+  'growcast_industria',
+  'appliance',
+])
+/** Models built from the item's own height (bodyHeight). */
+const FITS_HEIGHT = new Set<ItemType>([
+  'rack',
+  'light',
+  'cheese_rack',
+  'hanger',
+  'pallet',
+  'trolley',
+  'growcast_industria',
+  'appliance',
+])
+
+/**
+ * Every dimension of every item is editable. Models drawn at a fixed size are
+ * stretched to the item's width, depth and height instead; the sensor is the
+ * client's product at its real size and never is.
+ */
 export default function ItemModel(p: Props) {
+  const { item, room } = p
+  if (item.type === 'sensor') return <Sensor {...p} />
+  const spec = ITEM_SPECS[item.type]
+  const sx = FITS_FOOTPRINT.has(item.type) ? 1 : item.width / spec.width
+  const sz = FITS_FOOTPRINT.has(item.type) ? 1 : item.depth / spec.depth
+  const sy = FITS_HEIGHT.has(item.type) ? 1 : bodyHeight(item, room) / spec.height
+  const model = <Model {...p} />
+  const body = sx === 1 && sy === 1 && sz === 1 ? model : <group scale={[sx, sy, sz]}>{model}</group>
+  if (!isGrowcast(item.type)) return body
+  // the halo sits outside the stretch, so it stays round
+  const h = bodyHeight(item, room)
+  return (
+    <>
+      {body}
+      <Glow size={glowSize(Math.max(item.width, h) * 1.8, room)} y={h / 2} />
+    </>
+  )
+}
+
+function Model(p: Props) {
   switch (p.item.type) {
     case 'rack':
       return <Rack {...p} />
@@ -640,5 +776,15 @@ export default function ItemModel(p: Props) {
       return <Extractor {...p} />
     case 'sensor':
       return <Sensor {...p} />
+    case 'growcast_plus':
+      return <GrowcastPlus {...p} />
+    case 'growcast_industria':
+      return <Industria {...p} />
+    case 'control_module':
+      return <ControlModule {...p} />
+    case 'expander':
+      return <Expander {...p} />
+    case 'appliance':
+      return <Appliance {...p} />
   }
 }

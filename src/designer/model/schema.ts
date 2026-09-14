@@ -55,6 +55,8 @@ export const ItemSchema = z
     y: num(0, 100).optional(),
     width: num(...LIMITS.itemSize),
     depth: num(...LIMITS.itemSize),
+    // optional: files from before heights were editable have none
+    height: num(...LIMITS.itemSize).optional(),
     rotation: z.number().int().min(0).max(3),
     sensorKind: z.enum(SENSOR_KINDS).optional(),
     outputs: z.number().int().min(LIMITS.outputs[0]).max(LIMITS.outputs[1]).optional(),
@@ -179,12 +181,43 @@ function toIssue(i: ZodIssue): ImportIssue {
 /** Drop fields that don't apply and trim everything inside the walls. */
 function normalize(d: Design): Design {
   const items = d.items.map((it) => {
-    if (isMounted(it.type)) return it
-    const { y: _drop, ...rest } = it
-    void _drop
-    return rest
+    let out: Item = it
+    if (!isMounted(it.type)) {
+      const { y: _y, ...rest } = out
+      void _y
+      out = rest
+    }
+    // a sensor is the client's product at its real size: no height of its own
+    if (it.type === 'sensor') {
+      const { height: _h, ...rest } = out
+      void _h
+      out = rest
+    }
+    return out
   })
   return clampAll({ ...d, items })
+}
+
+/**
+ * Grow rooms used to offer generic sensor kinds; they now offer Growcast's own
+ * sensor line. Older grow-room files (and autosaves) map onto the nearest one,
+ * and the PAR sensor, which is no longer offered, is dropped.
+ */
+const LEGACY_GROW_SENSORS: Record<string, string | null> = {
+  co2: 'temp_humidity_co2',
+  substrate_moisture_ec: 'teros12',
+  light_par: null,
+}
+
+function migrate(r: Record<string, unknown>): Record<string, unknown> {
+  if ((r.roomKind ?? 'grow') !== 'grow' || !Array.isArray(r.items)) return r
+  const items = r.items.flatMap((it: unknown) => {
+    const o = it as { type?: unknown; sensorKind?: unknown } | null
+    if (!o || o.type !== 'sensor' || typeof o.sensorKind !== 'string' || !(o.sensorKind in LEGACY_GROW_SENSORS)) return [it]
+    const next = LEGACY_GROW_SENSORS[o.sensorKind]
+    return next ? [{ ...o, sensorKind: next }] : []
+  })
+  return { ...r, items }
 }
 
 export function parseDesign(raw: unknown): ParseResult {
@@ -192,7 +225,7 @@ export function parseDesign(raw: unknown): ParseResult {
   const r = raw as Record<string, unknown>
   if (r.format !== FORMAT) return { ok: false, reason: 'format', issues: [] }
   if (r.version !== VERSION) return { ok: false, reason: 'version', issues: [], version: r.version }
-  const res = DesignSchema.safeParse(raw)
+  const res = DesignSchema.safeParse(migrate(r))
   if (!res.success) return { ok: false, reason: 'schema', issues: res.error.issues.map(toIssue) }
   return { ok: true, design: normalize(res.data) }
 }

@@ -147,7 +147,6 @@
   "silo.lbl.hot": "DEVIATION",
   "silo.aria": "Diagram: the sensors inside the silo and a CO₂ sensor send their readings to the Growcast control board, which operates the aeration fan; everything is visible in real time on your phone.",
   "grow.lbl.lights": "LIGHTS",
-  "grow.lbl.fan": "VENTILATION",
   "grow.lbl.sensor": "T° · RH · CO₂",
   "grow.lbl.irrig": "IRRIGATION",
   "grow.lbl.ecph": "EC · pH",

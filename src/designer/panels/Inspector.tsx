@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { useIntl, type MessageDescriptor } from 'react-intl'
 import { D } from '../i18n/messages'
 import { ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
-import { footprint, maxMountY } from '../model/geometry'
+import { bodyHeight, footprint, maxMountY, topAt } from '../model/geometry'
 import { KINDS, type MountPreset } from '../model/kinds'
 import { isControllable, type Item } from '../model/schema'
 import { MOD_KEY, glyphOf, itemTitle } from '../labels'
@@ -116,11 +116,21 @@ export default function Inspector() {
         </div>
       </Group>
 
-      {spec.resizable && (
+      {/* every dimension is editable — sensors get placed against racks and
+          pallets, so their real size matters. The sensor itself is the one
+          fixed product. */}
+      {it.type !== 'sensor' && (
         <Group label={t(D.size)}>
-          <div className="dz-grid2">
+          <div className="dz-grid3">
             <NumberField label={t(D.width)} value={it.width} min={0.1} max={maxSide} onChange={(width) => up({ width })} />
             <NumberField label={t(D.depth)} value={it.depth} min={0.1} max={maxSide} onChange={(depth) => up({ depth })} />
+            <NumberField
+              label={t(D.height)}
+              value={bodyHeight(it, room)}
+              min={0.05}
+              max={topAt(room, it.x, it.z)}
+              onChange={(height) => up({ height })}
+            />
           </div>
         </Group>
       )}

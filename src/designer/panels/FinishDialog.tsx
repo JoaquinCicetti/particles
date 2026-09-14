@@ -4,9 +4,10 @@ import { D } from '../i18n/messages'
 import { useHandoff } from '../actions'
 import { EXTRA_SPECS, ITEM_SPECS, SENSOR_SPECS } from '../model/catalog'
 import { KINDS } from '../model/kinds'
-import { CONTROLLABLE_TYPES, isStructure } from '../model/schema'
+import { CONTROLLABLE_TYPES, GROWCAST_TYPES, isStructure } from '../model/schema'
 import { computeSummary } from '../model/summary'
 import { fmt } from '../labels'
+import { useSnapshotPdf } from '../snapshot'
 import { useActiveDesign, useUi } from '../store'
 import Glyph from '../ui/Glyph'
 import { Button } from '@/components/ui/button'
@@ -26,9 +27,11 @@ export default function FinishDialog() {
   const d = useActiveDesign()
   const s = useMemo(() => computeSummary(d), [d])
   const { exportFile, send } = useHandoff()
+  const snapshot = useSnapshotPdf()
   const kind = KINDS[d.roomKind]
 
   const structureRows = kind.structures.filter(isStructure).filter((k) => s.structures[k] > 0)
+  const deviceRows = GROWCAST_TYPES.filter((k) => s.devices[k] > 0)
   const sensorRows = kind.sensors.filter((k) => s.sensors[k] > 0)
   const outputRows = [
     ...CONTROLLABLE_TYPES.filter((k) => s.placedOutputs[k] > 0).map((k) => ({
@@ -88,6 +91,21 @@ export default function FinishDialog() {
               <p className="dz-empty">{t(D.none)}</p>
             )}
 
+            <h4 className="dz-sub-h">{t(D.devicesByKind)}</h4>
+            {deviceRows.length ? (
+              <ul className="dz-sum-list">
+                {deviceRows.map((k) => (
+                  <li key={k}>
+                    <Glyph name={ITEM_SPECS[k].glyph} />
+                    <span>{t(ITEM_SPECS[k].label)}</span>
+                    <b>{s.devices[k]}</b>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="dz-empty">{t(D.none)}</p>
+            )}
+
             <h4 className="dz-sub-h">{t(D.sensorsByKind)}</h4>
             {sensorRows.length ? (
               <ul className="dz-sum-list">
@@ -136,6 +154,10 @@ export default function FinishDialog() {
         </div>
 
         <div className="dz-modal-actions">
+          <Button variant="outline" onClick={() => void snapshot()} title={t(D.pdfHint)}>
+            <Glyph name="camera" />
+            {t(D.pdfBtn)}
+          </Button>
           <Button variant="outline" onClick={exportFile} title={t(D.exportHint)}>
             <Glyph name="download" />
             {t(D.downloadBtn)}

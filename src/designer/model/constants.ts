@@ -32,19 +32,34 @@ export const ITEM_TYPES = [
   // shared
   'extractor',
   'sensor',
+  // Growcast hardware
+  'growcast_plus',
+  'growcast_industria',
+  'control_module',
+  'expander',
+  // the customer's own equipment, named by them
+  'appliance',
 ] as const
 export type ItemType = (typeof ITEM_TYPES)[number]
 
 export const SENSOR_KINDS = [
+  // Growcast's own sensors
   'air_temp_humidity',
-  'co2',
-  'substrate_moisture_ec',
+  'temp_humidity_co2',
+  'teros12',
+  'temp_pressure',
+  'soil_moisture',
   'water_ph_ec',
-  'light_par',
+  // silo and curing-room placements
+  'co2',
   'interior_temp_humidity',
   'outdoor_temp_humidity',
 ] as const
 export type SensorKind = (typeof SENSOR_KINDS)[number]
+
+/** Growcast's own devices and modules (docs: /wiki/link-modules, /wiki/industrial-installation). */
+export const GROWCAST_TYPES = ['growcast_plus', 'growcast_industria', 'control_module', 'expander'] as const
+export type GrowcastType = (typeof GROWCAST_TYPES)[number]
 
 export const STRUCTURE_TYPES = ['rack', 'table', 'cheese_rack', 'hanger', 'pallet', 'trolley'] as const
 export type StructureType = (typeof STRUCTURE_TYPES)[number]
@@ -59,11 +74,23 @@ export const CONTROLLABLE_TYPES = [
   'cooler',
   'heater',
   'dehumidifier',
+  'appliance',
 ] as const
 export type ControllableType = (typeof CONTROLLABLE_TYPES)[number]
 
 /** Types placed at a mount height (`y`); the rest stand on the floor. */
-export const MOUNTED_TYPES = ['light', 'climate', 'fan', 'sensor', 'extractor', 'cooler'] as const
+export const MOUNTED_TYPES = [
+  'light',
+  'climate',
+  'fan',
+  'sensor',
+  'extractor',
+  'cooler',
+  'growcast_plus',
+  'growcast_industria',
+  'control_module',
+  'expander',
+] as const
 
 export const EXTRA_OUTPUT_KINDS = [
   'irrigation_pump',
@@ -80,3 +107,4 @@ export const isControllable = (t: ItemType): t is ControllableType =>
   (CONTROLLABLE_TYPES as readonly string[]).includes(t)
 export const isStructure = (t: ItemType): t is StructureType => (STRUCTURE_TYPES as readonly string[]).includes(t)
 export const isMounted = (t: ItemType) => (MOUNTED_TYPES as readonly string[]).includes(t)
+export const isGrowcast = (t: ItemType): t is GrowcastType => (GROWCAST_TYPES as readonly string[]).includes(t)

@@ -5,6 +5,8 @@ import type { GlyphKey } from '../ui/glyphs'
 import { ITEM_SPECS, SENSOR_SPECS, groupOf, type CatalogEntry } from './catalog'
 import {
   EXTRA_OUTPUT_KINDS,
+  GROWCAST_TYPES,
+  isGrowcast,
   type DesignKind,
   type ExtraOutputKind,
   type ItemType,
@@ -17,8 +19,9 @@ import type { Room } from './schema'
  * The three designers share one engine. Every design is one zone — what the
  * Growcast app calls a sala: a grow room, a silo (or a storage cell), a curing
  * room. A kind decides which shapes that zone can take and what can go in it.
- * Equipment and sensor lists follow the client's manual: §5.1 for silos, §5.5
- * for cheese and cured-meat rooms.
+ * Peripheral and sensor lists follow the client's manual: §5.1 for silos, §5.5
+ * for cheese and cured-meat rooms. Growcast's own devices and modules go in
+ * every kind; so does a free-form peripheral the customer names.
  */
 
 export type MountPreset = 'floor' | 'canopy' | 'ceiling'
@@ -39,7 +42,8 @@ export type KindSpec = {
   /** file name when the design has no usable name */
   fileSlug: string
   structures: readonly ItemType[]
-  equipment: readonly ItemType[]
+  /** the customer's own equipment that Growcast controls */
+  peripherals: readonly ItemType[]
   sensors: readonly SensorKind[]
   extras: readonly ExtraOutputKind[]
   mountPresets: readonly MountPreset[]
@@ -71,8 +75,9 @@ export const KINDS: Record<DesignKind, KindSpec> = {
     firstName: 'Sala 1',
     fileSlug: 'sala',
     structures: ['rack', 'table'],
-    equipment: ['light', 'climate', 'fan', 'humidifier'],
-    sensors: ['air_temp_humidity', 'co2', 'substrate_moisture_ec', 'water_ph_ec', 'light_par'],
+    peripherals: ['light', 'climate', 'fan', 'humidifier', 'appliance'],
+    // Growcast's sensor line
+    sensors: ['air_temp_humidity', 'temp_humidity_co2', 'teros12', 'temp_pressure', 'soil_moisture', 'water_ph_ec'],
     extras: EXTRA_OUTPUT_KINDS,
     mountPresets: ['floor', 'canopy', 'ceiling'],
     onTop: false,
@@ -99,7 +104,7 @@ export const KINDS: Record<DesignKind, KindSpec> = {
     firstName: 'Silo 1',
     fileSlug: 'silo',
     structures: [],
-    equipment: ['aerator', 'extractor'],
+    peripherals: ['aerator', 'extractor', 'appliance'],
     sensors: ['interior_temp_humidity', 'co2', 'outdoor_temp_humidity'],
     extras: ['other'],
     mountPresets: ['floor', 'ceiling'],
@@ -136,7 +141,7 @@ export const KINDS: Record<DesignKind, KindSpec> = {
     firstName: 'Cámara 1',
     fileSlug: 'camara',
     structures: ['cheese_rack', 'hanger', 'pallet', 'trolley'],
-    equipment: ['cooler', 'heater', 'humidifier', 'dehumidifier', 'fan', 'extractor'],
+    peripherals: ['cooler', 'heater', 'humidifier', 'dehumidifier', 'fan', 'extractor', 'appliance'],
     sensors: ['air_temp_humidity', 'co2'],
     extras: ['other'],
     mountPresets: ['floor', 'ceiling'],
@@ -160,13 +165,13 @@ export const KINDS: Record<DesignKind, KindSpec> = {
 export const allowsItem = (k: KindSpec, it: { type: ItemType; sensorKind?: SensorKind }) =>
   it.type === 'sensor'
     ? it.sensorKind === undefined || k.sensors.includes(it.sensorKind)
-    : k.structures.includes(it.type) || k.equipment.includes(it.type)
+    : isGrowcast(it.type) || k.structures.includes(it.type) || k.peripherals.includes(it.type)
 
 export const allowsExtra = (k: KindSpec, e: ExtraOutputKind) => k.extras.includes(e)
 
 function entriesFor(k: KindSpec): CatalogEntry[] {
   return [
-    ...[...k.structures, ...k.equipment].map((type) => ({
+    ...[...k.structures, ...k.peripherals, ...GROWCAST_TYPES].map((type) => ({
       key: type,
       group: groupOf(type),
       type,
@@ -175,7 +180,7 @@ function entriesFor(k: KindSpec): CatalogEntry[] {
     })),
     ...k.sensors.map((s) => ({
       key: `sensor:${s}`,
-      group: 'sensor' as const,
+      group: 'growcast' as const,
       type: 'sensor' as const,
       sensorKind: s,
       label: SENSOR_SPECS[s].label,

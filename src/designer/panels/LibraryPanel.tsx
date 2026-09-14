@@ -12,8 +12,8 @@ type Filter = 'all' | CatalogGroup
 const FILTERS: Array<{ value: Filter; label: typeof D.filterAll }> = [
   { value: 'all', label: D.filterAll },
   { value: 'structure', label: D.filterStructure },
-  { value: 'equipment', label: D.filterEquipment },
-  { value: 'sensor', label: D.filterSensor },
+  { value: 'peripheral', label: D.filterPeripheral },
+  { value: 'growcast', label: D.filterGrowcast },
 ]
 
 /** Accent-insensitive contains, so "humedad" finds "Humedad / EC". */

@@ -64,17 +64,23 @@ const openFresh = async (p) => {
 const flushed = () => wait(600)
 
 // ── every catalog, from its own route ──
+// every designer also carries Growcast's four devices and one free-form peripheral (1 output)
+const GROWCAST = ['Growcast+', 'Growcast Industria (tablero)', 'Módulo de control', 'Expansor', 'Otro periférico']
 const CATALOGS = {
-  '/disenador': { sensors: 5, outputs: 4, labels: ['Rack', 'Mesa de cultivo'] },
+  '/disenador': {
+    sensors: 6,
+    outputs: 5,
+    labels: ['Rack', 'Mesa de cultivo', 'TEROS 12', 'Temperatura y presión', 'Humedad de suelo', ...GROWCAST],
+  },
   '/disenador/silos': {
     sensors: 3,
-    outputs: 2,
-    labels: ['Aireador', 'Extractor', 'Temperatura y humedad interior', 'CO₂', 'Temperatura y humedad exterior'],
+    outputs: 3,
+    labels: ['Aireador', 'Extractor', 'Temperatura y humedad interior', 'CO₂', 'Temperatura y humedad exterior', ...GROWCAST],
   },
   '/disenador/maduracion': {
     sensors: 2,
-    outputs: 6,
-    labels: ['Estantería para quesos', 'Colgadero para chacinados', 'Pallet / estiba', 'Carro móvil', 'Equipo de frío'],
+    outputs: 7,
+    labels: ['Estantería para quesos', 'Colgadero para chacinados', 'Pallet / estiba', 'Carro móvil', 'Equipo de frío', ...GROWCAST],
   },
 }
 for (const [route, want] of Object.entries(CATALOGS)) {

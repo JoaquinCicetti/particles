@@ -147,7 +147,6 @@
   "silo.lbl.hot": "DESVIO",
   "silo.aria": "Esquema: os sensores dentro do silo e um sensor de CO₂ enviam suas leituras ao quadro Growcast, que aciona o aerador; tudo é visto em tempo real no seu celular.",
   "grow.lbl.lights": "LUZES",
-  "grow.lbl.fan": "VENTILAÇÃO",
   "grow.lbl.sensor": "T° · UR · CO₂",
   "grow.lbl.irrig": "IRRIGAÇÃO",
   "grow.lbl.ecph": "EC · pH",

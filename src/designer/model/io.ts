@@ -9,7 +9,8 @@ export function toFileJson(d: Design): string {
   return JSON.stringify(out, null, 2)
 }
 
-export function designFileName(d: Design): string {
+/** File-name stem for a design: its name, slugged, or the kind's default. */
+export function designSlug(d: Design): string {
   const slug = d.name
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
@@ -17,13 +18,14 @@ export function designFileName(d: Design): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 48)
-  return `${slug || KINDS[d.roomKind].fileSlug}.growcast.json`
+  return slug || KINDS[d.roomKind].fileSlug
 }
 
-/** Save the design as a .json file; returns the file name. */
-export function downloadDesign(d: Design): string {
-  const name = designFileName(d)
-  const url = URL.createObjectURL(new Blob([toFileJson(d)], { type: 'application/json' }))
+export const designFileName = (d: Design) => `${designSlug(d)}.growcast.json`
+
+/** Hand a blob to the browser as a download. */
+export function saveBlob(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = name
@@ -31,6 +33,12 @@ export function downloadDesign(d: Design): string {
   a.click()
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+/** Save the design as a .json file; returns the file name. */
+export function downloadDesign(d: Design): string {
+  const name = designFileName(d)
+  saveBlob(new Blob([toFileJson(d)], { type: 'application/json' }), name)
   return name
 }
 

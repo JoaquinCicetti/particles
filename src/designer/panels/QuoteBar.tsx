@@ -26,6 +26,10 @@ export default function QuoteBar() {
           <b>{s.totalOutputs}</b>
           <span>{t(D.outputsTotal)}</span>
         </div>
+        <div className="dz-total">
+          <b>{s.totalDevices}</b>
+          <span>{t(D.devicesTotal)}</span>
+        </div>
       </div>
     </div>
   )

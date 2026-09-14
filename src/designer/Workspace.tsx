@@ -10,6 +10,7 @@ import QuoteBar from './panels/QuoteBar'
 import TopBar from './panels/TopBar'
 import PlanView from './plan/PlanView'
 import DesignerCanvas from './scene/DesignerCanvas'
+import { useSnapshotPdf } from './snapshot'
 import { KINDS } from './model/kinds'
 import { useDesigner, useKind, type ViewMode } from './store'
 import Glyph from './ui/Glyph'
@@ -121,6 +122,7 @@ function ViewBar({ mode, narrow }: { mode: ViewMode; narrow: boolean }) {
   const t = intl.formatMessage
   const setViewMode = useDesigner((s) => s.setViewMode)
   const frame = useDesigner((s) => s.frame)
+  const snapshot = useSnapshotPdf()
   const options = [
     { value: '3d' as const, label: <><Glyph name="cube" />{t(D.view3d)}</> },
     { value: 'plan' as const, label: <><Glyph name="plan" />{t(D.viewPlan)}</> },
@@ -129,9 +131,20 @@ function ViewBar({ mode, narrow }: { mode: ViewMode; narrow: boolean }) {
   return (
     <div className="dz-viewbar">
       <Segmented label={t(D.viewAria)} value={mode} options={options} onChange={setViewMode} />
-      <button type="button" className="dz-btn dz-icon-btn dz-glass" onClick={frame} aria-label={t(D.frame)} title={t(D.frame)}>
-        <Glyph name="frame" />
-      </button>
+      <div className="dz-viewbar-tools">
+        <button
+          type="button"
+          className="dz-btn dz-icon-btn dz-glass"
+          onClick={() => void snapshot()}
+          aria-label={t(D.pdfHint)}
+          title={t(D.pdfHint)}
+        >
+          <Glyph name="camera" />
+        </button>
+        <button type="button" className="dz-btn dz-icon-btn dz-glass" onClick={frame} aria-label={t(D.frame)} title={t(D.frame)}>
+          <Glyph name="frame" />
+        </button>
+      </div>
     </div>
   )
 }

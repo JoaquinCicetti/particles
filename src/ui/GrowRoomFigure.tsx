@@ -107,11 +107,9 @@ export default function GrowRoomFigure() {
           </g>
         ))}
 
-        {/* wall fan */}
+        {/* wall fan — uncaptioned: there is no clear spot for a label between
+            the plants, the light cones and its wiring */}
         <Fan cx={213} cy={108} r={9} />
-        <text x="213" y="130" textAnchor="middle" className="fig-lbl" fontSize="7.5">
-          {intl.formatMessage(M.grLblFan)}
-        </text>
 
         {/* nutrient tank, pipe to the bench, irrigation pump */}
         <rect x="30" y="178" width="24" height="22" rx="1" className="fig-node" />

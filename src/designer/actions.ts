@@ -6,7 +6,7 @@ import { D } from './i18n/messages'
 import { EXTRA_SPECS, ITEM_SPECS, SENSOR_SPECS } from './model/catalog'
 import { downloadDesign, readDesignFile } from './model/io'
 import { KINDS } from './model/kinds'
-import { CONTROLLABLE_TYPES, isStructure, type Design } from './model/schema'
+import { CONTROLLABLE_TYPES, GROWCAST_TYPES, isStructure, type Design } from './model/schema'
 import { computeSummary } from './model/summary'
 import { getActiveDesign, useDesigner, useUi } from './store'
 
@@ -44,6 +44,10 @@ export function whatsappText(intl: IntlShape, d: Design, file: string) {
   if (structures.length) {
     lines.push(t(D.waStructures, { n: structures.reduce((n, k) => n + s.structures[k], 0) }))
     for (const k of structures) lines.push(`  • ${s.structures[k]} × ${t(ITEM_SPECS[k].label)}`)
+  }
+  if (s.totalDevices) {
+    lines.push(t(D.waDevices, { n: s.totalDevices }))
+    for (const k of GROWCAST_TYPES) if (s.devices[k]) lines.push(`  • ${s.devices[k]} × ${t(ITEM_SPECS[k].label)}`)
   }
   lines.push(t(D.waSensors, { n: s.totalSensors }))
   for (const k of kind.sensors) if (s.sensors[k]) lines.push(`  • ${s.sensors[k]} × ${t(SENSOR_SPECS[k].label)}`)

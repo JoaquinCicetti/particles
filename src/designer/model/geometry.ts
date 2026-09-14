@@ -33,8 +33,13 @@ export function footprint(it: Pick<Item, 'width' | 'depth' | 'rotation'>) {
   return { w: odd ? it.depth : it.width, d: odd ? it.width : it.depth }
 }
 
-/** Drawn body height, shortened to clear a low ceiling where that applies. */
-export function bodyHeight(it: Pick<Item, 'type'>, room: Room) {
+/**
+ * Body height: the item's own when it has one. Older files carry none, so they
+ * fall back to the catalog default, shortened to clear a low ceiling where
+ * that applies.
+ */
+export function bodyHeight(it: Pick<Item, 'type' | 'height'>, room: Room) {
+  if (it.height !== undefined) return it.height
   const spec = ITEM_SPECS[it.type]
   return spec.shrink ? Math.max(0.6, Math.min(spec.height, room.height - 0.2)) : spec.height
 }
@@ -66,6 +71,8 @@ export function clampItem(it: Item, room: Room, kind: DesignKind): Item {
     const hz = Math.max(0, room.length / 2 - d / 2)
     next = { ...it, width, depth, x: r3(clamp(it.x, -hx, hx)), z: r3(clamp(it.z, -hz, hz)) }
   }
+  // no taller than the zone over it; a hung item then drops to fit below the top
+  if (next.height !== undefined) next.height = r3(clamp(next.height, 0.05, topAt(room, next.x, next.z)))
   if (ITEM_SPECS[it.type].mount === 'mounted') {
     next.y = r3(clamp(it.y ?? 0, 0, maxMountY(next, room, kind)))
   }

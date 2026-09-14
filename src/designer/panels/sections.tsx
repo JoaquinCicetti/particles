@@ -106,7 +106,7 @@ export function RoomSection() {
 
 function meta(it: Item) {
   const spec = ITEM_SPECS[it.type]
-  if (it.type === 'light' || (spec.resizable && spec.mount === 'floor')) return `${fmt(it.width)}×${fmt(it.depth)}`
+  if (it.type === 'light' || (it.type !== 'sensor' && spec.mount === 'floor')) return `${fmt(it.width)}×${fmt(it.depth)}`
   if (it.y !== undefined) return `↕ ${fmt(it.y)} m`
   return ''
 }

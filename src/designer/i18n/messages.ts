@@ -65,17 +65,22 @@ export const D = defineMessages({
   noMatches: { id: 'dz.add.noMatches', defaultMessage: 'Nada coincide con la búsqueda.' },
   filterAll: { id: 'dz.filter.all', defaultMessage: 'Todo' },
   filterStructure: { id: 'dz.filter.structure', defaultMessage: 'Estructura' },
-  filterEquipment: { id: 'dz.filter.equipment', defaultMessage: 'Equipos' },
-  filterSensor: { id: 'dz.filter.sensor', defaultMessage: 'Sensores' },
+  // the customer's own equipment, apart from Growcast's hardware
+  filterPeripheral: { id: 'dz.filter.peripheral', defaultMessage: 'Periféricos' },
+  filterGrowcast: { id: 'dz.filter.growcast', defaultMessage: 'Growcast' },
   filterAria: { id: 'dz.filter.aria', defaultMessage: 'Filtrar objetos' },
 
   // finish step
-  finish: { id: 'dz.finish', defaultMessage: 'Terminar' },
+  finish: { id: 'dz.finish', defaultMessage: 'Exportar' },
   finishHint: { id: 'dz.finish.hint', defaultMessage: 'Revisá el resumen, agregá lo que falte y descargá o envianos el diseño.' },
   finishTitle: { id: 'dz.finish.title', defaultMessage: 'Revisar y enviar' },
   downloadBtn: { id: 'dz.finish.download', defaultMessage: 'Descargar .json' },
   roomLine: { id: 'dz.finish.roomLine', defaultMessage: '{w} × {l} × {h} m · {area} m²' },
   roomLineRound: { id: 'dz.finish.roomLineRound', defaultMessage: 'Ø {w} × {h} m · {area} m²' },
+  // snapshot: the views on screen, saved as a PDF
+  pdfBtn: { id: 'dz.pdf.button', defaultMessage: 'Descargar .pdf' },
+  pdfHint: { id: 'dz.pdf.hint', defaultMessage: 'Guardar la vista actual como PDF' },
+  pdfFailed: { id: 'dz.pdf.failed', defaultMessage: 'No se pudo generar el PDF' },
 
   // remaining step copy
   roomTitle: { id: 'dz.step.1', defaultMessage: 'Sala' },
@@ -125,13 +130,21 @@ export const D = defineMessages({
   typeCooler: { id: 'dz.type.cooler', defaultMessage: 'Equipo de frío' },
   typeHeater: { id: 'dz.type.heater', defaultMessage: 'Calefactor' },
   typeDehumidifier: { id: 'dz.type.dehumidifier', defaultMessage: 'Deshumidificador' },
+  typeAppliance: { id: 'dz.type.appliance', defaultMessage: 'Otro periférico' },
+  // Growcast hardware — names as in the Growcast docs
+  typeGrowcastPlus: { id: 'dz.type.growcastPlus', defaultMessage: 'Growcast+' },
+  typeIndustria: { id: 'dz.type.industria', defaultMessage: 'Growcast Industria (tablero)' },
+  typeControlModule: { id: 'dz.type.controlModule', defaultMessage: 'Módulo de control' },
+  typeExpander: { id: 'dz.type.expander', defaultMessage: 'Expansor' },
 
-  // sensor kinds
+  // sensor kinds — Growcast's sensor line, plus the silo placements
   kindAir: { id: 'dz.kind.air', defaultMessage: 'Temperatura y humedad' },
+  kindAirCo2: { id: 'dz.kind.airCo2', defaultMessage: 'Temperatura, humedad y CO₂' },
+  kindTeros12: { id: 'dz.kind.teros12', defaultMessage: 'TEROS 12' },
+  kindPressure: { id: 'dz.kind.pressure', defaultMessage: 'Temperatura y presión' },
+  kindSoil: { id: 'dz.kind.soil', defaultMessage: 'Humedad de suelo' },
+  kindWater: { id: 'dz.kind.water', defaultMessage: 'pH / EC' },
   kindCo2: { id: 'dz.kind.co2', defaultMessage: 'CO₂' },
-  kindSubstrate: { id: 'dz.kind.substrate', defaultMessage: 'Humedad / EC de sustrato' },
-  kindWater: { id: 'dz.kind.water', defaultMessage: 'pH / EC de agua' },
-  kindPar: { id: 'dz.kind.par', defaultMessage: 'Luz (PAR)' },
   kindInterior: { id: 'dz.kind.interior', defaultMessage: 'Temperatura y humedad interior' },
   kindOutdoor: { id: 'dz.kind.outdoor', defaultMessage: 'Temperatura y humedad exterior' },
 
@@ -207,6 +220,8 @@ export const D = defineMessages({
   sensorsTotal: { id: 'dz.sum.sensors', defaultMessage: 'Sensores' },
   outputsTotal: { id: 'dz.sum.outputs', defaultMessage: 'Salidas' },
   structuresByKind: { id: 'dz.sum.structuresByKind', defaultMessage: 'Estructuras' },
+  devicesTotal: { id: 'dz.sum.devices', defaultMessage: 'Equipos Growcast' },
+  devicesByKind: { id: 'dz.sum.devicesByKind', defaultMessage: 'Equipos Growcast' },
   sensorsByKind: { id: 'dz.sum.sensorsByKind', defaultMessage: 'Sensores por tipo' },
   outputsByKind: { id: 'dz.sum.outputsByKind', defaultMessage: 'Salidas por tipo' },
   extraTag: { id: 'dz.sum.extraTag', defaultMessage: 'Extra' },
@@ -275,6 +290,7 @@ export const D = defineMessages({
   waRoomRound: { id: 'dz.wa.room.round', defaultMessage: 'Silo: Ø {w} × {h} m ({area} m²)' },
   waRoomCuring: { id: 'dz.wa.room.curing', defaultMessage: 'Cámara: {w} × {l} × {h} m ({area} m²)' },
   waStructures: { id: 'dz.wa.structures', defaultMessage: 'Estructuras: {n}' },
+  waDevices: { id: 'dz.wa.devices', defaultMessage: 'Equipos Growcast: {n}' },
   waSensors: { id: 'dz.wa.sensors', defaultMessage: 'Sensores: {n}' },
   waOutputs: { id: 'dz.wa.outputs', defaultMessage: 'Salidas a controlar: {n}' },
   waContact: { id: 'dz.wa.contact', defaultMessage: 'Contacto: {who}' },

@@ -256,7 +256,6 @@ export const M = defineMessages({
   siloAria: { id: 'silo.aria', defaultMessage: 'Esquema: los sensores dentro del silo y un sensor de CO₂ envían sus lecturas al tablero Growcast, que acciona el aireador; todo se ve en tiempo real en su teléfono.' },
   // grow-room illustration labels
   grLblLights: { id: 'grow.lbl.lights', defaultMessage: 'LUCES' },
-  grLblFan: { id: 'grow.lbl.fan', defaultMessage: 'VENTILACIÓN' },
   grLblSensor: { id: 'grow.lbl.sensor', defaultMessage: 'T° · HR · CO₂' },
   grLblIrrig: { id: 'grow.lbl.irrig', defaultMessage: 'RIEGO' },
   grLblEcph: { id: 'grow.lbl.ecph', defaultMessage: 'EC · pH' },

@@ -1,7 +1,5 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { SENSOR_SPECS } from '../model/catalog'
-import { SENSOR_KINDS, type SensorKind } from '../model/schema'
 
 /**
  * Shared geometry + materials for the "dark CAD + copper" look: matte
@@ -152,12 +150,41 @@ export const SENSOR_HEIGHT = 0.2
 
 export type Tone = 'idle' | 'hover' | 'selected'
 
-/** The sensor mesh is too dense for edge lines: selection brightens it instead. */
-export const SENSOR_BODY_MAT: Record<Tone, THREE.MeshStandardMaterial> = {
-  idle: new THREE.MeshStandardMaterial({ color: '#313138', roughness: 0.6, metalness: 0.1 }),
-  hover: new THREE.MeshStandardMaterial({ color: '#313138', roughness: 0.6, metalness: 0.1, emissive: '#cad86e', emissiveIntensity: 0.18 }),
-  selected: new THREE.MeshStandardMaterial({ color: '#313138', roughness: 0.6, metalness: 0.1, emissive: '#eef7b4', emissiveIntensity: 0.4 }),
+/**
+ * Growcast's own hardware — sensors, devices, modules — is lit brand lime so it
+ * stands apart from the grey scene and the customer's equipment. The sensor
+ * mesh is too dense for edge lines, so hover and selection brighten it instead.
+ */
+export const GC_MAT: Record<Tone, THREE.MeshStandardMaterial> = {
+  idle: new THREE.MeshStandardMaterial({ color: '#b6c55c', roughness: 0.5, metalness: 0.1, emissive: '#cad86e', emissiveIntensity: 0.35 }),
+  hover: new THREE.MeshStandardMaterial({ color: '#c4d36a', roughness: 0.5, metalness: 0.1, emissive: '#cad86e', emissiveIntensity: 0.6 }),
+  selected: new THREE.MeshStandardMaterial({ color: '#dce88f', roughness: 0.5, metalness: 0.1, emissive: '#eef7b4', emissiveIntensity: 0.9 }),
 }
+
+/** Soft radial falloff, drawn once: the halo sprite behind Growcast hardware. */
+const GLOW_TEXTURE = (() => {
+  const c = document.createElement('canvas')
+  c.width = c.height = 128
+  const ctx = c.getContext('2d')
+  if (ctx) {
+    const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
+    g.addColorStop(0, 'rgba(255,255,255,1)')
+    g.addColorStop(0.25, 'rgba(255,255,255,0.45)')
+    g.addColorStop(1, 'rgba(255,255,255,0)')
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, 128, 128)
+  }
+  return new THREE.CanvasTexture(c)
+})()
+
+export const GLOW_MAT = new THREE.SpriteMaterial({
+  map: GLOW_TEXTURE,
+  color: '#cad86e',
+  transparent: true,
+  opacity: 0.55,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+})
 
 export const EDGE: Record<Tone, THREE.LineBasicMaterial> = {
   idle: new THREE.LineBasicMaterial({ color: '#cad86e', transparent: true, opacity: 0.5 }),
@@ -170,10 +197,3 @@ export const LINE = {
   dim: new THREE.LineBasicMaterial({ color: '#cad86e', transparent: true, opacity: 0.4 }),
   wire: new THREE.LineBasicMaterial({ color: '#6f7550', transparent: true, opacity: 0.75 }),
 }
-
-export const SENSOR_MAT = Object.fromEntries(
-  SENSOR_KINDS.map((k) => [
-    k,
-    new THREE.MeshStandardMaterial({ color: SENSOR_SPECS[k].tint, emissive: SENSOR_SPECS[k].tint, emissiveIntensity: 1.3 }),
-  ]),
-) as Record<SensorKind, THREE.MeshStandardMaterial>

@@ -34,6 +34,9 @@ const CO2 = { x: 98, y: 113 }
 
 const SHELVES = [78, 118, 158, 198]
 const WHEELS = [50, 90, 130, 170]
+/** the shelves the pods hang beside: the wheel left of the post is left out
+ *  there, and the pod's label takes its slot */
+const POD_SHELVES = [118, 158]
 
 export default function CuringRoomFigure() {
   const intl = useIntl()
@@ -56,7 +59,7 @@ export default function CuringRoomFigure() {
 
         {/* wheels of cheese */}
         {SHELVES.map((y) =>
-          WHEELS.map((x) => (
+          WHEELS.filter((x) => !(x === 90 && POD_SHELVES.includes(y))).map((x) => (
             <g key={`${x}-${y}`}>
               <rect x={x - 16} y={y - 16} width="32" height="14" rx="4" className="fig-cheese" />
               <path d={`M${x - 11} ${y - 9} H${x + 11}`} stroke="currentColor" strokeWidth="0.7" opacity="0.5" />
@@ -73,13 +76,13 @@ export default function CuringRoomFigure() {
         <path d="M24 206 V234 M184 206 V234" />
       </g>
 
-      {/* ceiling-mounted cooling unit — the caption sits BESIDE it, in the
-          clear band between the unit and the sense bus at x = 200 */}
+      {/* ceiling-mounted cooling unit — captioned on its left, away from the
+          command wire that enters on its right */}
       <path d="M90 9 V12 M126 9 V12" className="fig-wire" />
       <rect x="76" y="12" width="64" height="15" rx="1.5" className="fig-node" />
       <path d="M82 15 V24 M134 15 V24" className="fig-pin" />
       <Fan cx={108} cy={19.5} r={7} />
-      <text x="146" y="22" className="fig-lbl" fontSize="7">
+      <text x="70" y="22" textAnchor="end" className="fig-lbl" fontSize="7">
         {intl.formatMessage(M.crLblCold)}
       </text>
 
@@ -102,11 +105,11 @@ export default function CuringRoomFigure() {
 
       {/* climate + CO₂ pods on the centre post */}
       <SensorNode x={CLIMATE.x} y={CLIMATE.y} />
-      <text x="94" y="90" textAnchor="end" className="fig-lbl" fontSize="7">
+      <text x="95" y="104" textAnchor="end" className="fig-lbl" fontSize="6.5">
         {intl.formatMessage(M.crLblSensor)}
       </text>
       <SensorNode x={CO2.x} y={CO2.y} />
-      <text x="94" y="130" textAnchor="end" className="fig-lbl" fontSize="7">
+      <text x="95" y="144" textAnchor="end" className="fig-lbl" fontSize="6.5">
         {intl.formatMessage(M.crLblCo2)}
       </text>
 

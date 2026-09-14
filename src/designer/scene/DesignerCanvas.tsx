@@ -1,4 +1,6 @@
-import { Canvas } from '@react-three/fiber'
+import { useEffect } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
+import { registerScene } from '../snapshot'
 import { useActiveDesign, useDesigner } from '../store'
 import CameraRig from './CameraRig'
 import ItemNode from './ItemNode'
@@ -31,6 +33,26 @@ export default function DesignerCanvas() {
         <ItemNode key={it.id} item={it} room={room} />
       ))}
       <CameraRig room={room} />
+      <SnapshotSource />
     </Canvas>
   )
+}
+
+/**
+ * Lets the PDF snapshot read this view. The drawing buffer is not preserved,
+ * so it renders a fresh frame on request and the snapshot copies it straight
+ * away, in the same task.
+ */
+function SnapshotSource() {
+  const get = useThree((s) => s.get)
+  useEffect(
+    () =>
+      registerScene(() => {
+        const { gl, scene, camera } = get()
+        gl.render(scene, camera)
+        return gl.domElement
+      }),
+    [get],
+  )
+  return null
 }

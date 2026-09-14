@@ -20,7 +20,8 @@ const CABLE_L = 'M78 200 V59 L102 44 V6 H200 V42 H238'
 const CABLE_R = 'M126 200 V59 L102 44 V6 H200 V42 H238'
 /** the leg the cables share above the roof — the only part not already drawn in-group */
 const TRUNK = 'M102 44 V6 H200 V42 H238'
-const TO_FAN = 'M238 56 H208 V222 H185'
+// the fan command drops down a gutter at x = 226, clear of the hot-spot callout
+const TO_FAN = 'M238 56 H226 V222 H185'
 const UPLINK = 'M282.8 92.4 V118'
 
 const STACK_X = 238
@@ -90,7 +91,8 @@ export default function SiloFigure() {
 
         {/* aeration fan */}
         <Fan cx={170} cy={212} r={11} />
-        <text x="170" y="234" textAnchor="middle" className="fig-lbl">
+        {/* above the fan: below it the caption ran into the silo's legs and ground line */}
+        <text x="178" y="195" textAnchor="middle" className="fig-lbl">
           {intl.formatMessage(M.siloLblFan)}
         </text>
       </g>
