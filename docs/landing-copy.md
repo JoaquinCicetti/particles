@@ -43,9 +43,9 @@ Solo tres (ver memoria del proyecto): §5.2 → `cultivo`, §5.1 → `silos`, §
 | data.title | El dato se convierte en herramienta. | §3.3 última frase |
 | data.body | Condiciones actuales, gráficos históricos, tendencias, indicadores y alertas, desde un mismo lugar. | §3.3 lista, §3.2 |
 | converge.kicker | CONTROLAMOS Y REGISTRAMOS | §3.4, §3.5 |
-| converge.title | La información, convertida en acción. | §3.4 "transformar esa información en una acción" |
+| converge.title | Todo converge en Growcast. | §3.2 "centralizar datos" — elegido por Joaquín, acompaña el morph del logo |
 | converge.body | Cuando la instalación lo permite, Growcast acciona equipos de forma automática o remota. Todo queda registrado: mediciones, alertas, estados de equipos y eventos. | §3.4, §3.5 |
-| finale.fine | GROWCAST © 2026 — MONITOREO, CONTROL Y AUTOMATIZACIÓN | §2 |
+| finale.fine | GROWCAST © 2026 — MONITOREO, CONTROL Y TRAZABILIDAD | §2, §4.6 — elegido por Joaquín |
 
 Chips flotantes: TEMPERATURA · HUMEDAD · CO₂ · CONDUCTIVIDAD · pH (§3.1). Valores ilustrativos.
 

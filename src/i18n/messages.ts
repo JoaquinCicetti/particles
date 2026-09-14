@@ -41,14 +41,14 @@ export const M = defineMessages({
   },
 
   convergeKicker: { id: 'converge.kicker', defaultMessage: 'CONTROLAMOS Y REGISTRAMOS' },
-  convergeTitle: { id: 'converge.title', defaultMessage: 'La información, convertida en acción.' },
+  convergeTitle: { id: 'converge.title', defaultMessage: 'Todo converge en Growcast.' },
   convergeBody: {
     id: 'converge.body',
     defaultMessage:
       'Cuando la instalación lo permite, Growcast acciona equipos de forma automática o remota. Todo queda registrado: mediciones, alertas, estados de equipos y eventos.',
   },
 
-  finaleFine: { id: 'finale.fine', defaultMessage: 'GROWCAST © 2026 — MONITOREO, CONTROL Y AUTOMATIZACIÓN' },
+  finaleFine: { id: 'finale.fine', defaultMessage: 'GROWCAST © 2026 — MONITOREO, CONTROL Y TRAZABILIDAD' },
   hint: { id: 'hint', defaultMessage: 'DESPLÁCESE PARA EXPLORAR' },
 
   // sensor metric cards
