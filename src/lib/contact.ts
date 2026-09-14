@@ -16,3 +16,9 @@ export const WHATSAPP_FOOTER_DISPLAY = WHATSAPP_FOOTER.replace(
 
 // sales inbox
 export const EMAIL = 'ventas@growcast.io'
+
+// the inbox the terms and privacy policy name for claims, data and revocations
+export const LEGAL_EMAIL = 'info@growcast.io'
+
+// the Growcast platform
+export const APP_URL = 'https://app.growcast.io'

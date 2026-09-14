@@ -2,6 +2,7 @@ import { useEffect, useRef, type MouseEvent } from 'react'
 import { useIntl } from 'react-intl'
 import { M } from '../i18n/messages'
 import LangPicker from './LangPicker'
+import LegalLinks from './LegalLinks'
 import { HOME, NAV, onAnchorClick } from './nav'
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -87,6 +88,7 @@ export default function MenuSheet({ open, onClose }: { open: boolean; onClose: (
             </a>
           ))}
         </nav>
+        <LegalLinks className="sheet-legal" />
         <div className="sheet-lang">
           <LangPicker />
         </div>

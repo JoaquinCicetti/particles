@@ -13,6 +13,18 @@ export const DESIGNER_PATHS = {
   curing: '/disenador/maduracion',
 } as const
 
+/** Legal documents: plain reading pages, linked from the footer and the menu. */
+export const LEGAL_PATHS = {
+  terms: '/terminos',
+  privacy: '/privacidad',
+  regret: '/arrepentimiento',
+} as const
+
+export type LegalDoc = keyof typeof LEGAL_PATHS
+
+export const legalDocAt = (path: string): LegalDoc | null =>
+  (Object.keys(LEGAL_PATHS) as LegalDoc[]).find((k) => LEGAL_PATHS[k] === path) ?? null
+
 export type DesignerKind = keyof typeof DESIGNER_PATHS
 
 export const designerKindAt = (path: string): DesignerKind | null =>
