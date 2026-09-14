@@ -246,9 +246,11 @@ export function ContactSection() {
         <input
           className={`dz-input${emailBad ? ' is-invalid' : ''}`}
           type="email"
+          inputMode="email"
           value={c.email}
           maxLength={160}
           autoComplete="email"
+          placeholder={t(D.cEmailPh)}
           aria-invalid={emailBad}
           onChange={(e) => setContact({ email: e.target.value })}
         />
@@ -259,9 +261,11 @@ export function ContactSection() {
           <input
             className="dz-input"
             type="tel"
+            inputMode="tel"
             value={c.phone}
             maxLength={40}
             autoComplete="tel"
+            placeholder={t(D.cPhonePh)}
             onChange={(e) => setContact({ phone: e.target.value })}
           />
         </Field>

@@ -56,97 +56,99 @@ export default function FinishDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="dz-dialog dz-finish sm:max-w-3xl">
+      <DialogContent className="dz-dialog dz-finish sm:max-w-3xl min-[900px]:max-w-5xl">
         <DialogTitle className="dialog-title">{t(D.finishTitle)}</DialogTitle>
         <p className="dz-hint">{t(D.finishHint)}</p>
 
         <div className="dz-finish-body">
-          <section className="dz-block">
-            <h3 className="dz-block-h">{t(D.summary)}</h3>
-            <p className="dz-sum-meta">{t(d.room.shape === 'round' ? D.roomLineRound : D.roomLine, size)}</p>
-            <div className="dz-totals">
-              <div className="dz-total">
-                <b>{s.totalSensors}</b>
-                <span>{t(D.sensorsTotal)}</span>
+          <div className="dz-finish-main">
+            <section className="dz-block">
+              <h3 className="dz-block-h">{t(D.summary)}</h3>
+              <p className="dz-sum-meta">{t(d.room.shape === 'round' ? D.roomLineRound : D.roomLine, size)}</p>
+              <div className="dz-totals">
+                <div className="dz-total">
+                  <b>{s.totalSensors}</b>
+                  <span>{t(D.sensorsTotal)}</span>
+                </div>
+                <div className="dz-total">
+                  <b>{s.totalOutputs}</b>
+                  <span>{t(D.outputsTotal)}</span>
+                </div>
               </div>
-              <div className="dz-total">
-                <b>{s.totalOutputs}</b>
-                <span>{t(D.outputsTotal)}</span>
-              </div>
-            </div>
 
-            {/* a silo holds no structures: only rooms list theirs */}
-            {kind.structures.length > 0 && <h4 className="dz-sub-h">{t(D.structuresByKind)}</h4>}
-            {kind.structures.length === 0 ? null : structureRows.length ? (
-              <ul className="dz-sum-list">
-                {structureRows.map((k) => (
-                  <li key={k}>
-                    <Glyph name={ITEM_SPECS[k].glyph} />
-                    <span>{t(ITEM_SPECS[k].label)}</span>
-                    <b>{s.structures[k]}</b>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="dz-empty">{t(D.none)}</p>
-            )}
+              {/* a silo holds no structures: only rooms list theirs */}
+              {kind.structures.length > 0 && <h4 className="dz-sub-h">{t(D.structuresByKind)}</h4>}
+              {kind.structures.length === 0 ? null : structureRows.length ? (
+                <ul className="dz-sum-list">
+                  {structureRows.map((k) => (
+                    <li key={k}>
+                      <Glyph name={ITEM_SPECS[k].glyph} />
+                      <span>{t(ITEM_SPECS[k].label)}</span>
+                      <b>{s.structures[k]}</b>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="dz-empty">{t(D.none)}</p>
+              )}
 
-            <h4 className="dz-sub-h">{t(D.devicesByKind)}</h4>
-            {deviceRows.length ? (
-              <ul className="dz-sum-list">
-                {deviceRows.map((k) => (
-                  <li key={k}>
-                    <Glyph name={ITEM_SPECS[k].glyph} />
-                    <span>{t(ITEM_SPECS[k].label)}</span>
-                    <b>{s.devices[k]}</b>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="dz-empty">{t(D.none)}</p>
-            )}
+              <h4 className="dz-sub-h">{t(D.devicesByKind)}</h4>
+              {deviceRows.length ? (
+                <ul className="dz-sum-list">
+                  {deviceRows.map((k) => (
+                    <li key={k}>
+                      <Glyph name={ITEM_SPECS[k].glyph} />
+                      <span>{t(ITEM_SPECS[k].label)}</span>
+                      <b>{s.devices[k]}</b>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="dz-empty">{t(D.none)}</p>
+              )}
 
-            <h4 className="dz-sub-h">{t(D.sensorsByKind)}</h4>
-            {sensorRows.length ? (
-              <ul className="dz-sum-list">
-                {sensorRows.map((k) => (
-                  <li key={k} style={{ '--tint': SENSOR_SPECS[k].tint } as CSSProperties}>
-                    <Glyph name={SENSOR_SPECS[k].glyph} />
-                    <span>{t(SENSOR_SPECS[k].label)}</span>
-                    <b>{s.sensors[k]}</b>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="dz-empty">{t(D.none)}</p>
-            )}
+              <h4 className="dz-sub-h">{t(D.sensorsByKind)}</h4>
+              {sensorRows.length ? (
+                <ul className="dz-sum-list">
+                  {sensorRows.map((k) => (
+                    <li key={k} style={{ '--tint': SENSOR_SPECS[k].tint } as CSSProperties}>
+                      <Glyph name={SENSOR_SPECS[k].glyph} />
+                      <span>{t(SENSOR_SPECS[k].label)}</span>
+                      <b>{s.sensors[k]}</b>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="dz-empty">{t(D.none)}</p>
+              )}
 
-            <h4 className="dz-sub-h">{t(D.outputsByKind)}</h4>
-            {outputRows.length ? (
-              <ul className="dz-sum-list">
-                {outputRows.map((r) => (
-                  <li key={r.key}>
-                    <Glyph name={r.glyph} />
-                    <span>
-                      {r.label}
-                      {r.extra && <i className="dz-tag">{t(D.extraTag)}</i>}
-                    </span>
-                    <b>{r.n}</b>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="dz-empty">{t(D.none)}</p>
-            )}
-          </section>
+              <h4 className="dz-sub-h">{t(D.outputsByKind)}</h4>
+              {outputRows.length ? (
+                <ul className="dz-sum-list">
+                  {outputRows.map((r) => (
+                    <li key={r.key}>
+                      <Glyph name={r.glyph} />
+                      <span>
+                        {r.label}
+                        {r.extra && <i className="dz-tag">{t(D.extraTag)}</i>}
+                      </span>
+                      <b>{r.n}</b>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="dz-empty">{t(D.none)}</p>
+              )}
+            </section>
 
-          <section className="dz-block">
-            <h3 className="dz-block-h">{t(D.extrasTitle)}</h3>
-            <p className="dz-hint dz-hint-sm">{t(kind.text.extrasHint)}</p>
-            <ExtraOutputsSection />
-          </section>
+            <section className="dz-block">
+              <h3 className="dz-block-h">{t(D.extrasTitle)}</h3>
+              <p className="dz-hint dz-hint-sm">{t(kind.text.extrasHint)}</p>
+              <ExtraOutputsSection />
+            </section>
+          </div>
 
-          <section className="dz-block">
+          <section className="dz-block dz-finish-contact">
             <h3 className="dz-block-h">{t(D.contactTitle)}</h3>
             <p className="dz-hint dz-hint-sm">{t(D.contactHint)}</p>
             <ContactSection />

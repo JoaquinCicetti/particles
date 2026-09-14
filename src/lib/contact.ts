@@ -1,12 +1,15 @@
-// Growcast WhatsApp line (Rosario, +54 9 341 …)
+// Growcast WhatsApp line (Rosario, +54 9 341 …): the meeting dialog and the designer hand-off
 export const WHATSAPP = '5493412753179'
 
-/** wa.me link to the line, optionally with a prefilled message */
-export const whatsappUrl = (text?: string) =>
-  `https://wa.me/${WHATSAPP}${text ? `?text=${encodeURIComponent(text)}` : ''}`
+// the line printed in the contact section, as a plain wa.me link
+export const WHATSAPP_FOOTER = '5493412796894'
 
-/** The same line, formatted for reading: +54 9 341 275 3179 */
-export const WHATSAPP_DISPLAY = WHATSAPP.replace(
+/** wa.me link to a line (the main one by default), optionally with a prefilled message */
+export const whatsappUrl = (text?: string, line = WHATSAPP) =>
+  `https://wa.me/${line}${text ? `?text=${encodeURIComponent(text)}` : ''}`
+
+/** The footer line, formatted for reading: +54 9 341 279 6894 */
+export const WHATSAPP_FOOTER_DISPLAY = WHATSAPP_FOOTER.replace(
   /^(\d{2})(\d)(\d{3})(\d{3})(\d{4})$/,
   '+$1 $2 $3 $4 $5',
 )

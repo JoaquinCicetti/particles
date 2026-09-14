@@ -16,7 +16,7 @@ export const M = defineMessages({
   brandAria: { id: 'nav.brandAria', defaultMessage: 'Growcast — inicio' },
   navBrand: { id: 'nav.brand', defaultMessage: 'GROWCAST' },
 
-  heroKicker: { id: 'hero.kicker', defaultMessage: 'MONITOREO, CONTROL Y AUTOMATIZACIÓN' },
+  heroKicker: { id: 'hero.kicker', defaultMessage: 'MONITOREO, CONTROL Y TRAZABILIDAD' },
   heroTitle: { id: 'hero.title', defaultMessage: 'Su operación,<br></br>en su mano<accent>.</accent>' },
   heroBody: {
     id: 'hero.body',

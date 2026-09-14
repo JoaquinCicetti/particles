@@ -3,7 +3,7 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import type { MessageDescriptor } from 'react-intl'
 import { M } from '../i18n/messages'
 import { setSection } from '../lib/scroll'
-import { EMAIL, WHATSAPP_DISPLAY, whatsappUrl } from '../lib/contact'
+import { EMAIL, WHATSAPP_FOOTER, WHATSAPP_FOOTER_DISPLAY, whatsappUrl } from '../lib/contact'
 import { DESIGNER_PATHS, loadDesigner, onNavClick } from '../lib/route'
 import ContactCta from './ContactCta'
 import SiloFigure from './SiloFigure'
@@ -310,7 +310,7 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
           <span>
             <FormattedMessage {...M.contactLocation} />
           </span>
-          <a className="contact-link" href={whatsappUrl()} target="_blank" rel="noopener noreferrer">
+          <a className="contact-link" href={whatsappUrl(undefined, WHATSAPP_FOOTER)} target="_blank" rel="noopener noreferrer">
             <svg className="contact-icon" viewBox="0 0 24 24" aria-hidden>
               <path d="M4.3 19.7l1-3.6A8.2 8.2 0 1 1 8 18.8z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
               <path
@@ -319,7 +319,7 @@ export default function Solutions({ onContact }: { onContact: () => void }) {
               />
             </svg>
             <span className="sr-only">WhatsApp </span>
-            {WHATSAPP_DISPLAY}
+            {WHATSAPP_FOOTER_DISPLAY}
           </a>
           <a className="contact-link" href={`mailto:${EMAIL}`}>
             <svg className="contact-icon" viewBox="0 0 24 24" aria-hidden>

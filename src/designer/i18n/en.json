@@ -99,6 +99,8 @@
   "dz.contact.notes": "Notes",
   "dz.contact.namePh": "Your name or company",
   "dz.contact.locationPh": "City, state",
+  "dz.contact.emailPh": "name@company.com",
+  "dz.contact.phonePh": "With area code",
   "dz.contact.notesPh": "Crop, stage, equipment you already have, anything you want to tell us…",
   "dz.contact.notesPh.silo": "Grains you store, equipment you already have, anything you want to tell us…",
   "dz.contact.notesPh.curing": "Products you ripen, equipment you already have, anything you want to tell us…",
