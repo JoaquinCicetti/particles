@@ -414,7 +414,7 @@ export default function Overlay({ onContact, onMenu, menuOpen }: Props) {
 
       <section className="block" data-window="0.64,0.85">
         <span className="kicker">
-          <FormattedMessage {...M.tagline} />
+          <FormattedMessage {...M.convergeKicker} />
         </span>
         <h2>
           <FormattedMessage {...M.convergeTitle} />

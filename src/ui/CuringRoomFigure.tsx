@@ -4,8 +4,7 @@ import { Box, Fan, GrowcastBoard, PHONE_PORT, PhoneCard, Pulse, SensorNode, Upli
 
 /**
  * Animated curing-room schematic: a tall rack with wheels of cheese on four
- * shelves, two Growcast pods (climate and CO₂) on the centre post, one wheel
- * resting on a scale. The chamber's cooling unit hangs from the ceiling and
+ * shelves, two Growcast pods (climate and CO₂) on the centre post. The chamber's cooling unit hangs from the ceiling and
  * the humidifier stands on the floor, both commanded by the control board on
  * the right; the uplink carries everything to the phone below.
  *
@@ -64,17 +63,6 @@ export default function CuringRoomFigure() {
             </g>
           )),
         )}
-
-        {/* scale under the last wheel of the bottom shelf */}
-        <rect x="150" y="196" width="40" height="4" rx="1" fill="currentColor" opacity="0.9" />
-        {/* the callout stacks in the clear bay between the centre and right
-            posts — one line of it runs into both, and into the chamber leg */}
-        <text x="150" y="207" textAnchor="middle" className="fig-lbl" fontSize="7">
-          {intl.formatMessage(M.crLblScale)}
-        </text>
-        <text x="150" y="217" textAnchor="middle" className="fig-lbl fig-lbl-accent" fontSize="7.5">
-          −7.8 %
-        </text>
       </g>
 
       {/* ── chamber shell: ceiling above the rack, floor below it. The rack's

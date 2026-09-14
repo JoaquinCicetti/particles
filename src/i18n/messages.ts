@@ -4,6 +4,10 @@ import { defineMessages } from 'react-intl'
  * Single source of truth for every UI string. `defaultMessage` is the Spanish
  * (source) copy — the `es` catalog is derived from it at runtime — while the
  * `en` / `pt` catalogs live in ./locales/*.json keyed by these same ids.
+ *
+ * Every claim here is cut from the client's manual (docs/manual-growcast.md);
+ * docs/landing-copy.md maps each string to its section. Do not add a claim
+ * the manual does not make.
  */
 export const M = defineMessages({
   // one label for every contact CTA — header, finale, contact section and the
@@ -12,40 +16,40 @@ export const M = defineMessages({
   brandAria: { id: 'nav.brandAria', defaultMessage: 'Growcast — inicio' },
   navBrand: { id: 'nav.brand', defaultMessage: 'GROWCAST' },
 
-  heroKicker: { id: 'hero.kicker', defaultMessage: 'PLATAFORMA DE MONITOREO AGRÍCOLA' },
-  heroTitle: { id: 'hero.title', defaultMessage: 'Tu campo,<br></br>en tiempo real<accent>.</accent>' },
+  heroKicker: { id: 'hero.kicker', defaultMessage: 'MONITOREO, CONTROL Y AUTOMATIZACIÓN' },
+  heroTitle: { id: 'hero.title', defaultMessage: 'Su operación,<br></br>en su mano<accent>.</accent>' },
   heroBody: {
     id: 'hero.body',
     defaultMessage:
-      'Growcast integra silos, depósitos y cultivos en una sola plataforma de monitoreo. Datos en tiempo real, del campo a la decisión.',
+      'Growcast conecta una operación física con su teléfono, tablet o PC. Mide, registra, analiza, alerta y puede actuar sobre la operación.',
   },
 
-  sensorsKicker: { id: 'sensors.kicker', defaultMessage: 'RED DE SENSORES' },
-  sensorsTitle: { id: 'sensors.title', defaultMessage: 'Todo el establecimiento, una sola red.' },
+  sensorsKicker: { id: 'sensors.kicker', defaultMessage: 'MEDIMOS' },
+  sensorsTitle: { id: 'sensors.title', defaultMessage: 'Sensores en los puntos críticos.' },
   sensorsBody: {
     id: 'sensors.body',
     defaultMessage:
-      'Temperatura, humedad, CO₂, conductividad y pH: cada variable, en cada punto, transmitiendo a un núcleo central.',
+      'Temperatura, humedad, CO₂, conductividad eléctrica, pH, presión, estado de equipos: cada rubro requiere medir variables distintas.',
   },
 
-  dataKicker: { id: 'data.kicker', defaultMessage: 'DATOS ESTRUCTURADOS' },
-  dataTitle: { id: 'data.title', defaultMessage: 'El dato crudo se vuelve estructura.' },
+  dataKicker: { id: 'data.kicker', defaultMessage: 'ANALIZAMOS' },
+  dataTitle: { id: 'data.title', defaultMessage: 'El dato se convierte en herramienta.' },
   dataBody: {
     id: 'data.body',
     defaultMessage:
-      'Series temporales, umbrales y alertas tempranas: cada variable, ordenada y lista para decidir.',
+      'Condiciones actuales, gráficos históricos, tendencias, indicadores y alertas, desde un mismo lugar.',
   },
 
-  tagline: { id: 'common.tagline', defaultMessage: 'Monitoreo, control y trazabilidad' },
-  convergeTitle: { id: 'converge.title', defaultMessage: 'Todo converge en Growcast.' },
+  convergeKicker: { id: 'converge.kicker', defaultMessage: 'CONTROLAMOS Y REGISTRAMOS' },
+  convergeTitle: { id: 'converge.title', defaultMessage: 'La información, convertida en acción.' },
   convergeBody: {
     id: 'converge.body',
     defaultMessage:
-      'Medimos cada variable, controlamos riego y clima, y trazamos cada lote —del sensor a la decisión, en una sola fuente de verdad.',
+      'Cuando la instalación lo permite, Growcast acciona equipos de forma automática o remota. Todo queda registrado: mediciones, alertas, estados de equipos y eventos.',
   },
 
-  finaleFine: { id: 'finale.fine', defaultMessage: 'GROWCAST © 2026 — INTELIGENCIA AGRÍCOLA' },
-  hint: { id: 'hint', defaultMessage: 'DESPLAZÁ PARA EXPLORAR' },
+  finaleFine: { id: 'finale.fine', defaultMessage: 'GROWCAST © 2026 — MONITOREO, CONTROL Y AUTOMATIZACIÓN' },
+  hint: { id: 'hint', defaultMessage: 'DESPLÁCESE PARA EXPLORAR' },
 
   // sensor metric cards
   mTempLabel: { id: 'metric.temp.label', defaultMessage: 'TEMPERATURA' },
@@ -54,24 +58,23 @@ export const M = defineMessages({
   mEcLabel: { id: 'metric.ec.label', defaultMessage: 'CONDUCTIVIDAD' },
   mPhLabel: { id: 'metric.ph.label', defaultMessage: 'pH' },
 
-  // scroll phase ticker
-  phase1: { id: 'phase.1', defaultMessage: '01 / EL ESTABLECIMIENTO' },
-  phase2: { id: 'phase.2', defaultMessage: '02 / RED DE SENSORES' },
-  phase3: { id: 'phase.3', defaultMessage: '03 / FLUJO DE DATOS' },
-  phase4: { id: 'phase.4', defaultMessage: '04 / DATOS ESTRUCTURADOS' },
-  phase5: { id: 'phase.5', defaultMessage: '05 / CONVERGENCIA' },
+  // scroll phase ticker — the manual's five stages (§3)
+  phase1: { id: 'phase.1', defaultMessage: '01 / LA OPERACIÓN' },
+  phase2: { id: 'phase.2', defaultMessage: '02 / MEDIMOS' },
+  phase3: { id: 'phase.3', defaultMessage: '03 / CONECTAMOS' },
+  phase4: { id: 'phase.4', defaultMessage: '04 / ANALIZAMOS' },
+  phase5: { id: 'phase.5', defaultMessage: '05 / CONTROLAMOS Y REGISTRAMOS' },
   phase6: { id: 'phase.6', defaultMessage: '06 / GROWCAST' },
 
-  // contact dialog
+  // contact dialog — WhatsApp is the sales contact channel only
   dialogKicker: { id: 'dialog.kicker', defaultMessage: 'COORDINEMOS' },
-  dialogTitle: { id: 'dialog.title', defaultMessage: 'Hablemos de tu campo' },
+  dialogTitle: { id: 'dialog.title', defaultMessage: 'Hablemos de su operación' },
   dialogSub: {
     id: 'dialog.sub',
-    defaultMessage:
-      'Te respondemos por WhatsApp. Dejanos tu nombre y un mensaje y abrimos la conversación.',
+    defaultMessage: 'Le respondemos por WhatsApp. Déjenos su nombre y un mensaje y abrimos la conversación.',
   },
   dialogNameLabel: { id: 'dialog.nameLabel', defaultMessage: 'Nombre' },
-  dialogNamePlaceholder: { id: 'dialog.namePlaceholder', defaultMessage: 'Tu nombre o establecimiento' },
+  dialogNamePlaceholder: { id: 'dialog.namePlaceholder', defaultMessage: 'Su nombre o establecimiento' },
   dialogMsgLabel: { id: 'dialog.msgLabel', defaultMessage: 'Mensaje' },
   dialogSend: { id: 'dialog.send', defaultMessage: 'Enviar por WhatsApp' },
   dialogClose: { id: 'dialog.close', defaultMessage: 'Cerrar' },
@@ -80,8 +83,8 @@ export const M = defineMessages({
     defaultMessage: 'Hola Growcast, me gustaría coordinar una reunión para conocer la plataforma.',
   },
   dialogNamePrefix: { id: 'dialog.namePrefix', defaultMessage: 'Soy {name}. ' },
+
   // ── solutions (in-flow sections after the finale) ─────────────
-  // DRAFT copy — to be replaced with the client's material
   navMenu: { id: 'nav.menu', defaultMessage: 'Menú' },
   navSteps: { id: 'nav.steps', defaultMessage: 'Navegar por secciones' },
   navPrev: { id: 'nav.prev', defaultMessage: 'Sección anterior' },
@@ -93,157 +96,173 @@ export const M = defineMessages({
   navContacto: { id: 'nav.contacto', defaultMessage: 'CONTACTO' },
   finaleMore: { id: 'finale.more', defaultMessage: 'VER SOLUCIONES' },
 
-
-  solImplTitle: { id: 'sol.implTitle', defaultMessage: 'CÓMO LO IMPLEMENTAMOS' },
-  solSolveTitle: { id: 'sol.solveTitle', defaultMessage: 'QUÉ RESOLVEMOS' },
+  // block headings — the manual's own §5 headings
+  solImplTitle: { id: 'sol.implTitle', defaultMessage: 'QUÉ CONTROLA' },
+  solSolveTitle: { id: 'sol.solveTitle', defaultMessage: 'QUÉ PODEMOS RESOLVER' },
   solFigureTag: { id: 'sol.figureTag', defaultMessage: 'ESQUEMA DE CONEXIÓN' },
 
-  // 01 — salas de cultivo
-  cultivoKicker: { id: 'sol.cultivo.kicker', defaultMessage: '01 / SALAS DE CULTIVO' },
-  cultivoTitle: { id: 'sol.cultivo.title', defaultMessage: 'Cada sala, bajo control.' },
+  // 01 — producción bajo cubierta o salas (manual §5.2)
+  cultivoKicker: { id: 'sol.cultivo.kicker', defaultMessage: '01 / BAJO CUBIERTA Y SALAS' },
+  cultivoTitle: { id: 'sol.cultivo.title', defaultMessage: 'Cada sala, en una misma plataforma.' },
   cultivoLede: {
     id: 'sol.cultivo.lede',
     defaultMessage:
-      'Monitoreo y control de clima, riego y nutrición en salas de cultivo indoor e invernaderos. Cada sala con su propio nodo, todas en una misma plataforma.',
+      'Temperatura, humedad, CO₂, ventilación, riego, sustrato, agua y nutrición cambian permanentemente. Pequeños desvíos sostenidos en el tiempo pueden impactar en calidad, productividad, sanidad o eficiencia.',
   },
-  cultivoDesignCta: { id: 'sol.cultivo.designCta', defaultMessage: 'Diseñá tu sala' },
+  cultivoDesignCta: { id: 'sol.cultivo.designCta', defaultMessage: 'Diseñe su sala' },
   cultivoDesignNote: {
     id: 'sol.cultivo.designNote',
-    defaultMessage: 'ARMALA EN 3D Y PEDÍ TU COTIZACIÓN · GRATIS, SIN REGISTRO',
+    defaultMessage: 'ÁRMELA EN 3D Y PIDA SU COTIZACIÓN · GRATIS, SIN REGISTRO',
   },
-  cultivoImpl1: { id: 'sol.cultivo.impl.1', defaultMessage: 'Nodo por sala: temperatura, humedad, CO₂ y flujo de aire.' },
-  cultivoImpl2: { id: 'sol.cultivo.impl.2', defaultMessage: 'Sondas de EC y pH en la solución de riego.' },
-  cultivoImpl3: { id: 'sol.cultivo.impl.3', defaultMessage: 'Control de riego, ventilación y clima por umbrales y horarios.' },
-  cultivoImpl4: { id: 'sol.cultivo.impl.4', defaultMessage: 'Tablero en tiempo real y alertas por WhatsApp.' },
-  cultivoSolve1: { id: 'sol.cultivo.solve.1', defaultMessage: 'Uniformidad entre salas y ciclos.' },
-  cultivoSolve2: { id: 'sol.cultivo.solve.2', defaultMessage: 'Dosificación precisa de agua y nutrientes.' },
-  cultivoSolve3: { id: 'sol.cultivo.solve.3', defaultMessage: 'Detección temprana de desvíos antes de que afecten al cultivo.' },
-  cultivoSolve4: { id: 'sol.cultivo.solve.4', defaultMessage: 'Trazabilidad por lote, del trasplante a la cosecha.' },
+  cultivoImpl1: { id: 'sol.cultivo.impl.1', defaultMessage: 'Ventilación y extracción.' },
+  cultivoImpl2: { id: 'sol.cultivo.impl.2', defaultMessage: 'Calefacción y refrigeración.' },
+  cultivoImpl3: { id: 'sol.cultivo.impl.3', defaultMessage: 'Riego, nutrición y nebulización.' },
+  cultivoImpl4: { id: 'sol.cultivo.impl.4', defaultMessage: 'Inyección de CO₂ y otros periféricos eléctricos, según instalación.' },
+  cultivoSolve1: { id: 'sol.cultivo.solve.1', defaultMessage: 'Medición manual de condiciones ambientales.' },
+  cultivoSolve2: { id: 'sol.cultivo.solve.2', defaultMessage: 'Falta de alertas cuando una variable sale de rango.' },
+  cultivoSolve3: { id: 'sol.cultivo.solve.3', defaultMessage: 'Falta de registros históricos por ciclo, sala o lote.' },
+  cultivoSolve4: { id: 'sol.cultivo.solve.4', defaultMessage: 'Dificultad para sostener criterios de manejo cuando cambia el equipo de trabajo.' },
   cultivoStat1: { id: 'sol.cultivo.stat.1', defaultMessage: 'TEMPERATURA' },
   cultivoStat2: { id: 'sol.cultivo.stat.2', defaultMessage: 'HUMEDAD' },
   cultivoStat3: { id: 'sol.cultivo.stat.3', defaultMessage: 'EC' },
-  cultivoFigure: { id: 'sol.cultivo.figure', defaultMessage: 'Sensores por sala → tablero Growcast → riego, luces y ventilación' },
+  cultivoFigure: { id: 'sol.cultivo.figure', defaultMessage: 'Sensores por sala → tablero Growcast → riego y ventilación' },
 
-  // 02 — silos y depósitos
-  silosKicker: { id: 'sol.silos.kicker', defaultMessage: '02 / SILOS Y DEPÓSITOS' },
-  silosTitle: { id: 'sol.silos.title', defaultMessage: 'El grano, vigilado las 24 horas.' },
+  // 02 — acopios de granos y plantas (manual §5.1)
+  silosKicker: { id: 'sol.silos.kicker', defaultMessage: '02 / ACOPIOS DE GRANOS' },
+  silosTitle: { id: 'sol.silos.title', defaultMessage: 'Cada silo, desde su propia mano.' },
   silosLede: {
     id: 'sol.silos.lede',
     defaultMessage:
-      'Monitoreo de temperatura y humedad del grano en silos, celdas y silobolsas, con aireación automática y alertas tempranas de deterioro.',
+      'La temperatura, la humedad, el CO₂, las condiciones exteriores y el uso de la aireación influyen directamente en la calidad del producto almacenado y en el consumo energético.',
   },
-  silosImpl1: { id: 'sol.silos.impl.1', defaultMessage: 'Sondas multipunto de temperatura y humedad dentro de la masa de grano.' },
-  silosImpl2: { id: 'sol.silos.impl.2', defaultMessage: 'CO₂ en el espacio de cabeza como indicador temprano de deterioro.' },
-  silosImpl3: { id: 'sol.silos.impl.3', defaultMessage: 'Control automático de aireadores según condiciones ambiente.' },
-  silosImpl4: { id: 'sol.silos.impl.4', defaultMessage: 'Historial por silo y por lote, accesible desde el celular.' },
-  silosSolve1: { id: 'sol.silos.solve.1', defaultMessage: 'Focos de calentamiento detectados antes de que se propaguen.' },
-  silosSolve2: { id: 'sol.silos.solve.2', defaultMessage: 'Menos mermas por hongos e insectos.' },
-  silosSolve3: { id: 'sol.silos.solve.3', defaultMessage: 'Aireación solo cuando conviene: menos energía, mejor grano.' },
-  silosSolve4: { id: 'sol.silos.solve.4', defaultMessage: 'Stock y calidad trazables por lote.' },
-  silosStat1: { id: 'sol.silos.stat.1', defaultMessage: 'TEMP. GRANO' },
+  silosImpl1: { id: 'sol.silos.impl.1', defaultMessage: 'Aireadores.' },
+  silosImpl2: { id: 'sol.silos.impl.2', defaultMessage: 'Extractores.' },
+  silosImpl3: { id: 'sol.silos.impl.3', defaultMessage: 'Accionamiento remoto o automático, según la estrategia operativa definida.' },
+  silosImpl4: { id: 'sol.silos.impl.4', defaultMessage: 'Registro de cuándo, cuánto y bajo qué condiciones se usó la aireación.' },
+  silosSolve1: { id: 'sol.silos.solve.1', defaultMessage: 'Falta de monitoreo continuo dentro de los silos.' },
+  silosSolve2: { id: 'sol.silos.solve.2', defaultMessage: 'Aireación operada manualmente o sin registros.' },
+  silosSolve3: { id: 'sol.silos.solve.3', defaultMessage: 'Consumo energético innecesario por falta de información.' },
+  silosSolve4: { id: 'sol.silos.solve.4', defaultMessage: 'Detección tardía de condiciones críticas o extremas.' },
+  silosStat1: { id: 'sol.silos.stat.1', defaultMessage: 'TEMP. INTERIOR' },
   silosStat2: { id: 'sol.silos.stat.2', defaultMessage: 'CO₂' },
-  silosStat3: { id: 'sol.silos.stat.3', defaultMessage: 'HUMEDAD' },
-  silosFigure: { id: 'sol.silos.figure', defaultMessage: 'Sondas en silo → tablero Growcast → aireadores' },
+  silosStat3: { id: 'sol.silos.stat.3', defaultMessage: 'HR INTERIOR' },
+  silosFigure: { id: 'sol.silos.figure', defaultMessage: 'Sensores en el silo → tablero Growcast → aireadores' },
 
-  // 03 — cámaras de maduración
-  maduracionKicker: { id: 'sol.maduracion.kicker', defaultMessage: '03 / CÁMARAS DE MADURACIÓN' },
-  maduracionTitle: { id: 'sol.maduracion.title', defaultMessage: 'La misma curva, en cada lote.' },
+  // 03 — quesos y chacinados (manual §5.5)
+  maduracionKicker: { id: 'sol.maduracion.kicker', defaultMessage: '03 / QUESOS Y CHACINADOS' },
+  maduracionTitle: { id: 'sol.maduracion.title', defaultMessage: 'Cada ciclo, registrado.' },
   maduracionLede: {
     id: 'sol.maduracion.lede',
     defaultMessage:
-      'Control de temperatura, humedad y renovación de aire en cámaras de maduración de quesos y embutidos. Curvas por producto, registros por lote.',
+      'En quesos, chacinados y otros alimentos madurados, las condiciones acumuladas durante el proceso pueden ser tan importantes como la receta o la materia prima.',
   },
-  maduracionImpl1: { id: 'sol.maduracion.impl.1', defaultMessage: 'Sensores de temperatura y humedad relativa en cada cámara.' },
-  maduracionImpl2: { id: 'sol.maduracion.impl.2', defaultMessage: 'Control de frío, humidificación y renovación de aire.' },
-  maduracionImpl3: { id: 'sol.maduracion.impl.3', defaultMessage: 'Curvas de maduración configurables por producto.' },
-  maduracionImpl4: { id: 'sol.maduracion.impl.4', defaultMessage: 'Registro automático por lote para auditorías.' },
-  maduracionSolve1: { id: 'sol.maduracion.solve.1', defaultMessage: 'Curvas repetibles: el mismo producto, lote tras lote.' },
-  maduracionSolve2: { id: 'sol.maduracion.solve.2', defaultMessage: 'Menos defectos por mohos y desvíos de humedad.' },
-  maduracionSolve3: { id: 'sol.maduracion.solve.3', defaultMessage: 'Merma de peso bajo control.' },
-  maduracionSolve4: { id: 'sol.maduracion.solve.4', defaultMessage: 'Registros listos para presentar.' },
+  maduracionImpl1: { id: 'sol.maduracion.impl.1', defaultMessage: 'Ventilación y extracción.' },
+  maduracionImpl2: { id: 'sol.maduracion.impl.2', defaultMessage: 'Calefacción y refrigeración.' },
+  maduracionImpl3: { id: 'sol.maduracion.impl.3', defaultMessage: 'Humidificación y deshumidificación.' },
+  maduracionImpl4: { id: 'sol.maduracion.impl.4', defaultMessage: 'Otros equipos de manejo ambiental, según instalación.' },
+  maduracionSolve1: { id: 'sol.maduracion.solve.1', defaultMessage: 'Control manual de salas.' },
+  maduracionSolve2: { id: 'sol.maduracion.solve.2', defaultMessage: 'Falta de alertas ante desvíos.' },
+  maduracionSolve3: { id: 'sol.maduracion.solve.3', defaultMessage: 'Variabilidad entre lotes.' },
+  maduracionSolve4: { id: 'sol.maduracion.solve.4', defaultMessage: 'Falta de evidencia para analizar qué ocurrió durante un proceso.' },
   maduracionStat1: { id: 'sol.maduracion.stat.1', defaultMessage: 'TEMPERATURA' },
   maduracionStat2: { id: 'sol.maduracion.stat.2', defaultMessage: 'HUMEDAD' },
-  maduracionStat3: { id: 'sol.maduracion.stat.3', defaultMessage: 'DÍAS DE CURA' },
-  maduracionFigure: { id: 'sol.maduracion.figure', defaultMessage: 'Sensores por cámara → tablero Growcast → frío y humidificación' },
+  maduracionStat3: { id: 'sol.maduracion.stat.3', defaultMessage: 'CO₂' },
+  maduracionFigure: { id: 'sol.maduracion.figure', defaultMessage: 'Sensores por cámara → tablero Growcast → refrigeración y humidificación' },
 
   // contact section
   contactKicker: { id: 'contact.kicker', defaultMessage: 'CONTACTO' },
-  contactTitle: { id: 'contact.title', defaultMessage: 'Hablemos de tu establecimiento.' },
+  contactTitle: { id: 'contact.title', defaultMessage: 'Hablemos de su operación.' },
   contactBody: {
     id: 'contact.body',
     defaultMessage:
-      'Contanos qué querés monitorear y armamos una propuesta a medida: sensores, control y trazabilidad, en una sola plataforma.',
+      '¿Existe algún proceso importante que hoy se resuelve "a ojo", sin datos? Cada implementación comienza entendiendo la operación.',
   },
   contactLine: { id: 'contact.line', defaultMessage: 'ROSARIO, SANTA FE · WHATSAPP {phone}' },
-  // solutions — intro, audience, measured variables, process
+
+  // solutions — intro, applications, measured variables, how Growcast acts
   solutionsKicker: { id: 'solutions.kicker', defaultMessage: 'SOLUCIONES' },
-  solutionsTitle: { id: 'solutions.title', defaultMessage: 'Tres ambientes, una sola plataforma.' },
+  solutionsTitle: { id: 'solutions.title', defaultMessage: 'Una misma base tecnológica, distintas operaciones.' },
   solutionsBody: {
     id: 'solutions.body',
     defaultMessage:
-      'Salas de cultivo, silos y cámaras de maduración: en cada caso instalamos los sensores, conectamos el control y dejamos todo visible desde el celular o la computadora. Sin conocimientos técnicos.',
+      'Las soluciones cambian según el rubro, pero la lógica es siempre la misma: medir una variable importante, registrar lo que ocurre, interpretar la información y, cuando es posible, controlar los equipos.',
   },
-  solWhoTitle: { id: 'sol.whoTitle', defaultMessage: 'PARA QUIÉN' },
-  solMeasureTitle: { id: 'sol.measureTitle', defaultMessage: 'QUÉ MEDIMOS' },
-  solStepsTitle: { id: 'sol.stepsTitle', defaultMessage: 'CÓMO TRABAJAMOS' },
-  step1Title: { id: 'sol.step.1.title', defaultMessage: 'Relevamos e instalamos' },
-  step2Title: { id: 'sol.step.2.title', defaultMessage: 'Medimos y controlamos' },
-  step3Title: { id: 'sol.step.3.title', defaultMessage: 'Alertamos y registramos' },
+  solWhoTitle: { id: 'sol.whoTitle', defaultMessage: 'APLICACIONES' },
+  solMeasureTitle: { id: 'sol.measureTitle', defaultMessage: 'QUÉ MIDE' },
+  solStepsTitle: { id: 'sol.stepsTitle', defaultMessage: 'CÓMO ACTÚA GROWCAST' },
+  step1Title: { id: 'sol.step.1.title', defaultMessage: 'Medimos' },
+  step2Title: { id: 'sol.step.2.title', defaultMessage: 'Analizamos y alertamos' },
+  step3Title: { id: 'sol.step.3.title', defaultMessage: 'Controlamos y registramos' },
 
+  // measured-variable chips — only what the manual's "Qué mide" lists
   varTemp: { id: 'var.temp', defaultMessage: 'Temperatura' },
   varHum: { id: 'var.hum', defaultMessage: 'Humedad' },
   varCo2: { id: 'var.co2', defaultMessage: 'CO₂' },
-  varEc: { id: 'var.ec', defaultMessage: 'EC' },
+  varCo2IfApplies: { id: 'var.co2IfApplies', defaultMessage: 'CO₂ (si aplica)' },
+  varEc: { id: 'var.ec', defaultMessage: 'Conductividad eléctrica' },
   varPh: { id: 'var.ph', defaultMessage: 'pH' },
-  varAir: { id: 'var.air', defaultMessage: 'Flujo de aire' },
-  varLight: { id: 'var.light', defaultMessage: 'Luz' },
-  varGrain: { id: 'var.grain', defaultMessage: 'Humedad de grano' },
-  varLevel: { id: 'var.level', defaultMessage: 'Nivel' },
-  varWeight: { id: 'var.weight', defaultMessage: 'Merma de peso' },
-  varDoor: { id: 'var.door', defaultMessage: 'Apertura de puertas' },
-  varPower: { id: 'var.power', defaultMessage: 'Energía' },
+  varVpd: { id: 'var.vpd', defaultMessage: 'VPD' },
+  varSubstrate: { id: 'var.substrate', defaultMessage: 'Humedad de sustrato' },
+  varTempIn: { id: 'var.tempIn', defaultMessage: 'Temperatura interior' },
+  varHumIn: { id: 'var.humIn', defaultMessage: 'Humedad relativa interior' },
+  varTempOut: { id: 'var.tempOut', defaultMessage: 'Temperatura exterior' },
+  varHumOut: { id: 'var.humOut', defaultMessage: 'Humedad relativa exterior' },
+  varFans: { id: 'var.fans', defaultMessage: 'Estado de aireadores' },
+  varEquip: { id: 'var.equip', defaultMessage: 'Estado de equipos' },
+  varHours: { id: 'var.hours', defaultMessage: 'Horas de funcionamiento' },
 
-  cultivoWho: { id: 'sol.cultivo.who', defaultMessage: 'Productores indoor, viveros, invernaderos y salas de propagación.' },
-  cultivoStep1: { id: 'sol.cultivo.step.1', defaultMessage: 'Visitamos el establecimiento, definimos los puntos de medición por sala y dejamos los nodos instalados y conectados.' },
-  cultivoStep2: { id: 'sol.cultivo.step.2', defaultMessage: 'Cada sala se ve en tiempo real. El riego, la ventilación y el clima se ajustan solos según los umbrales que definimos juntos.' },
-  cultivoStep3: { id: 'sol.cultivo.step.3', defaultMessage: 'Si algo se sale de rango, avisamos por WhatsApp. Todo queda registrado por lote, desde el trasplante a la cosecha.' },
+  cultivoWho: {
+    id: 'sol.cultivo.who',
+    defaultMessage:
+      'Frutas y verduras, hongos, hidroponía, flores ornamentales, viveros, fitomejoramiento, procesos biotecnológicos y salas con ambiente controlado.',
+  },
+  cultivoStep1: { id: 'sol.cultivo.step.1', defaultMessage: 'Instalamos sensores en cada sala, invernadero o sector, en los puntos relevantes de su proceso.' },
+  cultivoStep2: { id: 'sol.cultivo.step.2', defaultMessage: 'Visualice cada espacio desde una misma plataforma: detecte desvíos en tiempo real, reciba alertas y compare ambientes.' },
+  cultivoStep3: { id: 'sol.cultivo.step.3', defaultMessage: 'Growcast confecciona registros históricos por ciclo, sala o lote y, cuando la instalación lo permite, automatiza tareas repetitivas.' },
 
-  silosWho: { id: 'sol.silos.who', defaultMessage: 'Acopiadores, cooperativas y productores con silos, celdas o silobolsas.' },
-  silosStep1: { id: 'sol.silos.step.1', defaultMessage: 'Relevamos los silos y colocamos las sondas dentro del grano y los sensores en el espacio de cabeza.' },
-  silosStep2: { id: 'sol.silos.step.2', defaultMessage: 'Temperatura y humedad del grano se ven silo por silo. Los aireadores arrancan y paran solos cuando el ambiente conviene.' },
-  silosStep3: { id: 'sol.silos.step.3', defaultMessage: 'Ante un foco de calentamiento avisamos al instante. El historial de cada silo y cada lote queda guardado.' },
+  silosWho: {
+    id: 'sol.silos.who',
+    defaultMessage: 'Acopios de granos, fábricas de alimentos balanceados, semilleros, molinos harineros, acondicionadoras y malterías.',
+  },
+  silosStep1: { id: 'sol.silos.step.1', defaultMessage: 'Instalamos sensores en cada silo: temperatura, humedad relativa y CO₂ interiores, junto con las condiciones exteriores.' },
+  silosStep2: { id: 'sol.silos.step.2', defaultMessage: 'Growcast centraliza la información de cada silo: condiciones actuales, históricos, alertas y comparación entre silos.' },
+  silosStep3: { id: 'sol.silos.step.3', defaultMessage: 'Cuando el sistema se integra a la aireación, los aireadores pueden accionarse de forma remota o automática según la estrategia operativa definida, y queda registrado cuándo, cuánto y bajo qué condiciones se usaron.' },
 
-  maduracionWho: { id: 'sol.maduracion.who', defaultMessage: 'Queserías, fábricas de embutidos y plantas con cámaras de maduración o secado.' },
-  maduracionStep1: { id: 'sol.maduracion.step.1', defaultMessage: 'Instalamos sensores en cada cámara y conectamos el frío, la humidificación y la renovación de aire.' },
-  maduracionStep2: { id: 'sol.maduracion.step.2', defaultMessage: 'Cargamos la curva de cada producto. La cámara sigue la curva sola, día a día, sin intervención.' },
-  maduracionStep3: { id: 'sol.maduracion.step.3', defaultMessage: 'Cualquier desvío se avisa por WhatsApp. Cada lote queda con su registro completo, listo para auditorías.' },
+  maduracionWho: {
+    id: 'sol.maduracion.who',
+    defaultMessage:
+      'Salas de maduración de quesos, secaderos de chacinados, cámaras de maduración y de conservación, y depósitos con condiciones ambientales críticas.',
+  },
+  maduracionStep1: { id: 'sol.maduracion.step.1', defaultMessage: 'Instalamos sensores en cada sala, cámara o secadero.' },
+  maduracionStep2: { id: 'sol.maduracion.step.2', defaultMessage: 'Visualice las condiciones en tiempo real, reciba alertas ante desvíos y compare ciclos de maduración o secado.' },
+  maduracionStep3: { id: 'sol.maduracion.step.3', defaultMessage: 'Registramos la evolución de las condiciones de cada lote y, cuando la instalación lo permite, nos integramos con los equipos de control ambiental.' },
+
   // shared hardware labels for the three schematics (short — rendered inside the SVG)
-  figPhone: { id: 'sol.fig.phone', defaultMessage: 'TU TELÉFONO' },
+  figPhone: { id: 'sol.fig.phone', defaultMessage: 'SU TELÉFONO' },
   figApp: { id: 'sol.fig.app', defaultMessage: 'APP GROWCAST' },
   figLive: { id: 'sol.fig.live', defaultMessage: 'EN VIVO' },
 
   // silo illustration labels (short — rendered inside the SVG)
-  siloLblProbes: { id: 'silo.lbl.probes', defaultMessage: 'SONDAS T° · HUMEDAD' },
+  siloLblProbes: { id: 'silo.lbl.probes', defaultMessage: 'T° · HR INTERIOR' },
   siloLblNode: { id: 'silo.lbl.node', defaultMessage: 'NODO' },
   siloLblFan: { id: 'silo.lbl.fan', defaultMessage: 'AIREADOR' },
-  siloLblHot: { id: 'silo.lbl.hot', defaultMessage: 'FOCO' },
-  siloAria: { id: 'silo.aria', defaultMessage: 'Esquema: sondas dentro del silo y un sensor de CO₂ en el techo envían sus lecturas al tablero Growcast; su módulo comanda el aireador, y todo llega en vivo a tu teléfono.' },
+  siloLblHot: { id: 'silo.lbl.hot', defaultMessage: 'DESVÍO' },
+  siloAria: { id: 'silo.aria', defaultMessage: 'Esquema: los sensores dentro del silo y un sensor de CO₂ envían sus lecturas al tablero Growcast, que acciona el aireador; todo se ve en tiempo real en su teléfono.' },
   // grow-room illustration labels
-  grLblLights: { id: 'grow.lbl.lights', defaultMessage: 'LUCES · 18/6' },
-  grLblFan: { id: 'grow.lbl.fan', defaultMessage: 'VENTILADOR' },
+  grLblLights: { id: 'grow.lbl.lights', defaultMessage: 'LUCES' },
+  grLblFan: { id: 'grow.lbl.fan', defaultMessage: 'VENTILACIÓN' },
   grLblSensor: { id: 'grow.lbl.sensor', defaultMessage: 'T° · HR · CO₂' },
   grLblIrrig: { id: 'grow.lbl.irrig', defaultMessage: 'RIEGO' },
   grLblEcph: { id: 'grow.lbl.ecph', defaultMessage: 'EC · pH' },
   grLblControl: { id: 'grow.lbl.control', defaultMessage: 'CONTROL' },
   grLblRoom: { id: 'grow.lbl.room', defaultMessage: 'SALA DE CULTIVO' },
-  grAria: { id: 'grow.aria', defaultMessage: 'Esquema: los sensores de la sala envían clima y EC/pH al tablero Growcast; sus tres módulos comandan luces, ventilador y riego, y todo llega en vivo a tu teléfono.' },
+  grAria: { id: 'grow.aria', defaultMessage: 'Esquema: los sensores de la sala envían temperatura, humedad, CO₂, EC y pH al tablero Growcast, que acciona luces, ventilación y riego; todo se ve en tiempo real en su teléfono.' },
 
   // curing-room illustration labels
   crLblSensor: { id: 'cure.lbl.sensor', defaultMessage: 'T° · HR' },
   crLblCo2: { id: 'cure.lbl.co2', defaultMessage: 'CO₂' },
   crLblCold: { id: 'cure.lbl.cold', defaultMessage: 'FRÍO' },
   crLblHum: { id: 'cure.lbl.hum', defaultMessage: 'HUMIDIFICADOR' },
-  crLblScale: { id: 'cure.lbl.scale', defaultMessage: 'PESO' },
   crLblRack: { id: 'cure.lbl.rack', defaultMessage: 'ESTANTERÍA DE MADURACIÓN' },
-  crAria: { id: 'cure.aria', defaultMessage: 'Esquema: sensores en la estantería de quesos envían temperatura, humedad y CO₂ al tablero Growcast; sus dos módulos comandan el frío y el humidificador, y todo llega en vivo a tu teléfono.' },
+  crAria: { id: 'cure.aria', defaultMessage: 'Esquema: los sensores de la sala de maduración envían temperatura, humedad y CO₂ al tablero Growcast, que acciona la refrigeración y el humidificador; todo se ve en tiempo real en su teléfono.' },
 })
