@@ -9,9 +9,9 @@ import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocess
 export default function Effects() {
   return (
     <EffectComposer multisampling={0}>
-      <Bloom mipmapBlur intensity={0.85} luminanceThreshold={0.18} luminanceSmoothing={0.25} />
-      <Noise premultiply opacity={0.55} />
-      <Vignette offset={0.22} darkness={0.82} />
+      <Bloom mipmapBlur intensity={0.6} luminanceThreshold={0.45} luminanceSmoothing={0.2} />
+      <Noise premultiply opacity={0.35} />
+      <Vignette offset={0.3} darkness={0.6} />
     </EffectComposer>
   )
 }

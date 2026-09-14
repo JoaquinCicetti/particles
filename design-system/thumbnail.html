@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es" class="dark">
+<head>
+<meta charset="utf-8" />
+<title>Growcast</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  html, body { height: 100%; }
+  body { display: grid; place-items: center; overflow: hidden; }
+  .cover { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 1.6rem; padding: 0 12%; }
+  .cover::before { content: ''; position: absolute; inset: 0; z-index: -1; -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 10%, transparent 75%); mask-image: radial-gradient(ellipse at 70% 40%, #000 10%, transparent 75%); }
+  /* the lockup at 2.1× its 2rem / 0.6rem / 1.2rem spec */
+  .brand { gap: 1.26rem; }
+  .brand-mark { width: 4.2rem; height: 4.2rem; }
+  .wordmark { font-size: 2.52rem; }
+  .swatches { display: flex; gap: 0.5rem; }
+  .swatches i { width: 2.4rem; height: 0.5rem; }
+</style>
+</head>
+<body>
+  <div class="cover">
+    <div class="cover-bg dot-grid" style="position:absolute;inset:0;z-index:-1;-webkit-mask-image:radial-gradient(ellipse at 75% 45%,#000 5%,transparent 70%);mask-image:radial-gradient(ellipse at 75% 45%,#000 5%,transparent 70%)"></div>
+    <span class="brand"><span class="brand-mark"></span><span class="wordmark">Growcast</span></span>
+    <span class="kicker">MONITOREO AGRÍCOLA EN TIEMPO REAL</span>
+    <div class="swatches">
+      <i style="background:var(--brand)"></i><i style="background:var(--brand-bright)"></i><i style="background:var(--brand-dim)"></i><i style="background:var(--dz-panel)"></i><i style="background:var(--fg)"></i>
+    </div>
+  </div>
+</body>
+</html>

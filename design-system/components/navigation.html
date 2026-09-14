@@ -1,0 +1,64 @@
+<!-- @dsCard group="Components" name="Navigation" subtitle="Top bar with logo lockup and flags, section index + progress rail, tool tabs and list" viewport="1000x440" -->
+<!doctype html>
+<html lang="es" class="dark">
+<head>
+<meta charset="utf-8" />
+<title>Growcast — Navigation</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* demo scaffolding only */
+.demo { padding: 0 36px 32px; display: grid; grid-template-columns: auto 1fr; gap: 64px; align-items: start; }
+.nav { margin-bottom: 24px; }
+.demo-head { margin-bottom: 14px; }
+.side { display: flex; gap: 1.6rem; align-items: center; }
+.rail-track { height: 200px; }
+.rail-fill { bottom: 55%; }
+.rail-dot { top: calc(45% - 3px); }
+.dz-surface { padding: 0.55rem 1rem; }
+.dz-list { margin-top: 14px; background: var(--dz-panel); }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="#"><span class="brand-mark"></span><span class="wordmark">Growcast</span></a>
+    <span class="nav-right">
+      <span class="lang" role="group" aria-label="Language">
+        <button type="button" class="lang-opt is-active" aria-label="Español"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#74acdf" /><rect y="8" width="24" height="8" fill="#fff" /><circle cx="12" cy="12" r="2.6" fill="#f6b40e" /></svg></span></button>
+        <button type="button" class="lang-opt" aria-label="English"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff" /><rect y="0" width="24" height="1.846" fill="#b22234" /><rect y="3.692" width="24" height="1.846" fill="#b22234" /><rect y="7.385" width="24" height="1.846" fill="#b22234" /><rect y="11.077" width="24" height="1.846" fill="#b22234" /><rect y="14.769" width="24" height="1.846" fill="#b22234" /><rect y="18.462" width="24" height="1.846" fill="#b22234" /><rect y="22.154" width="24" height="1.846" fill="#b22234" /><rect width="11" height="12.923" fill="#3c3b6e" /></svg></span></button>
+        <button type="button" class="lang-opt" aria-label="Português"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#009c3b" /><path d="M12 3.6 22.6 12 12 20.4 1.4 12z" fill="#ffdf00" /><circle cx="12" cy="12" r="4.6" fill="#002776" /></svg></span></button>
+      </span>
+      <a class="nav-cta" href="#">Coordinar una reunión</a>
+    </span>
+  </nav>
+  <main class="demo">
+    <div>
+      <div class="demo-head metric-label">.sidenav · .rail</div>
+      <div class="side">
+        <nav class="sidenav">
+          <a class="sidenav-home" href="#"><svg viewBox="0 0 16 16"><path d="M3.6 10.2 L8 5.8 L12.4 10.2" /></svg><span>Inicio</span></a>
+          <div class="sidenav-panel">
+            <a class="sidenav-item is-active" href="#"><span>Silos</span><i></i></a>
+            <a class="sidenav-item" href="#"><span>Cultivo/indoor</span><i></i></a>
+            <a class="sidenav-item" href="#"><span>Maduración</span><i></i></a>
+            <a class="sidenav-item" href="#"><span>Contacto</span><i></i></a>
+          </div>
+        </nav>
+        <div class="rail-track"><span class="rail-fill"></span><span class="rail-dot"></span></div>
+      </div>
+    </div>
+    <div class="dz">
+      <div class="demo-head metric-label">.dz-tabs · .dz-list</div>
+      <div class="dz-tabs dz-surface">
+        <span class="dz-tab is-active"><span class="dz-tab-dot"></span>Sala 1 — Vege</span>
+        <span class="dz-tab"><span class="dz-tab-dot"></span>Sala 2 — Flora</span>
+        <button type="button" class="dz-tab-new" aria-label="Nueva sala">+</button>
+      </div>
+      <ul class="dz-list">
+        <li class="dz-row"><span class="dz-row-name">Temperatura y humedad 1</span><span class="dz-row-meta">↕ 1.50 m</span></li>
+        <li class="dz-row is-selected"><span class="dz-row-name">Growcast+ 1</span><span class="dz-row-meta">↕ 1.40 m</span></li>
+        <li class="dz-row"><span class="dz-row-name">Luminaria 1</span><span class="dz-row-meta"><em>1 OUT</em>1.10×1.10</span></li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

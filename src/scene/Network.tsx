@@ -5,13 +5,13 @@ import { FLOW_CURVES } from './particles/curves'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
 
-/** Faint copper threads tracing the telemetry topology between structures. */
+/** Faint lime threads tracing the telemetry topology between structures. */
 export default function Network() {
   const groupRef = useRef<THREE.Group>(null)
 
   const { lines, material } = useMemo(() => {
     const material = new THREE.LineBasicMaterial({
-      color: '#b06a32',
+      color: '#7f9440',
       transparent: true,
       opacity: 0.08,
       blending: THREE.AdditiveBlending,

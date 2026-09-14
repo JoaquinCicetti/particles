@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/disenador", "destination": "/index.html" },
+    { "source": "/disenador/(.*)", "destination": "/index.html" }
+  ]
+}

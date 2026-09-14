@@ -1,0 +1,36 @@
+<!-- @dsCard group="Components" name="Buttons" subtitle="Glow CTA, outline, solid; tool primary / default / danger / icon" viewport="1000x300" -->
+<!doctype html>
+<html lang="es" class="dark">
+<head>
+<meta charset="utf-8" />
+<title>Growcast — Buttons</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* demo scaffolding only */
+.demo { padding: 32px 36px; }
+.demo-head { margin: 28px 0 14px; }
+.demo-head:first-child { margin-top: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.dz-surface { padding: 18px; }
+</style>
+</head>
+<body>
+<main class="demo">
+  <div class="demo-head metric-label">Landing</div>
+  <div class="row">
+    <button type="button" class="cta">Diseñá tu sala <span class="cta-arrow">→</span></button>
+    <button type="button" class="nav-cta">Agendar demo</button>
+    <button type="button" class="btn-solid">Enviar por WhatsApp</button>
+  </div>
+
+  <div class="demo-head metric-label">Tool</div>
+  <div class="row dz dz-surface">
+    <button type="button" class="dz-btn dz-btn-primary"><svg class="dz-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 8.5l3 3 7-7"/></svg>Finalizar</button>
+    <button type="button" class="dz-btn"><svg class="dz-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10"/></svg>Exportar</button>
+    <button type="button" class="dz-btn dz-btn-danger"><svg class="dz-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 4.5h10M6 4.5V3h4v1.5M4.5 4.5l.6 9h5.8l.6-9"/></svg>Eliminar</button>
+    <button type="button" class="dz-btn dz-icon-btn" aria-label="Deshacer"><svg class="dz-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M5 4 2.5 6.5 5 9M2.5 6.5h7a3.5 3.5 0 0 1 0 7H7"/></svg></button>
+    <button type="button" class="dz-btn" disabled>Deshabilitado</button>
+  </div>
+</main>
+</body>
+</html>

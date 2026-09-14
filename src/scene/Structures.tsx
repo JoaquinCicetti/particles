@@ -1,16 +1,26 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { SILOS, ELEVATOR, WAREHOUSE, SENSOR_POINTS } from './particles/curves'
+import {
+  SILOS,
+  ELEVATOR,
+  WAREHOUSE,
+  SENSOR_POINTS,
+  SILO_CABLES,
+  BOARD,
+  GLANDS,
+  SKY,
+} from './particles/curves'
 import { createRandom } from '../lib/random'
 import { scrollState } from '../lib/scroll'
 import { smoothstep } from '../lib/math'
 
 /**
  * Holographic farm structures: detailed wireframe grain silos, a gabled
- * warehouse (the main building), and the central grain-elevator tower. No
- * solid surfaces — only lines and luminous points. Bright sensor nodes mark
- * the data sources. Everything fades as the camera dives into the stream.
+ * warehouse (the main building), and the central grain-elevator tower. Pure
+ * wireframe — the surfaces carry no particle shimmer, so the line work stays
+ * legible. Bright sensor nodes mark the data sources. Everything fades as the
+ * camera dives into the stream.
  */
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
@@ -299,6 +309,95 @@ function buildTreeLines(out: number[], cx: number, cz: number, scale: number) {
   }
 }
 
+/**
+ * The Growcast device: an industrial enclosure bolted to the camera-facing wall
+ * of the elevator. A plain box with a door, latch and cable glands — common
+ * electrical kit, deliberately not a sculpture. The brand mark goes on its door
+ * as sampled points (see the logo layer in Structures), so nothing is drawn on
+ * the face here.
+ */
+function buildEnclosureLines(out: number[]) {
+  const { w, h, d, cy, wallZ } = BOARD
+  const hw = w / 2
+  const hh = h / 2
+  const z0 = wallZ // against the tower wall
+  const z1 = wallZ + d // the door plane
+  const x0 = ELEVATOR.pos.x - hw
+  const x1 = ELEVATOR.pos.x + hw
+  const y0 = cy - hh
+  const y1 = cy + hh
+
+  // the box: door frame, back frame, and the four corner returns
+  const face = (z: number) => {
+    pushLine(out, V(x0, y0, z), V(x1, y0, z))
+    pushLine(out, V(x1, y0, z), V(x1, y1, z))
+    pushLine(out, V(x1, y1, z), V(x0, y1, z))
+    pushLine(out, V(x0, y1, z), V(x0, y0, z))
+  }
+  face(z0)
+  face(z1)
+  for (const [x, y] of [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+  ]) {
+    pushLine(out, V(x, y, z0), V(x, y, z1))
+  }
+
+  // door seam set in from the edge, so it reads as a hinged door not a block
+  const i = 0.1
+  pushLine(out, V(x0 + i, y0 + i, z1), V(x1 - i, y0 + i, z1))
+  pushLine(out, V(x1 - i, y0 + i, z1), V(x1 - i, y1 - i, z1))
+  pushLine(out, V(x1 - i, y1 - i, z1), V(x0 + i, y1 - i, z1))
+  pushLine(out, V(x0 + i, y1 - i, z1), V(x0 + i, y0 + i, z1))
+
+  // hinges down the left stile, latch on the right
+  for (const hy of [y0 + h * 0.2, y1 - h * 0.2]) {
+    pushLine(out, V(x0 - 0.05, hy, z1 - 0.06), V(x0 - 0.05, hy + 0.16, z1 - 0.06))
+    pushLine(out, V(x0 - 0.05, hy, z1 - 0.06), V(x0 + 0.02, hy, z1 - 0.06))
+    pushLine(out, V(x0 - 0.05, hy + 0.16, z1 - 0.06), V(x0 + 0.02, hy + 0.16, z1 - 0.06))
+  }
+  pushLine(out, V(x1 - 0.02, cy - 0.09, z1 + 0.02), V(x1 + 0.09, cy - 0.09, z1 + 0.02))
+  pushLine(out, V(x1 + 0.09, cy - 0.09, z1 + 0.02), V(x1 + 0.09, cy + 0.09, z1 + 0.02))
+  pushLine(out, V(x1 + 0.09, cy + 0.09, z1 + 0.02), V(x1 - 0.02, cy + 0.09, z1 + 0.02))
+
+  // wall brackets — two per side, back to the tower face
+  for (const bx of [x0 + 0.16, x1 - 0.16]) {
+    for (const by of [y1 - 0.1, y0 + 0.1]) {
+      pushLine(out, V(bx, by, z0), V(bx, by, z0 - 0.14))
+      pushLine(out, V(bx - 0.08, by, z0 - 0.14), V(bx + 0.08, by, z0 - 0.14))
+    }
+  }
+
+  // cable glands underneath, one per feed, each with a short tail
+  for (let g = 0; g < GLANDS; g++) {
+    const gx = ELEVATOR.pos.x + w * (-0.34 + (0.68 * g) / (GLANDS - 1))
+    const gz = wallZ + d * 0.5
+    pushRing(out, gx, y0 - 0.01, gz, 0.07, 10)
+    pushRing(out, gx, y0 - 0.09, gz, 0.05, 8)
+    pushLine(out, V(gx, y0 - 0.09, gz), V(gx, y0 - 0.26, gz))
+  }
+
+  // conduit out of the top, bending back to the tower axis, then the riser the
+  // uplink bundle travels along — with ties up its length
+  const cz = wallZ + d * 0.5
+  pushRing(out, ELEVATOR.pos.x, y1 + 0.01, cz, 0.1, 12)
+  const bend = 10
+  for (let k = 0; k < bend; k++) {
+    const t0 = k / bend
+    const t1 = (k + 1) / bend
+    const yy = (t: number) => y1 + 1.1 * t
+    const zz = (t: number) => cz + (ELEVATOR.pos.z - cz) * Math.pow(t, 0.8)
+    pushLine(out, V(ELEVATOR.pos.x, yy(t0), zz(t0)), V(ELEVATOR.pos.x, yy(t1), zz(t1)))
+  }
+  pushLine(out, V(ELEVATOR.pos.x, y1 + 1.1, ELEVATOR.pos.z), V(ELEVATOR.pos.x, SKY, ELEVATOR.pos.z))
+  for (let k = 1; k < 11; k++) {
+    const wy = y1 + 1.1 + ((SKY - y1 - 1.1) * k) / 11
+    pushRing(out, ELEVATOR.pos.x, wy, ELEVATOR.pos.z, 0.07, 10)
+  }
+}
+
 function linesGeometry(positions: number[]) {
   const geo = new THREE.BufferGeometry()
   geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3))
@@ -308,36 +407,25 @@ function linesGeometry(positions: number[]) {
 export default function Structures() {
   const groupRef = useRef<THREE.Group>(null)
 
-  const { lineGeo, shellGeo, growGeo, sensorGeo, gridGeo } = useMemo(() => {
+  const { lineGeo, growGeo, sensorGeo, gridGeo } = useMemo(() => {
     const random = createRandom(424242)
 
     const lines: number[] = []
-    const shellPts: number[] = []
     const growPts: number[] = []
     for (const s of SILOS) lines.push(...buildSiloLines(s.pos, s.radius, s.height))
     lines.push(...buildTowerLines(ELEVATOR.pos, ELEVATOR.width, ELEVATOR.height))
     lines.push(...buildWarehouseLines(WAREHOUSE))
     lines.push(...buildHydroInterior(WAREHOUSE, growPts)) // rack grow nodes
+    buildEnclosureLines(lines) // the Growcast enclosure + its conduit/riser
 
-    // shimmering particle shells on silo + warehouse surfaces
-    for (const s of SILOS) {
-      for (let i = 0; i < 2400; i++) {
-        const a = random() * Math.PI * 2
-        const y = random() * s.height
-        const r = s.radius + (random() - 0.5) * 0.05
-        shellPts.push(s.pos.x + Math.cos(a) * r, y, s.pos.z + Math.sin(a) * r)
-      }
-    }
-    // warehouse roof shimmer
-    {
-      const { pos, w, d, wall, ridge } = WAREHOUSE
-      for (let i = 0; i < 2600; i++) {
-        const side = random() < 0.5 ? -1 : 1
-        const t = random()
-        const z = pos.z - d / 2 + d * random()
-        const x = pos.x + side * (w / 2) * (1 - t)
-        const y = wall + (ridge - wall) * t
-        shellPts.push(x, y, z)
+    // thermometry cables hanging from each silo roof down into the grain, with
+    // a tick at every probe — so the in-grain sensors read as instrumentation
+    // on a cable rather than dots floating inside a bin
+    for (const c of SILO_CABLES) {
+      const last = c.probes[c.probes.length - 1]
+      pushLine(lines, c.top, V(last.x, last.y - 0.12, last.z))
+      for (const pr of c.probes) {
+        pushLine(lines, V(pr.x - 0.075, pr.y, pr.z), V(pr.x + 0.075, pr.y, pr.z))
       }
     }
 
@@ -370,7 +458,6 @@ export default function Structures() {
 
     return {
       lineGeo: linesGeometry(lines),
-      shellGeo: linesGeometry(shellPts),
       growGeo: linesGeometry(growPts),
       sensorGeo: linesGeometry(sensors),
       gridGeo: linesGeometry(grid),
@@ -379,30 +466,21 @@ export default function Structures() {
 
   const materials = useMemo(() => {
     const line = new THREE.LineBasicMaterial({
-      color: '#b97a3e',
+      color: '#93a84e',
       transparent: true,
       opacity: 0.6,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
     const grid = new THREE.LineBasicMaterial({
-      color: '#8a5226',
+      color: '#4f5e28',
       transparent: true,
       opacity: 0.16,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    const shell = new THREE.PointsMaterial({
-      color: '#d99550',
-      size: 0.026,
-      sizeAttenuation: true,
-      transparent: true,
-      opacity: 0.42,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
     const sensor = new THREE.PointsMaterial({
-      color: '#ffe6bf',
+      color: '#eaffc4',
       size: 0.28,
       sizeAttenuation: true,
       transparent: true,
@@ -410,9 +488,9 @@ export default function Structures() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    // hydroponic grow nodes — brighter than shells, gently pulsing
+    // hydroponic grow nodes — the plants on the racks, gently pulsing
     const grow = new THREE.PointsMaterial({
-      color: '#e8a85c',
+      color: '#b9d06a',
       size: 0.06,
       sizeAttenuation: true,
       transparent: true,
@@ -420,7 +498,7 @@ export default function Structures() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
-    return { line, grid, shell, sensor, grow }
+    return { line, grid, sensor, grow }
   }, [])
 
   useFrame(({ clock }) => {
@@ -429,7 +507,6 @@ export default function Structures() {
     if (group) group.visible = fade > 0.01
     materials.line.opacity = 0.6 * fade
     materials.grid.opacity = 0.16 * fade
-    materials.shell.opacity = 0.42 * fade
     // sensors pulse like live data sources
     materials.sensor.opacity = (0.7 + 0.3 * Math.sin(clock.elapsedTime * 2.6)) * fade
     // grow nodes breathe slowly
@@ -440,7 +517,6 @@ export default function Structures() {
     <group ref={groupRef}>
       <lineSegments geometry={lineGeo} material={materials.line} />
       <lineSegments geometry={gridGeo} material={materials.grid} />
-      <points geometry={shellGeo} material={materials.shell} />
       <points geometry={growGeo} material={materials.grow} />
       <points geometry={sensorGeo} material={materials.sensor} />
     </group>

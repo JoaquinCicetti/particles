@@ -1,36 +1,104 @@
-/* Aeonik (licensed) is loaded from /public/fonts at runtime — kept out of
-   the public repo. If the files are absent the UI falls back to system-ui. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The shadcn token contract, copied from the app so a component moved between
+   the two repos lands on identical values. The site runs dark-only: <html> is
+   stamped `class="dark"`, and the :root block is the app's light theme kept
+   verbatim so the contract stays a faithful copy rather than a fork. */
+@layer base {
+  :root {
+    --background: 60 6% 88%;
+    --foreground: 240 10% 3.9%;
+    --card: 60 20% 99%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 60 20% 99%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 74 60% 44%;
+    --primary-foreground: 68 58% 13%;
+    --secondary: 68 30% 88%;
+    --secondary-foreground: 68 58% 20%;
+    --muted: 60 6% 84%;
+    --muted-foreground: 240 6% 35%;
+    --accent: 68 45% 84%;
+    --accent-foreground: 68 58% 18%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 12%;
+    --info: 200 75% 42%;
+    --info-foreground: 200 75% 12%;
+    --success: 145 65% 35%;
+    --success-foreground: 145 65% 12%;
+    --border: 60 6% 70%;
+    --input: 60 6% 60%;
+    --ring: 74 60% 44%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 6% 12%;
+    --foreground: 0 0% 95%;
+    --card: 240 6% 15%;
+    --card-foreground: 0 0% 95%;
+    --popover: 240 6% 13%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 68 58% 64%;
+    --primary-foreground: 68 58% 15%;
+    --secondary: 68 20% 15%;
+    --secondary-foreground: 68 58% 85%;
+    --muted: 240 6% 18%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 68 40% 20%;
+    --accent-foreground: 68 58% 85%;
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 98%;
+    --warning: 38 92% 60%;
+    --warning-foreground: 38 92% 12%;
+    --info: 200 75% 60%;
+    --info-foreground: 200 75% 12%;
+    --success: 145 60% 55%;
+    --success-foreground: 145 65% 12%;
+    --border: 240 6% 20%;
+    --input: 240 6% 20%;
+    --ring: 68 58% 64%;
+  }
+}
+
+/* Aeonik (licensed). The .otf sources stay untracked; the subset .woff2 faces
+   below are committed under /public/fonts, so a build from the repo ships the
+   real typeface. Regenerate them with `pnpm fonts` (scripts/fonts.mjs). */
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Thin.otf') format('opentype');
+  src: url('/fonts/Aeonik-Thin.woff2') format('woff2');
   font-weight: 200;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Light.otf') format('opentype');
+  src: url('/fonts/Aeonik-Light.woff2') format('woff2');
   font-weight: 300;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Regular.otf') format('opentype');
+  src: url('/fonts/Aeonik-Regular.woff2') format('woff2');
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Medium.otf') format('opentype');
+  src: url('/fonts/Aeonik-Medium.woff2') format('woff2');
   font-weight: 500;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik';
-  src: url('/fonts/Aeonik-Bold.otf') format('opentype');
+  src: url('/fonts/Aeonik-Bold.woff2') format('woff2');
   font-weight: 700;
   font-display: swap;
 }
@@ -44,23 +112,28 @@
 }
 
 :root {
-  --bg: #050302;
-  --fg: #f6efe4;
-  --fg-dim: rgba(244, 236, 224, 0.78);
-  --copper: #c87f3d;
-  --copper-bright: #ffd9a0;
-  --copper-hover: #b3702f; /* plain copper, a touch darker — no gold */
-  --copper-dim: rgba(200, 127, 61, 0.35);
-  --copper-faint: rgba(200, 127, 61, 0.14);
+  --bg: hsl(var(--background));
+  --fg: hsl(var(--foreground));
+  --fg-dim: rgba(242, 242, 246, 0.86);
+  --brand: hsl(var(--primary));
+  --brand-bright: #eef7b4;
+  --brand-hover: #b4c455; /* the brand lime, a touch deeper */
+  --brand-dim: rgba(202, 216, 110, 0.35);
+  --brand-faint: rgba(202, 216, 110, 0.14);
   --radius: 0.5rem; /* shadcn-style corner radius */
+  /* horizontal room the side index panel + rail take on the right, so floating
+     chrome can stay clear of them at any viewport width */
+  --rail-reserve: calc(clamp(1.2rem, 2.6vw, 2.4rem) + 1.6rem + 11.5rem);
   --display: 'Aeonik', system-ui, sans-serif;
-  --mono: 'IBM Plex Mono', monospace;
+  /* labels, kickers and readings used to be IBM Plex Mono; the whole site is
+     Aeonik now. The token stays so the label styles keep one hook. */
+  --mono: 'Aeonik', system-ui, sans-serif;
   --body: 'Aeonik', system-ui, sans-serif;
 }
 
 html {
   scrollbar-width: thin;
-  scrollbar-color: var(--copper-dim) transparent;
+  scrollbar-color: var(--brand-dim) transparent;
 }
 
 body {
@@ -71,7 +144,7 @@ body {
 }
 
 ::selection {
-  background: var(--copper);
+  background: var(--brand);
   color: var(--bg);
 }
 
@@ -79,8 +152,10 @@ body {
   position: relative;
 }
 
+/* length of the 3D story in scroll distance — every story threshold is a
+   fraction of this, so tuning it only changes the pacing */
 .scroll-track {
-  height: 1100vh;
+  height: 680vh;
 }
 
 .canvas-layer {
@@ -103,13 +178,13 @@ body {
   font-size: 0.68rem;
   font-weight: 400;
   letter-spacing: 0.42em;
-  color: var(--copper-bright);
+  color: var(--brand-bright);
   margin-bottom: 1.4rem;
-  text-shadow: 0 1px 3px rgba(5, 3, 2, 0.95);
+  text-shadow: 0 1px 3px rgba(28, 28, 32, 0.95);
 }
 
 .accent {
-  color: var(--copper-bright);
+  color: var(--brand-bright);
 }
 
 /* nav */
@@ -136,26 +211,30 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(5, 3, 2, 0.72), rgba(5, 3, 2, 0));
+  background: linear-gradient(to bottom, rgba(28, 28, 32, 0.72), rgba(28, 28, 32, 0));
   -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
   mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
 
+/* isotype + logotype, bottom-aligned: the mark has no baseline, so baseline
+   alignment sits its bottom edge on the wordmark's baseline */
 .brand {
   pointer-events: auto;
   display: inline-flex;
-  align-items: center;
-  gap: 0.85rem;
+  align-items: baseline;
+  gap: 0.6rem;
   text-decoration: none;
 }
 
-/* lime logo.svg recolored to flat copper via mask — geometry only */
+/* logo.svg recolored to the flat brand lime via mask — geometry only. Pinned
+   to the bottom of its box so the drawing, not the box, meets the baseline. */
 .brand-mark {
   width: 2rem;
   height: 2rem;
-  background: var(--copper);
-  -webkit-mask: url('/logo.svg') center / contain no-repeat;
-  mask: url('/logo.svg') center / contain no-repeat;
+  background: var(--brand);
+  -webkit-mask: url('/logo.svg') center bottom / contain no-repeat;
+  mask: url('/logo.svg') center bottom / contain no-repeat;
+  transform-origin: 50% 100%;
   transition: transform 0.4s ease;
 }
 
@@ -163,25 +242,14 @@ body {
   transform: rotate(-8deg) scale(1.06);
 }
 
+/* the name as written — "Growcast" — so no uppercase tracking */
 .wordmark {
   font-family: var(--display);
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.38em;
-  color: var(--fg);
-}
-
-/* shadcn-style "AGRO" badge marking the agro branch */
-.brand-sub {
-  font-family: var(--mono);
-  font-size: 0.55rem;
   font-weight: 400;
-  letter-spacing: 0.26em;
-  color: var(--copper);
-  border: 1px solid var(--copper-dim);
-  border-radius: calc(var(--radius) - 0.25rem);
-  padding: 0.12rem 0.4rem;
-  margin-left: -0.35rem;
+  font-size: 1.2rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--fg);
 }
 
 .nav-right {
@@ -201,11 +269,11 @@ body {
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--copper);
+  color: var(--brand);
   text-decoration: none;
   white-space: nowrap;
   background: transparent;
-  border: 1px solid var(--copper-dim);
+  border: 1px solid var(--brand-dim);
   border-radius: var(--radius);
   padding: 0.55rem 1.05rem;
   transition:
@@ -215,9 +283,20 @@ body {
 }
 
 .nav-cta:hover {
-  background: var(--copper);
-  border-color: var(--copper);
+  background: var(--brand);
+  border-color: var(--brand);
   color: var(--bg);
+}
+
+/* the glyph is the phone-width form of the CTA; see ContactCta */
+.nav-cta-icon {
+  display: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
 }
 
 /* hero */
@@ -237,8 +316,8 @@ body {
   letter-spacing: 0.09em;
   text-transform: uppercase;
   text-shadow:
-    0 2px 4px rgba(5, 3, 2, 0.92),
-    0 0 10px rgba(5, 3, 2, 0.7);
+    0 2px 4px rgba(28, 28, 32, 0.92),
+    0 0 10px rgba(28, 28, 32, 0.7);
 }
 
 .hero p {
@@ -248,16 +327,42 @@ body {
   line-height: 1.65;
   max-width: 30rem;
   color: var(--fg-dim);
-  text-shadow: 0 1px 3px rgba(5, 3, 2, 0.95);
+  text-shadow: 0 1px 3px rgba(28, 28, 32, 0.95);
 }
 
 /* narrative blocks */
+/* Every scene's copy lands in ONE place — the corner the hero already owns —
+   so the eye never hunts for it between acts. Scattering the blocks (centre,
+   then left, then left) meant each act arrived somewhere new, over whatever
+   the particle field happened to be doing there. */
 .block {
   position: absolute;
-  max-width: 26rem;
+  left: calc(clamp(1.5rem, 6vw, 6rem) + env(safe-area-inset-left));
+  bottom: calc(clamp(5rem, 14vh, 9rem) + env(safe-area-inset-bottom));
+  max-width: 30rem;
   opacity: 0;
   z-index: 4; /* sit in front of the sensor cards */
   will-change: transform, opacity;
+}
+
+/* A text shadow alone could not hold this copy: it sits over a live particle
+   field that is bright and busy exactly where the paragraphs are, and a chip
+   can pass behind it. So each block carries its own scrim — soft-edged, so it
+   never reads as a box, and inside the block's own stacking context, so it
+   covers the chips (z 2) without touching the nav or the index. */
+.block::before {
+  content: '';
+  position: absolute;
+  inset: -2.6rem -3.4rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(16, 16, 20, 0.88) 0%,
+    rgba(16, 16, 20, 0.74) 42%,
+    rgba(16, 16, 20, 0.32) 70%,
+    rgba(16, 16, 20, 0) 88%
+  );
 }
 
 .block h2 {
@@ -267,9 +372,10 @@ body {
   line-height: 1.3;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  color: var(--fg);
   text-shadow:
-    0 2px 4px rgba(5, 3, 2, 0.92),
-    0 0 10px rgba(5, 3, 2, 0.7);
+    0 2px 4px rgba(16, 16, 20, 0.95),
+    0 0 14px rgba(16, 16, 20, 0.85);
 }
 
 .block p {
@@ -277,114 +383,185 @@ body {
   font-weight: 300;
   font-size: clamp(0.9rem, 1.15vw, 1.02rem);
   line-height: 1.7;
-  color: var(--fg-dim);
-  text-shadow: 0 1px 3px rgba(5, 3, 2, 0.95);
+  color: var(--fg);
+  text-shadow:
+    0 1px 3px rgba(16, 16, 20, 0.95),
+    0 0 10px rgba(16, 16, 20, 0.8);
 }
 
-.block-right {
-  right: clamp(1.5rem, 7vw, 7rem);
-  top: 50%;
-  translate: 0 -50%;
-  text-align: right;
-}
-
-.block-left {
-  left: clamp(1.5rem, 7vw, 7rem);
-  top: 50%;
-  translate: 0 -50%;
-}
-
-.block-center {
-  left: 50%;
-  top: 16%;
-  translate: -50% 0;
-  text-align: center;
-}
-
-/* holographic metric cards */
-.metric {
-  position: absolute;
-  top: 50%;
-  margin-top: -5.2rem;
-  min-width: 18rem;
-  padding: 1.6rem 1.9rem 1.7rem;
-  /* solid translucent panel (no backdrop-filter — it re-blurs the live canvas
-     every frame and tanked perf when all 6 cards appeared at once) */
-  background: rgba(11, 6, 3, 0.82);
-  border: 1px solid var(--copper-dim);
+/* holographic panel — shared by the sensor metric cards and the solution
+   cards. Solid translucent (no backdrop-filter — it re-blurs the live canvas
+   every frame and tanked perf when all 6 cards appeared at once) */
+.panel {
+  position: relative;
+  background: rgba(19, 19, 23, 0.82);
+  border: 1px solid var(--brand-dim);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
-  opacity: 0;
-  z-index: 2; /* behind the narrative text */
-  will-change: transform, opacity;
 }
 
-.metric::before,
-.metric::after {
+.panel::before,
+.panel::after {
   content: '';
   position: absolute;
   width: 0.85rem;
   height: 0.85rem;
-  border-color: var(--copper);
+  border-color: var(--brand);
   border-style: solid;
 }
 
-.metric::before {
+.panel::before {
   top: -1px;
   left: -1px;
   border-width: 1px 0 0 1px;
 }
 
-.metric::after {
+.panel::after {
   bottom: -1px;
   right: -1px;
   border-width: 0 1px 1px 0;
 }
 
-.metric-left {
-  left: clamp(1.5rem, 12vw, 16rem);
+/* sensor chips (story) — icon + value + unit, bubbling around the stream */
+.metric {
+  position: absolute;
+  opacity: 0;
+  z-index: 2; /* behind the narrative text */
+  will-change: transform, opacity;
+  /* --u / --v are a 0..1 scatter drawn per load in Overlay; this maps them
+     into the band the chips may occupy. The right stop is a hard one: past it
+     a card slides under the section index and the progress rail. */
+  --chip-w: 15rem;
+  --mx-max: calc(100% - var(--rail-reserve) - var(--chip-w));
+  left: clamp(1rem, calc(3% + var(--u, 0.5) * 63%), var(--mx-max));
+  top: calc(14% + var(--v, 0.5) * 62%);
 }
 
-.metric-right {
-  right: clamp(1.5rem, 12vw, 16rem);
+.metric-float {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem 1.1rem 0.9rem;
+  border: 1px solid var(--brand-dim);
+  border-radius: calc(var(--radius) + 0.25rem);
+  background: rgba(19, 19, 23, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55);
+  animation: chip-float 4.2s ease-in-out infinite;
+}
+
+.metric-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metric-name {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  color: var(--fg-dim);
+  white-space: nowrap;
+}
+
+/* reading on the left, its trace on the right, sharing a baseline */
+.metric-read {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.3rem;
+}
+
+.metric-spark {
+  width: 4.8rem;
+  height: auto;
+  flex: none;
+  margin-bottom: 0.3rem;
+  overflow: visible;
+}
+
+/* a few hairlines so the trace reads as a plot rather than a squiggle */
+.metric-spark-grid {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.6;
+  opacity: 0.3;
+}
+
+.metric-spark-area {
+  fill: var(--brand);
+  fill-opacity: 0.26;
+  stroke: none;
+}
+
+.metric-spark-line {
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.metric-float .metric-value {
+  font-size: 2.7rem;
+}
+
+@keyframes chip-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(var(--bob, 7px) * -1));
+  }
+}
+
+/* visible to screen readers only — the sensor chips show icon + number + unit,
+   so the variable's name has to reach assistive tech some other way */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sensor-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+  color: var(--brand);
+}
+
+.metric-value {
+  font-family: var(--body);
+  font-weight: 300;
+  font-size: 2.1rem;
+  line-height: 1;
+  color: var(--brand-bright);
+  white-space: nowrap;
+}
+
+.metric-unit {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  margin-left: 0.42rem;
+  color: var(--fg-dim);
 }
 
 .metric-label {
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.34em;
-  color: var(--copper);
+  color: var(--brand);
 }
 
-.metric-value {
-  margin-top: 0.8rem;
-  font-family: var(--body);
-  font-weight: 200;
-  font-size: 3.5rem;
-  line-height: 1;
-  color: var(--copper-bright);
-}
-
-.metric-unit {
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.2em;
-  margin-left: 0.55rem;
-  color: var(--fg-dim);
-}
-
-.metric-bar {
-  margin-top: 1rem;
-  height: 2px;
-  background: var(--copper-faint);
-}
-
-.metric-bar i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--copper), var(--copper-bright));
-  box-shadow: 0 0 8px rgba(255, 217, 160, 0.55);
-}
-
+/* the metric-* type styles are also used by the in-flow solution stats */
 .metric-note {
   display: block;
   margin-top: 0.9rem;
@@ -394,53 +571,7 @@ body {
   color: var(--fg-dim);
 }
 
-/* finale — sits below the centered, glowing brand mark */
-.finale {
-  position: absolute;
-  left: 50%;
-  bottom: calc(7vh + env(safe-area-inset-bottom));
-  translate: -50% 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.2rem;
-  opacity: 0;
-  text-align: center;
-}
-
-.finale-word {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(1.4rem, 3vw, 2.3rem);
-  letter-spacing: 0.42em;
-  margin-right: -0.42em; /* optically recenter tracked text */
-  color: var(--fg);
-  text-shadow: 0 0 28px rgba(200, 127, 61, 0.45);
-}
-
-.finale-sub {
-  font-family: var(--mono);
-  font-weight: 400;
-  font-size: 0.42em;
-  letter-spacing: 0.3em;
-  color: var(--copper);
-  border: 1px solid var(--copper-dim);
-  border-radius: calc(var(--radius) - 0.25rem);
-  padding: 0.2em 0.5em;
-  text-shadow: none;
-}
-
-.finale-tag {
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.5em;
-  color: var(--copper);
-}
-
-/* primary CTA — dark glass pill, luminous copper outline + glowing text */
+/* primary CTA — dark glass pill, luminous lime outline + glowing text */
 .cta {
   position: relative;
   display: inline-flex;
@@ -454,15 +585,15 @@ body {
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  color: var(--copper-bright);
-  background: rgba(18, 11, 5, 0.55);
-  border: 1px solid var(--copper);
+  color: var(--brand-bright);
+  background: rgba(25, 25, 29, 0.55);
+  border: 1px solid var(--brand);
   border-radius: var(--radius);
   padding: 0.9rem 1.8rem;
-  text-shadow: 0 0 10px rgba(255, 217, 160, 0.5);
+  text-shadow: 0 0 10px rgba(238, 247, 180, 0.5);
   box-shadow:
-    0 0 20px rgba(200, 127, 61, 0.28),
-    inset 0 0 18px rgba(200, 127, 61, 0.08);
+    0 0 20px rgba(202, 216, 110, 0.28),
+    inset 0 0 18px rgba(202, 216, 110, 0.08);
   transition:
     transform 0.25s ease,
     box-shadow 0.3s ease,
@@ -472,11 +603,11 @@ body {
 
 .cta:hover {
   transform: translateY(-2px);
-  color: #fff7ec;
-  border-color: var(--copper-bright);
+  color: #f8fde9;
+  border-color: var(--brand-bright);
   box-shadow:
-    0 0 34px rgba(255, 205, 150, 0.5),
-    inset 0 0 24px rgba(255, 205, 150, 0.14);
+    0 0 34px rgba(226, 240, 150, 0.5),
+    inset 0 0 24px rgba(226, 240, 150, 0.14);
 }
 
 .cta-arrow {
@@ -495,7 +626,7 @@ body {
   letter-spacing: 0.03em;
   text-transform: none;
   color: var(--bg);
-  background: var(--copper);
+  background: var(--brand);
   border-radius: var(--radius);
   text-shadow: none;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
@@ -503,8 +634,8 @@ body {
 
 .dialog-send:hover {
   color: var(--bg);
-  background: var(--copper-bright);
-  border-color: var(--copper-bright);
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
 }
 
@@ -528,15 +659,56 @@ body {
   font-family: var(--mono);
   font-size: 0.58rem;
   letter-spacing: 0.4em;
-  color: var(--copper);
+  color: var(--brand);
 }
 
-.hint i {
-  width: 1px;
-  height: 3.4rem;
-  background: linear-gradient(to bottom, var(--copper), transparent);
+.hint-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hint-mouse {
+  width: 1.45rem;
+  height: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+/* the wheel falls down the body and fades, then restarts at the top */
+.hint-wheel {
+  fill: currentColor;
+  stroke: none;
+  animation: hint-wheel 2.2s ease-in-out infinite;
+}
+
+.hint-chevron {
+  width: 0.95rem;
+  height: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.65;
   animation: hint-drop 2.2s ease-in-out infinite;
-  transform-origin: top;
+}
+
+@keyframes hint-wheel {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  70%,
+  100% {
+    transform: translateY(11px);
+    opacity: 0;
+  }
 }
 
 @keyframes hint-drop {
@@ -564,13 +736,13 @@ body {
   position: relative;
   width: 1px;
   height: 38vh;
-  background: var(--copper-faint);
+  background: var(--brand-faint);
 }
 
 .rail-fill {
   position: absolute;
   inset: 0;
-  background: var(--copper);
+  background: var(--brand);
   transform: scaleY(0);
   transform-origin: top;
 }
@@ -582,8 +754,8 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--copper-bright);
-  box-shadow: 0 0 10px rgba(255, 217, 160, 0.8);
+  background: var(--brand-bright);
+  box-shadow: 0 0 10px rgba(238, 247, 180, 0.8);
 }
 
 /* phase indicator */
@@ -595,6 +767,683 @@ body {
   font-size: 0.58rem;
   letter-spacing: 0.34em;
   color: var(--fg-dim);
+}
+
+/* section index, left of the rail and mirroring its vertical centring. Home
+   is the 3D story rather than a section, so it sits apart above the list as a
+   smaller chip. Both carry their own glass surface — they sit over a moving 3D
+   scene, and tracked micro-type alone would not hold contrast. The 1.6rem
+   right offset keeps them clear of the .rail beside them. */
+.sidenav {
+  position: absolute;
+  right: calc(clamp(1.2rem, 2.6vw, 2.4rem) + 1.6rem + env(safe-area-inset-right));
+  top: 50%;
+  translate: 0 -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  pointer-events: auto;
+}
+
+.sidenav-home,
+.sidenav-panel {
+  background: rgba(28, 28, 32, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--brand-faint);
+  border-radius: var(--radius);
+}
+
+.sidenav-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1.1rem;
+}
+
+.sidenav-home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.26em;
+  color: var(--fg-dim);
+  text-decoration: none;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.sidenav-home svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sidenav-home:hover,
+.sidenav-home.is-active {
+  color: var(--brand-bright);
+  border-color: var(--brand-dim);
+}
+
+.sidenav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--fg-dim);
+  opacity: 0.7;
+  text-decoration: none;
+  transition:
+    opacity 0.25s ease,
+    color 0.25s ease;
+}
+
+.sidenav-item i {
+  width: 0.55rem;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s ease;
+}
+
+.sidenav-item:hover,
+.sidenav-item.is-active {
+  opacity: 1;
+  color: var(--brand-bright);
+}
+
+.sidenav-item.is-active i {
+  width: 1.1rem;
+  box-shadow: 0 0 8px rgba(238, 247, 180, 0.6);
+}
+
+/* ☰ — mobile only */
+.nav-menu {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.32rem;
+  width: 2.3rem;
+  height: 2.3rem;
+  background: transparent;
+  border: 1px solid var(--brand-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 0 0.6rem;
+}
+
+.nav-menu i {
+  display: block;
+  height: 1px;
+  background: var(--brand);
+}
+
+/* mobile sheet — reuses the dialog shell */
+.sheet .kicker {
+  margin-bottom: 1rem;
+}
+
+/* home, on its own and smaller than the section links below it */
+.sheet-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 3rem;
+  margin-bottom: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.26em;
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.sheet-home svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sheet-home:hover,
+.sheet-home:focus-visible {
+  color: var(--brand-bright);
+}
+
+.sheet-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet-lang {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--brand-faint);
+}
+
+.sheet-link {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.95rem 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg);
+  text-decoration: none;
+  border-top: 1px solid var(--brand-faint);
+  transition: color 0.2s ease;
+}
+
+.sheet-link:hover,
+.sheet-link:focus-visible {
+  color: var(--brand-bright);
+  outline: none;
+}
+
+.sheet-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  color: var(--brand);
+}
+
+/* ── solutions (in-flow, after the story) ───────────────────── */
+.solutions {
+  position: relative;
+  z-index: 5; /* above the canvas, below the fixed overlay chrome */
+  /* the logo scene shows through the seam, then the ground goes solid */
+  background: linear-gradient(to bottom, rgba(28, 28, 32, 0) 0, var(--bg) 40vh);
+  padding-top: 36vh;
+  padding-left: calc(clamp(1.5rem, 6vw, 6rem) + env(safe-area-inset-left));
+  /* extra room on the right for the fixed side index + rail. the index is a
+     glass panel now, so it occludes rather than overlaps — reserve its full
+     width (~10.5rem incl. its own right offset) plus a gutter */
+  padding-right: calc(clamp(1.5rem, 6vw, 6rem) + 10.5rem + env(safe-area-inset-right));
+  /* ghost numerals and glows must not widen the page. clip, not hidden:
+     hidden makes this a scroll container and the sticky diagram stops sticking */
+  overflow: clip;
+}
+
+@media (max-width: 720px) {
+  .solutions {
+    padding-right: calc(1.5rem + env(safe-area-inset-right));
+  }
+}
+
+/* fine lime dot grid, fading in below the seam — echoes the circuit board */
+.solutions::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(202, 216, 110, 0.22) 1px, transparent 1.4px);
+  background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 30vh, #000 60vh);
+  mask-image: linear-gradient(to bottom, transparent 30vh, #000 60vh);
+}
+
+.sol-intro {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 0 8vh;
+}
+
+.sol-intro h2,
+.sol h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(1.7rem, 3.2vw, 2.7rem);
+  line-height: 1.18;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow:
+    0 2px 4px rgba(28, 28, 32, 0.92),
+    0 0 10px rgba(28, 28, 32, 0.7);
+}
+
+.sol-intro p,
+.sol p {
+  margin-top: 1.1rem;
+  max-width: 34rem;
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.3vw, 1.2rem);
+  line-height: 1.7;
+  color: var(--fg-dim);
+}
+
+.sol .kicker,
+.sol-intro .kicker {
+  font-size: 0.78rem;
+  letter-spacing: 0.34em;
+}
+
+.sol {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  /* the diagram is a card beside the other cards, not a row of its own: it
+     runs down the second column next to the panels and the steps */
+  grid-template-areas:
+    'head measure'
+    'panels fig'
+    'side fig';
+  gap: clamp(2.4rem, 5vw, 4.5rem) clamp(2rem, 5vw, 5rem);
+  align-items: start;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 12vh 0 14vh;
+  scroll-margin-top: 4vh;
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+
+.sol.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.sol-flip {
+  grid-template-areas:
+    'measure head'
+    'fig panels'
+    'fig side';
+}
+
+/* hairline between sections */
+.sol + .sol::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brand-dim) 30%, var(--brand-dim) 70%, transparent);
+}
+
+/* soft lime glow behind the panels side of each section */
+.sol::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 30%;
+  left: -10%;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(202, 216, 110, 0.16), rgba(202, 216, 110, 0));
+  pointer-events: none;
+}
+
+.sol-flip::before {
+  left: auto;
+  right: -10%;
+}
+
+/* ghost numeral */
+.sol-num {
+  position: absolute;
+  z-index: -1;
+  top: 2vh;
+  left: -0.06em;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(9rem, 22vw, 20rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(202, 216, 110, 0.13);
+  pointer-events: none;
+  user-select: none;
+}
+
+.sol-flip .sol-num {
+  left: auto;
+  right: -0.06em;
+}
+
+.sol-head {
+  grid-area: head;
+}
+
+.sol-lede {
+  font-size: clamp(1.1rem, 1.4vw, 1.28rem);
+}
+
+.sol-who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.6rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--brand);
+  color: var(--fg);
+}
+
+/* "design your room" — the grow-room designer entry point */
+.sol-design {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-top: 2rem;
+}
+
+.sol-design .metric-note {
+  margin-top: 0;
+  letter-spacing: 0.2em;
+}
+
+.sol-measure {
+  grid-area: measure;
+  padding-top: 0.4rem;
+}
+
+.sol-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.sol-chips li {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 0.98rem;
+  color: var(--fg);
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--brand-dim);
+  border-radius: 999px;
+  background: rgba(202, 216, 110, 0.08);
+}
+
+.sol-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6rem 2.6rem;
+  margin-top: 2.2rem;
+}
+
+.sol-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.sol-stat .metric-value {
+  margin-top: 0.4rem;
+  font-size: 2.4rem;
+}
+
+.sol-stat .metric-unit {
+  font-size: 0.72rem;
+}
+
+.sol-panels {
+  grid-area: panels;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.sol-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4rem;
+}
+
+.sol-panel {
+  padding: 1.6rem 1.8rem 1.7rem;
+}
+
+.sol h3.metric-label {
+  font-size: 0.74rem;
+  font-weight: 400;
+  color: var(--brand-bright);
+}
+
+.sol-list {
+  list-style: none;
+  margin-top: 1.1rem;
+}
+
+.sol-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.95rem;
+  padding: 0.7rem 0;
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--fg);
+  border-top: 1px solid var(--brand-faint);
+}
+
+.sol-list li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* icon slot — one 16×16 stroke glyph per `data-icon` key, masked in. Each key
+   only overrides --icon; the mask shorthand itself is declared once. The CO₂
+   glyph is the same path SensorIcon/figures.tsx draw (SENSOR_PATHS.co2), so
+   the bullet list and the schematics stay in step. */
+.sol-icon {
+  flex: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.3rem;
+  background: var(--brand);
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+
+.sol-icon[data-icon='check'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8.5l3.5 3.5 7.5-8' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E");
+  background: var(--brand-bright);
+}
+
+/* device on the wall */
+.sol-icon[data-icon='node'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5.5' width='9' height='8' rx='1.2'/%3E%3Cpath d='M8 5.5V2.5M5.8 9.5h4.4'/%3E%3C/svg%3E");
+}
+
+/* probe in the medium */
+.sol-icon[data-icon='probe'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2.2v7.6M5.4 4.4h5.2'/%3E%3Ccircle cx='8' cy='11.8' r='2'/%3E%3C/svg%3E");
+}
+
+/* valve / actuator */
+.sol-icon[data-icon='valve'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6.4 8 9 3 11.6zM13 6.4 8 9l5 2.6zM8 9V4.6M5.8 3.6h4.4'/%3E%3C/svg%3E");
+}
+
+/* alert */
+.sol-icon[data-icon='alert'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2.4 14.6 13.6H1.4zM8 6.6v3.4M8 12v.4'/%3E%3C/svg%3E");
+}
+
+/* CO₂ — SENSOR_PATHS.co2 */
+.sol-icon[data-icon='co2'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5h6.5a2.8 2.8 0 0 0 .3-5.6A4 4 0 0 0 4.2 8 2.3 2.3 0 0 0 5 12.5z'/%3E%3C/svg%3E");
+}
+
+/* aeration fan */
+.sol-icon[data-icon='fan'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='1.5'/%3E%3Cpath d='M8 6.5V2.4M9.5 8V12.1M6.5 8V3.9M8 9.5V13.6M9.5 8H13.6M6.5 8H2.4'/%3E%3C/svg%3E");
+}
+
+/* phone */
+.sol-icon[data-icon='phone'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='1.8' width='8' height='12.4' rx='1.4'/%3E%3Cpath d='M6.8 12.2h2.4'/%3E%3C/svg%3E");
+}
+
+/* cooling */
+.sol-icon[data-icon='snow'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v12M2.8 5l10.4 6M13.2 5 2.8 11'/%3E%3C/svg%3E");
+}
+
+/* ripening curve */
+.sol-icon[data-icon='curve'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 13V3M2 13h12M4 11.5c2.4 0 3-7 5.4-7 1.8 0 2.2 3.2 4.1 3.2'/%3E%3C/svg%3E");
+}
+
+/* batch log */
+.sol-icon[data-icon='log'] {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='2.2' width='9' height='11.6' rx='1.2'/%3E%3Cpath d='M5.8 5.4h4.4M5.8 8h4.4M5.8 10.6h3'/%3E%3C/svg%3E");
+}
+
+/* 3-step process */
+.sol-steps ol {
+  list-style: none;
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.sol-steps li {
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
+}
+
+.sol-step-n {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-top: 0.1rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--brand-bright);
+  border: 1px solid var(--brand);
+  border-radius: 50%;
+  background: rgba(202, 216, 110, 0.1);
+}
+
+.sol-steps strong {
+  display: block;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.12rem;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+}
+
+.sol-steps p {
+  margin-top: 0.4rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* the connection diagram: a card the width of its column, which lands the
+   364-unit drawing at roughly 1.3–1.5× — every label still reads. It spans the
+   panels and the steps, so it stays pinned in view while those are read. */
+.sol-figure {
+  grid-area: fig;
+  align-self: start;
+  position: sticky;
+  top: 12vh;
+  width: 100%;
+  padding: 1.4rem 1.6rem 1.2rem;
+  color: var(--brand);
+}
+
+.sol-figure .metric-note {
+  display: block;
+  max-width: 34rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+}
+
+.sol-schema {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.9rem 0 0.6rem;
+}
+
+/* closing contact block — centred like the finale */
+.sol-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 80vh;
+  text-align: center;
+  padding-bottom: calc(6vh + env(safe-area-inset-bottom));
+}
+
+.sol-contact p {
+  margin: 0.4rem auto 1.8rem;
+}
+
+/* place, then the two real lines out: WhatsApp and the sales inbox */
+.contact-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem 1.8rem;
+  margin-top: 2rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--brand);
+}
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 3rem;
+  letter-spacing: 0.12em;
+  color: var(--brand-bright);
+  text-decoration: none;
+}
+
+.contact-link:hover,
+.contact-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.contact-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+}
+
+.sol-contact .finale-fine {
+  margin-top: 3rem;
 }
 
 /* film grain — normal blend (overlay blend forced a full-screen recomposite
@@ -633,62 +1482,146 @@ body {
     padding: 0.5rem 0.8rem;
   }
 
-  /* mobile header: logo mark only — wordmark/badge crowd the CTA */
-  .wordmark,
-  .brand-sub {
+  /* mobile header: logo mark only — the wordmark crowds the CTA */
+  .wordmark {
     display: none;
   }
 
-  .block-right,
-  .block-left {
+  .block {
     left: 1.5rem;
     right: 1.5rem;
-    text-align: left;
     max-width: none;
+    bottom: calc(clamp(7.4rem, 20vh, 10rem) + env(safe-area-inset-bottom));
   }
 
-  /* drop the left narrative blocks to the bottom so the busy central
-     particle motion stays clear and the copy reads */
-  .block-left {
-    top: auto;
-    bottom: calc(9vh + env(safe-area-inset-bottom));
-    translate: 0;
+  /* chips gather in the lower half, clear of the "RED DE SENSORES" heading.
+     The card is taller than the old pill, so the rows need real gaps or they
+     stack into one block the moment the rise brings them together. */
+  .metric-float {
+    padding: 0.5rem 0.75rem 0.55rem;
+    gap: 0.25rem;
   }
 
-  /* lower the sensor-card band so its fade-in clears the
-     "RED DE SENSORES" heading; keep the enlarged cards within the viewport */
+  .metric-float .metric-value {
+    font-size: 1.6rem;
+  }
+
+  .metric-name {
+    font-size: 0.54rem;
+    letter-spacing: 0.18em;
+  }
+
+  .metric-read {
+    gap: 0.8rem;
+  }
+
+  .metric-spark {
+    width: 3.4rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .sensor-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  /* out-of-phase bobbing closes the gap between two cards by twice this, and
+     the phone's rows have far less room to give than the desktop's */
+  .metric-float {
+    --bob: 3px;
+  }
+
+  /* no index or rail here, so the only right stop is the card's own width;
+     the band starts lower, under the hero copy */
   .metric {
-    top: auto;
-    margin-top: 0;
-    bottom: 24vh;
-    min-width: 0;
-    width: min(20rem, 84vw);
+    --chip-w: 12rem;
+    --mx-max: calc(100% - var(--chip-w));
+    left: clamp(0.75rem, calc(3% + var(--u, 0.5) * 58%), var(--mx-max));
+    /* The band stops above the caption rather than routing around it: at this
+       width the copy spans the full column, so there is no "around". Six
+       cards in 52 % of the height is a near-even stack — the scatter shows in
+       the horizontal stagger, and in when each one arrives. */
+    top: calc(10% + var(--v, 0.5) * 52%);
   }
 
-  .metric-value {
-    font-size: 2.9rem;
+  .rail,
+  .sidenav {
+    display: none;
   }
 
-  .metric-left,
-  .metric-right {
-    left: 50%;
-    right: auto;
-    translate: -50% 0;
+  /* no room in a phone header for the flags beside the CTA and the menu, so
+     there they live in the menu sheet only. Scoped to .nav, or this hides the
+     copy inside the sheet too. */
+  .nav .lang {
+    display: none;
   }
 
-  .rail {
+  /* The hint stays, as the mouse glyph alone. The bottom edge of a phone is
+     already spoken for by the phase label, so the glyph lifts clear of it, and
+     the hero lifts with it rather than landing on top of the glyph. */
+  .hint-label,
+  .hint-chevron {
     display: none;
   }
 
   .hint {
-    display: none;
+    gap: 0;
+    bottom: calc(4.6rem + env(safe-area-inset-bottom));
   }
+
+  .hero {
+    bottom: calc(clamp(7.4rem, 20vh, 10rem) + env(safe-area-inset-bottom));
+  }
+
+  .nav-menu {
+    display: flex;
+  }
+
+  .solutions {
+    padding-top: 30vh;
+  }
+
+  .sol,
+  .sol-flip {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'head'
+      'measure'
+      'fig'
+      'panels'
+      'side';
+    gap: 2.2rem;
+    padding: 9vh 0 10vh;
+  }
+
+  .sol-num {
+    font-size: 8rem;
+    top: 2vh;
+  }
+
+  /* one column: the diagram is just the next card, not pinned */
+  .sol-figure {
+    position: static;
+  }
+
+  .sol-stat .metric-value {
+    font-size: 2rem;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
   .grain,
-  .hint i {
+  .hint-wheel,
+  .hint-chevron,
+  .metric-float {
     animation: none;
+  }
+
+  .sol {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
@@ -702,7 +1635,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: rgba(3, 2, 1, 0.7);
+  background: rgba(15, 15, 19, 0.7);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: dialog-fade 0.2s ease;
@@ -711,8 +1644,8 @@ body {
 .dialog {
   position: relative;
   width: min(28rem, 100%);
-  background: #0b0705;
-  border: 1px solid var(--copper-dim);
+  background: #141418;
+  border: 1px solid var(--brand-dim);
   border-radius: var(--radius);
   padding: 2rem 1.8rem 1.8rem;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
@@ -751,7 +1684,7 @@ body {
   font-size: 0.6rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--copper);
+  color: var(--brand);
   margin-bottom: 0.45rem;
 }
 
@@ -762,7 +1695,7 @@ body {
   font-size: 0.95rem;
   color: var(--fg);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--copper-faint);
+  border: 1px solid var(--brand-faint);
   border-radius: calc(var(--radius) - 0.2rem);
   padding: 0.7rem 0.85rem;
   resize: vertical;
@@ -772,11 +1705,11 @@ body {
 .dialog-field input:focus,
 .dialog-field textarea:focus {
   outline: none;
-  border-color: var(--copper);
+  border-color: var(--brand);
 }
 
 .dialog-field input::placeholder {
-  color: rgba(244, 236, 224, 0.35);
+  color: rgba(242, 242, 246, 0.35);
 }
 
 .dialog-send {
@@ -818,6 +1751,39 @@ body {
   }
 }
 
+/* Radix dialogs (the designer's) are centred with translate(-50%, -50%).
+   tailwindcss-animate's zoom keyframes replaced that transform while they ran,
+   so the box flew in from the bottom-right; these keep the centring in every
+   frame — a short rise, scale and fade. */
+.dialog-anim[data-state='open'] {
+  animation: dialog-center-in 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.dialog-anim[data-state='closed'] {
+  animation: dialog-center-out 0.16s ease forwards;
+}
+
+@keyframes dialog-center-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 14px)) scale(0.97);
+  }
+}
+
+@keyframes dialog-center-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px)) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog-anim[data-state='open'],
+  .dialog-anim[data-state='closed'] {
+    animation-duration: 0.01s;
+  }
+}
+
 /* ── loading screen ─────────────────────────────────────────── */
 .loader {
   position: fixed;
@@ -838,85 +1804,54 @@ body {
   pointer-events: none;
 }
 
-.loader-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.05rem;
-  padding: 2rem;
-}
-
-.loader-mark {
-  width: 3.4rem;
-  height: 3.4rem;
-  background: var(--copper);
-  -webkit-mask: url('/logo.svg') center / contain no-repeat;
-  mask: url('/logo.svg') center / contain no-repeat;
-  animation: loader-pulse 1.8s ease-in-out infinite;
-}
-
-.loader.is-done .loader-mark {
-  animation: none;
-  opacity: 0;
-  transform: scale(1.18);
-  transition:
-    opacity 0.6s ease,
-    transform 0.6s ease;
-}
-
-.loader-word {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: 0.4em;
-  color: var(--fg);
-}
-
-.loader-sub {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  font-weight: 400;
-  letter-spacing: 0.26em;
-  color: var(--copper);
-  border: 1px solid var(--copper-dim);
-  border-radius: calc(var(--radius) - 0.25rem);
-  padding: 0.12rem 0.4rem;
-}
-
-.loader-bar {
-  margin-top: 0.5rem;
-  width: 11rem;
-  height: 2px;
-  background: var(--copper-faint);
-  overflow: hidden;
-}
-
-.loader-bar i {
+/* Animated icon — the flipping logo. CSS-only so it stays smooth while
+ * the main thread is busy booting. Shared by the intro <Loader> and the
+ * route-level Suspense fallback in Root.
+ *
+ * Rendered as a MASKED box (not an <img>) so the logo color tracks the
+ * theme's --primary. The mask lives on ::before, NOT on this element, and
+ * only this element is animated. Putting a CSS mask and a 3D `rotateY` on the
+ * SAME box makes iPadOS WebKit (Safari and the installed PWA both) evaluate
+ * the mask against the box's *untransformed* rect: as the logo turns, the
+ * pixels that rotate outside that stale rect are clipped, and half the mark
+ * disappears as if it had sunk behind the background. Transforming a parent
+ * whose child carries the mask keeps the mask in its own, never-transformed
+ * coordinate space. */
+.splash-logo {
+  width: 64px;
+  height: 64px;
   display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--copper), var(--copper-bright));
-  box-shadow: 0 0 8px rgba(255, 217, 160, 0.55);
+  position: relative;
+  animation: splash-flip 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
-.loader-pct {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.26em;
-  color: var(--fg-dim);
+.splash-logo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: hsl(var(--primary));
+  /* logo.svg inlined as a data URI so the masked boot logo paints with ZERO
+   * network — no separate fetch, no double-fetch, and no "preloaded but not
+   * used" warning that a <link rel=preload as=image> for a CSS mask triggers.
+   * Defined once here and shared by both -webkit-mask and mask. */
+  --logo-mask: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4Ni41NiA4My4yMiI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiNjYWQ4NmU7fTwvc3R5bGU+PC9kZWZzPjxnIGlkPSJMYXllcl8yIiBkYXRhLW5hbWU9IkxheWVyIDIiPjxnIGlkPSJHcsOhZmljb3MiPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTY1LjkyLDQxLjM1YTIwLjUyLDIwLjUyLDAsMCwwLTE2LjczLDguN2wtNC44OC0yLjg2VjQxLjc1QTIxLDIxLDAsMCwwLDU5LDguNTRMNTguNTgsOCw1OCw4LjM0LDU1LjcxLDkuNzJsLTExLjQsNi45MlYuMWwtLjcxLDAtLjMsMGMtLjMsMC0uNiwwLS45MSwwLS41MSwwLTEsMC0xLjQ5LjA3aDBsLS43LjA1VjQuMjdoMFYzNy41MUExNi43OSwxNi43OSwwLDAsMSwzNy43OSw0Ljg2bC41NC0uMTVWLjQxTDM3LjQuNjRhMjEsMjEsMCwwLDAsMi43Niw0MS4wOHY1LjM5bC00LjY3LDIuNzVBMjAuNDgsMjAuNDgsMCwwLDAsLjcyLDUyLjM1TC40LDUzbC41OC4zOC43OS41aDBsLjYuNDMsMTIuMjQsNy44Ni0uMzUuMjFMMy41NCw2OC42NWgwTDIuODksNjksLjU5LDcwLjM4LDAsNzAuNzNsLjMuNjJhMjIsMjIsMCwwLDAsMS4zNiwyLjQ0bC4zOS42TDIuNjcsNzRsMS41MS0uOS4zMy0uMThMMzQsNTUuNTlhMTYuODMsMTYuODMsMCwwLDEsMS4zOSw2LjdBMTYuNjQsMTYuNjQsMCwwLDEsMTguODksNzksMTYuMjEsMTYuMjEsMCwwLDEsNy4yNCw3NC4xMmwtLjQyLS40Mi0uNS4zTDQsNzUuMzlsLS43OS40Ny42My42OGEyMC41NCwyMC41NCwwLDAsMCwxNS4wNyw2LjY4LDIwLjk1LDIwLjk1LDAsMCwwLDE4LjctMjkuNzVsNC41OC0yLjY5LDUsMi45QTIwLjk0LDIwLjk0LDAsMCwwLDY1LjkyLDgzLjIybC42OCwwaC4yMmwuNzIsMHYtLjcybDAtMWgwdi0uNzZsLS4yMi0xNS4xNUw3OSw3Mi40aDBsLjY5LjQyTDgyLDc0LjE3bC42MS4zNi40LS41OWEyMS4yMSwyMS4yMSwwLDAsMCwxLjM5LTIuNDRsLjMtLjYyLS42LS4zNS0yLjI5LTEuMzYtLjcxLS40MnYwTDUyLjgsNTIuMTZhMTYuNDIsMTYuNDIsMCwwLDEsMTMuMTItNi42MkExNi42NSwxNi42NSwwLDAsMSw4Mi40MSw2Mi4yOWExNy4wNiwxNy4wNiwwLDAsMS0uNSw0bC0uMTMuNTQuNDguMjksMi4zOCwxLjQuODMuNS4yNy0uOTRBMjAuOTQsMjAuOTQsMCwwLDAsNjUuOTIsNDEuMzVabS03LTIwLjQyQTE2LjY5LDE2LjY5LDAsMCwxLDQ0LjMxLDM3LjU0VjIxLjg2bDEzLTcuOTFBMTYuNTgsMTYuNTgsMCwwLDEsNTguODgsMjAuOTNabTQuMTksNTcuODRhMTYuNzcsMTYuNzcsMCwwLDEtMTIuMzMtMjNsMTIuMDksNy4wOVpNNi4zLDUxLjUxYTE2LjI3LDE2LjI3LDAsMCwxLDEyLjU5LTYsMTYuNDUsMTYuNDUsMCwwLDEsMTMsNi40NUwxOC45Miw1OS42MVoiLz48L2c+PC9nPjwvc3ZnPg==');
+  -webkit-mask: var(--logo-mask) center / contain no-repeat;
+  mask: var(--logo-mask) center / contain no-repeat;
 }
 
-@keyframes loader-pulse {
+@keyframes splash-flip {
   0%,
-  100% {
-    opacity: 0.5;
-    transform: scale(0.96);
+  45% {
+    transform: rotateY(0deg);
   }
-  50% {
-    opacity: 1;
-    transform: scale(1.04);
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-logo {
+    animation: none;
   }
 }
 
@@ -930,58 +1865,649 @@ body {
   opacity: 1;
 }
 
-/* ── language picker (bottom-right, auto-hides mid-scroll) ───── */
+/* ── language picker: three round flags. In the header on a desktop, in the
+   menu sheet on a phone (see the small-screen block), and in the designer. ── */
 .lang {
-  position: fixed;
-  right: calc(1.1rem + env(safe-area-inset-right));
-  bottom: calc(1.1rem + env(safe-area-inset-bottom));
-  z-index: 30;
-  pointer-events: auto;
-  transition: opacity 0.4s ease;
-}
-
-.lang-track {
-  position: relative;
   display: inline-flex;
-  padding: 0.2rem;
-  border: 1px solid var(--copper-dim);
-  border-radius: 999px;
-  background: rgba(11, 6, 3, 0.62);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.lang-thumb {
-  position: absolute;
-  top: 0.2rem;
-  left: 0.2rem;
-  width: 2.6rem;
-  height: calc(100% - 0.4rem);
-  border-radius: 999px;
-  background: var(--copper);
-  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
+  align-items: center;
+  pointer-events: auto;
 }
 
 .lang-opt {
-  position: relative;
-  z-index: 1;
-  width: 2.6rem;
-  padding: 0.32rem 0;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  color: var(--fg-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.3rem;
+  height: 3rem;
+  padding: 0;
   background: transparent;
   border: 0;
   cursor: pointer;
-  transition: color 0.25s ease;
 }
 
-.lang-opt:hover {
-  color: var(--fg);
+/* the round crop; inactive flags sit back, muted, until hovered */
+.lang-flag {
+  display: block;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0.5;
+  filter: saturate(0.4);
+  box-shadow: 0 0 0 1px rgba(242, 242, 246, 0.2);
+  transition:
+    opacity 0.25s ease,
+    filter 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
-.lang-opt.is-active {
-  color: var(--bg);
+.lang-flag svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lang-opt:hover .lang-flag {
+  opacity: 0.9;
+  filter: none;
+}
+
+.lang-opt.is-active .lang-flag {
+  opacity: 1;
+  filter: none;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 3.5px var(--brand);
+}
+
+.sheet-lang .lang-opt {
+  width: 3.4rem;
+}
+
+.sheet-lang .lang-flag {
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+/* ── accessibility: large targets, visible focus, readable sizes ── */
+:focus-visible {
+  outline: 3px solid var(--brand-bright);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.nav-cta,
+.cta,
+.nav-menu,
+.dialog-close,
+.sheet-link,
+.sidenav-item {
+  min-height: 3rem; /* ≥ 48px tap target */
+}
+
+.nav-cta {
+  font-size: 0.82rem;
+  padding: 0.7rem 1.3rem;
+}
+
+.cta {
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  padding: 1rem 2.1rem;
+}
+
+.nav-menu {
+  width: auto;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.95rem;
+  color: var(--brand);
+  font-family: var(--body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.nav-menu i {
+  width: 1.1rem;
+}
+
+.nav-menu-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.sidenav-item {
+  font-size: 0.72rem;
+  padding: 0.35rem 0;
+  opacity: 0.75;
+}
+
+.sidenav-item:hover span,
+.sidenav-item:focus-visible span {
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.sheet-link {
+  padding: 1.1rem 0.4rem;
+  font-size: 1.5rem;
+}
+
+.dialog-title {
+  font-size: 1.6rem;
+}
+
+.dialog-sub,
+.dialog-field input,
+.dialog-field textarea {
+  font-size: 1.05rem;
+}
+
+.dialog-field span {
+  font-size: 0.7rem;
+}
+
+.dialog-field input,
+.dialog-field textarea {
+  padding: 0.85rem 1rem;
+}
+
+.dialog-close {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.6rem;
+}
+
+.dialog-send {
+  min-height: 3.25rem;
+  font-size: 1.02rem;
+}
+
+.contact-line {
+  font-size: 0.74rem;
+}
+
+.finale-fine {
+  font-size: 0.66rem;
+}
+
+.phase {
+  font-size: 0.66rem;
+}
+
+/* The readable-size rules above are unscoped and so also win over the small
+   screen block further up. On a phone the header carries the mark, the contact
+   CTA and the menu on one line, and the CTA label is a full sentence in every
+   locale — tighten the type (tap targets stay ≥ 48px via min-height) so the
+   row cannot run past the edge. */
+@media (max-width: 720px) {
+  /* a phone header sits over the moving 3D scene the whole way down, and the
+     fading scrim below was never opaque enough to hold it. Give it a real
+     glass bar instead — .overlay is fixed, so this stays pinned. */
+  .nav {
+    background: rgba(20, 20, 24, 0.66);
+    backdrop-filter: blur(14px) saturate(1.3);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    border-bottom: 1px solid var(--brand-faint);
+    padding-bottom: 1rem;
+  }
+
+  .nav::before {
+    display: none;
+  }
+
+  .nav-right {
+    gap: 0.5rem;
+  }
+
+  /* the CTA label is a whole sentence in every locale and cannot share the row
+     with the mark and the menu — show the calendar glyph instead,
+     with the sentence kept as the button's accessible name */
+  .nav-cta {
+    padding: 0 0.75rem;
+    justify-content: center;
+  }
+
+  .nav-cta-label {
+    display: none;
+  }
+
+  .nav-cta-icon {
+    display: block;
+  }
+
+  .nav-menu {
+    gap: 0.45rem;
+    padding: 0 0.7rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* ── schematic illustrations (silo / grow room / curing rack) ── */
+/* inner margin sized for a card, so the drawing still breathes in its frame */
+.silo-figure,
+.fig-panel {
+  padding: clamp(1rem, 2vw, 1.6rem) clamp(1rem, 2.2vw, 1.8rem) clamp(0.9rem, 1.6vw, 1.3rem);
+}
+
+.fig {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.8rem 0 0.7rem;
+  font-family: var(--mono);
+  overflow: visible;
+}
+
+.fig-lbl {
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  fill: var(--fg-dim);
+}
+
+/* the wordmark on the control board's door */
+.fig-wordmark {
+  font-size: 5.4px;
+  letter-spacing: 0.22em;
+  fill: var(--brand-bright);
+  opacity: 0.85;
+}
+
+.fig-lbl-accent {
+  fill: var(--brand-bright);
+}
+
+.fig-struct {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+
+.fig-rings {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.6;
+  opacity: 0.28;
+}
+
+.fig-wire {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.85;
+}
+
+.fig-cable {
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 1.2;
+  opacity: 0.9;
+}
+
+.fig-node {
+  fill: #141418;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.fig-node.in-grain {
+  fill: var(--brand);
+  stroke: var(--brand-bright);
+}
+
+.fig-pulse {
+  fill: var(--brand-bright);
+  filter: drop-shadow(0 0 3px rgba(238, 247, 180, 0.9));
+  offset-rotate: 0deg;
+  animation: fig-travel var(--d, 4s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+.fig-pulse.cmd {
+  fill: var(--brand);
+}
+
+@keyframes fig-travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.fig-hot {
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fig-hot 2.4s ease-out infinite;
+}
+
+.fig-hot.late {
+  animation-delay: 1.2s;
+}
+
+@keyframes fig-hot {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+.fig-fan-blades {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fig-spin 2.2s linear infinite;
+}
+
+@keyframes fig-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fig-pulse {
+    animation: none;
+    opacity: 0.9;
+    offset-distance: 55%;
+  }
+
+  .fig-hot,
+  .fig-fan-blades {
+    animation: none;
+  }
+}
+
+/* grow-room: breathing light cones, blinking controller LEDs; curing: mist */
+.fig-cone {
+  fill: var(--brand-bright);
+  animation: fig-breathe 4s ease-in-out infinite;
+}
+
+@keyframes fig-breathe {
+  0%,
+  100% {
+    opacity: 0.06;
+  }
+  50% {
+    opacity: 0.16;
+  }
+}
+
+.fig-lamp {
+  fill: var(--brand-bright);
+  filter: drop-shadow(0 0 4px rgba(238, 247, 180, 0.8));
+}
+
+.fig-led {
+  fill: var(--brand-bright);
+  animation: fig-blink 1.8s steps(1) infinite;
+}
+
+.fig-led:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.fig-led:nth-child(3) {
+  animation-delay: 1.2s;
+}
+
+@keyframes fig-blink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+.fig-plant {
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.9;
+}
+
+.fig-cheese {
+  fill: rgba(238, 247, 180, 0.16);
+  stroke: var(--brand-bright);
+  stroke-width: 0.9;
+}
+
+.fig-mist {
+  fill: var(--brand-bright);
+  opacity: 0;
+  animation: fig-mist 2.6s ease-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes fig-mist {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-18px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fig-cone,
+  .fig-led,
+  .fig-mist {
+    animation: none;
+  }
+
+  .fig-cone {
+    opacity: 0.1;
+  }
+
+  .fig-mist {
+    opacity: 0.5;
+    transform: translateY(-8px);
+  }
+}
+
+/* ── real Growcast hardware inside the schematics ──
+   board / control modules / sensor pods / phone. Every new LED is
+   a consecutive direct child of its OWN <g>: the .fig-led:nth-child stagger
+   above selects by position and would otherwise bleed onto sibling shapes. */
+.fig-chassis {
+  fill: #141418;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.fig-screen {
+  fill: rgba(238, 247, 180, 0.05);
+  stroke: currentColor;
+  stroke-width: 0.6;
+  opacity: 0.85;
+}
+
+.fig-pin {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.7;
+  opacity: 0.55;
+}
+
+.fig-vent {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.7;
+  opacity: 0.42;
+  stroke-linecap: round;
+}
+
+.fig-mark {
+  fill: var(--brand-bright);
+  stroke: var(--brand-bright);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+/* the real logo geometry on the board door — solid fill, no stroke, or the
+   mark's thin arms close up at figure scale */
+.fig-logo {
+  fill: var(--brand-bright);
+  stroke: none;
+}
+
+.fig-link {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9;
+  opacity: 0.6;
+}
+
+.fig-sensor-glyph {
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fig-chip {
+  fill: rgba(238, 247, 180, 0.16);
+  stroke: var(--brand-bright);
+  stroke-width: 0.5;
+}
+
+/* the app's "live" dot */
+.fig-live {
+  fill: var(--brand-bright);
+  animation: fig-live 1.6s ease-in-out infinite;
+}
+
+@keyframes fig-live {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.22;
+  }
+}
+
+/* the app's hero sparkline, drawn on and wiped */
+.fig-spark {
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 42;
+  animation: fig-draw 4.2s ease-in-out infinite;
+}
+
+@keyframes fig-draw {
+  0% {
+    stroke-dashoffset: 42;
+  }
+  45%,
+  62% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -42;
+  }
+}
+
+/* the app's setpoint gauge */
+.fig-gauge {
+  fill: var(--brand-bright);
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: fig-gauge 5.2s ease-in-out infinite;
+}
+
+@keyframes fig-gauge {
+  0%,
+  100% {
+    transform: scaleX(0.28);
+  }
+  50% {
+    transform: scaleX(0.84);
+  }
+}
+
+/* uplink: staggered arcs expanding toward the phone */
+.fig-uplink {
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: fig-uplink 2.4s ease-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes fig-uplink {
+  0% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.95;
+  }
+  70%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fig-live,
+  .fig-spark,
+  .fig-gauge,
+  .fig-uplink {
+    animation: none;
+  }
+
+  .fig-live {
+    opacity: 0.9;
+  }
+
+  .fig-spark {
+    stroke-dashoffset: 0;
+  }
+
+  .fig-gauge {
+    transform: scaleX(0.62);
+  }
+
+  .fig-uplink {
+    opacity: 0.5;
+  }
 }

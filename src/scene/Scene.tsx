@@ -7,8 +7,8 @@ import Effects from './Effects'
 export default function Scene({ started }: { started: boolean }) {
   return (
     <>
-      <color attach="background" args={['#050302']} />
-      <fogExp2 attach="fog" args={['#050302', 0.03]} />
+      <color attach="background" args={['#1c1c20']} />
+      <fogExp2 attach="fog" args={['#121216', 0.024]} />
       <CameraRig started={started} />
       <Structures />
       <Network />
