@@ -16,9 +16,7 @@ export default function Root() {
 function RouteFallback() {
   return (
     <div className="loader" role="status">
-      <div className="loader-inner">
-        <span className="loader-mark" aria-hidden />
-      </div>
+      <span className="splash-logo" aria-hidden />
     </div>
   )
 }
