@@ -169,6 +169,8 @@ export const D = defineMessages({
   cNotes: { id: 'dz.contact.notes', defaultMessage: 'Notas' },
   cNamePh: { id: 'dz.contact.namePh', defaultMessage: 'Tu nombre o empresa' },
   cLocationPh: { id: 'dz.contact.locationPh', defaultMessage: 'Ciudad, provincia' },
+  cEmailPh: { id: 'dz.contact.emailPh', defaultMessage: 'nombre@empresa.com' },
+  cPhonePh: { id: 'dz.contact.phonePh', defaultMessage: 'Con código de área' },
   cNotesPh: {
     id: 'dz.contact.notesPh',
     defaultMessage: 'Cultivo, etapa, equipos que ya tenés, lo que quieras contarnos…',

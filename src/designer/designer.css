@@ -2,14 +2,18 @@
    Full-viewport tool UI on the landing's tokens: copper on near-black,
    Aeonik throughout. */
 
-.dz {
+/* dialogs portal to <body>, outside .dz, so they carry the tokens themselves */
+.dz,
+.dz-dialog {
   --dz-panel: #212127;
   --dz-line: rgba(242, 242, 246, 0.1);
   --dz-line-strong: rgba(242, 242, 246, 0.2);
   --dz-text-2: rgba(242, 242, 246, 0.62);
   --dz-field: rgba(255, 255, 255, 0.05);
   --dz-danger: #f0a57e;
+}
 
+.dz {
   position: fixed;
   inset: 0;
   display: grid;
@@ -1421,10 +1425,10 @@ textarea.dz-input {
   margin-top: 1.4rem;
 }
 
-/* the export step: quote, extra outputs and contact, in one scroll */
+/* the export step: the quote on the left, who to reply to on the right */
 .dz-finish {
-  /* width comes from the Tailwind max-w-3xl on DialogContent */
-  max-height: min(86dvh, 60rem);
+  /* width comes from the Tailwind max-w-* on DialogContent */
+  max-height: min(88dvh, 60rem);
   display: flex;
   flex-direction: column;
 }
@@ -1435,7 +1439,7 @@ textarea.dz-input {
   overflow-y: auto;
   overscroll-behavior: contain;
   margin: 0.9rem -0.4rem 0;
-  padding: 0 0.4rem;
+  padding: 0 0.4rem 0.5rem;
   scrollbar-width: thin;
 }
 
@@ -1443,8 +1447,41 @@ textarea.dz-input {
   padding: 1.1rem 0;
 }
 
-.dz-finish-body .dz-block:first-child {
+.dz-finish-main > .dz-block:first-child {
   padding-top: 0.2rem;
+}
+
+/* the form is its own card, so it reads as the thing to fill in */
+.dz-finish-body .dz-finish-contact {
+  gap: 0.9rem;
+  margin: 0.4rem 0 1rem;
+  padding: 1.15rem 1.1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--dz-line-strong);
+  border-radius: var(--radius);
+}
+
+.dz-finish-contact .dz-block-h + .dz-hint {
+  margin-top: -0.55rem;
+}
+
+.dz-finish-contact .dz-stack {
+  gap: 0.85rem;
+}
+
+@media (min-width: 900px) {
+  .dz-finish-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 23rem);
+    gap: 1.75rem;
+    align-items: start;
+  }
+
+  .dz-finish-body .dz-finish-contact {
+    position: sticky;
+    top: 0.2rem;
+    margin: 0.2rem 0 0;
+  }
 }
 
 /* solid footer, so the scroll area reads as continuing rather than clipped */
@@ -1454,10 +1491,6 @@ textarea.dz-input {
   border-top: 1px solid var(--dz-line-strong);
 }
 
-.dz-finish-body {
-  padding-bottom: 0.5rem;
-}
-
 @media (max-width: 640px) {
   .dz-finish .dz-modal-actions {
     flex-direction: column-reverse;
@@ -1465,6 +1498,12 @@ textarea.dz-input {
 
   .dz-finish .dz-modal-actions button {
     justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .dz-finish-contact .dz-grid2 {
+    grid-template-columns: 1fr;
   }
 }
 
