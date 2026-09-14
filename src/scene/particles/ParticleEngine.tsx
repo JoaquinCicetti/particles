@@ -2,7 +2,8 @@ import { useEffect, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { bakeCurveTexture, CURVE_COUNT, CURVE_SAMPLES, ELEVATOR, FEED_COUNT } from './curves'
-import { sampleSvgPoints } from './svgSampler'
+import { fillFromPads, LANE_COUNT, LANE_HALF, LANE_STEP, logoPads, squarePads } from './logoPads'
+import { rasterizeSvg, rasterSilhouette, sampleRasterPoints } from './svgSampler'
 import { createRandom } from '../../lib/random'
 import { scrollState } from '../../lib/scroll'
 
@@ -18,28 +19,16 @@ const BARS_Z = 22
 
 // the brand mark sits high above the rows so the data visibly flows UP into it
 const LOGO_CENTER_Y = 6.2
-
-// The finale routes like a chip: every trace lands on a connector on the edge
-// of a square package the mark sits inside, and crosses it into the mark. The
-// package itself is never drawn — it exists only to decide where the traces
-// end — so it is sized off the mark rather than off the viewport.
 const LOGO_HEIGHT = 3.2
-const CHIP_HALF = LOGO_HEIGHT * 0.5 + 0.55
-
-// routing grid: the lane pitch, the lanes that enter the package from
-// underneath rather than from the side, and the pitch of its connectors
-const LANE_STEP = 0.5
-const BOTTOM_X = CHIP_HALF + 1.0
-const PAD_PITCH = 0.3
 
 /**
  * Final act follows one idea: the data converges into Growcast. Once particles
  * are sorted into the structured 3D rows they gather onto circuit lanes and
  * route UP through them the way copper on a real board does — a run climbs,
  * turns once, carries on, and never forks into three directions at a point —
- * until every lane lands on a pad on the edge of the square package the brand
- * mark sits inside, and crosses the pad into the mark. An ordered, staggered
- * left→right sweep, never a disordered cloud.
+ * until every lane lands on a connector on the brand mark's own outline, and
+ * floods from there into the mark. An ordered, staggered left→right sweep,
+ * never a disordered cloud.
  */
 const vertexShader = /* glsl */ `
 uniform float uTime;
@@ -49,6 +38,7 @@ uniform float uFocus;
 uniform sampler2D uCurveTex;
 uniform float uCurveCount;
 uniform float uCurveSamples;
+uniform vec4 uPads[LANE_COUNT_I]; // per-lane connector, see logoPads.ts
 
 attribute vec4 aRand;
 attribute vec3 aFlow;   // offset, speed multiplier, curve index
@@ -106,44 +96,42 @@ void main() {
   // ── act 4: the brand mark (raised, the destination) ──
   vec3 logoPos = aLogo;
 
-  // ── riser: the rows route up into the chip. Copper on a real board only
+  // ── riser: the rows route up into the mark. Copper on a real board only
   //    ever runs vertical, horizontal or at 45, and a run never forks into
   //    three directions at a point — it turns once and carries on. So a lane
   //    is one polyline, every particle on that lane rides that same polyline,
   //    strung out along its length so the lane reads as a trace being drawn.
-  //    Every trace ends on a connector on the edge of the undrawn package the
-  //    mark sits inside: inner lanes come up into the bottom edge, outer lanes
-  //    climb alongside the package and turn in horizontally onto its left or
-  //    right edge, the outermost landing highest so no two traces cross. ──
+  //    Every trace ends on a connector on the mark's own outline: inner lanes
+  //    come up into its underside, outer lanes climb alongside and turn in
+  //    horizontally onto its flank, the outermost landing highest so no two
+  //    traces cross. Where each connector sits is worked out on the CPU from
+  //    the rasterized mark (logoPads.ts). ──
   float laneStep = LANE_STEP_C;
-  float laneX = floor(aGrid.x / laneStep + 0.5) * laneStep;
+  float laneK = clamp(floor(aGrid.x / laneStep + 0.5), -LANE_HALF_C, LANE_HALF_C);
+  float laneX = laneK * laneStep;
   float h1 = fract(sin(laneX * 12.9898) * 43758.5453);
   float h3 = fract(sin(laneX * 45.1640 + 9.1) * 13758.5453);
 
-  float chipBottom = LOGO_CENTER_Y_C - CHIP_HALF_C;
+  vec4 pad = uPads[int(laneK + LANE_HALF_C)];
   float side = laneX < 0.0 ? -1.0 : 1.0;
 
   vec2 n0 = vec2(laneX, 0.5 + h3 * 0.3); // the lane's foot on the board
-  vec2 n1, n2, n3;
+  vec2 n1, n2;
+  vec2 n3 = pad.xy;
 
-  if (abs(laneX) <= BOTTOM_X_C) {
-    // bottom entry: a vertical run, one 45 jog onto the pad's column, then
-    // vertical into the pad
-    float padX = floor(laneX * (CHIP_HALF_C - 0.3) / BOTTOM_X_C / PAD_PITCH_C + 0.5) * PAD_PITCH_C;
-    float jog = padX - laneX;
-    float y1 = min(1.15 + h1 * 1.25, chipBottom - 0.3 - abs(jog));
+  if (pad.w < 0.5) {
+    // bottom entry: a vertical run, one 45 jog onto the connector's column,
+    // then vertical up into the underside of the mark
+    float jog = pad.x - laneX;
+    float y1 = min(1.15 + h1 * 1.25, pad.z);
     n1 = vec2(laneX, y1);
-    n2 = vec2(padX, y1 + abs(jog)); // dy matches |dx| exactly: a true 45
-    n3 = vec2(padX, chipBottom);
+    n2 = vec2(pad.x, y1 + abs(jog)); // dy matches |dx| exactly: a true 45
   } else {
-    // side entry: climb alongside the package, one 45 turn inwards, then a
-    // horizontal run onto a pad on the side edge
-    float t = (abs(laneX) - BOTTOM_X_C) / max(8.0 - BOTTOM_X_C, 0.001);
-    float padY = chipBottom + 0.35 + t * (2.0 * CHIP_HALF_C - 0.7);
-    float turn = min(1.1, (abs(laneX) - CHIP_HALF_C) * 0.55);
-    n1 = vec2(laneX, padY - turn);
-    n2 = vec2(laneX - side * turn, padY);
-    n3 = vec2(side * CHIP_HALF_C, padY);
+    // side entry: climb alongside the mark, one 45 turn inwards, then a
+    // horizontal run onto a connector on its flank
+    float turn = pad.z;
+    n1 = vec2(laneX, pad.y - turn);
+    n2 = vec2(laneX - side * turn, pad.y);
   }
 
   float l1 = distance(n0, n1);
@@ -168,7 +156,7 @@ void main() {
   float panelZ = (h3 - 0.5) * 0.4;
 
   float la = smoothstep(0.00, 0.10, rp); // the rows purge onto the lane foot
-  float lg = smoothstep(0.76, 1.00, rp); // cross the pad into the mark
+  float lg = smoothstep(0.76, 1.00, rp); // flood from the connector into the mark
 
   vec3 P = mix(gridPos, vec3(q, panelZ), la);
   P = mix(P, aLogo, lg);
@@ -210,11 +198,9 @@ void main() {
   vAlpha *= mix(1.0, skyFade, wFlow);
 }
 `
-  .replace(/LOGO_CENTER_Y_C/g, LOGO_CENTER_Y.toFixed(2))
-  .replace(/CHIP_HALF_C/g, CHIP_HALF.toFixed(3))
-  .replace(/BOTTOM_X_C/g, BOTTOM_X.toFixed(3))
+  .replace(/LANE_COUNT_I/g, String(LANE_COUNT))
+  .replace(/LANE_HALF_C/g, LANE_HALF.toFixed(1))
   .replace(/LANE_STEP_C/g, LANE_STEP.toFixed(3))
-  .replace(/PAD_PITCH_C/g, PAD_PITCH.toFixed(3))
   .replace(/FEED_COUNT_C/g, FEED_COUNT.toFixed(1))
   .replace(/TOWER_X_C/g, ELEVATOR.pos.x.toFixed(2))
   .replace(/TOWER_Z_C/g, ELEVATOR.pos.z.toFixed(2))
@@ -290,30 +276,42 @@ export default function ParticleEngine() {
         uCurveTex: { value: bakeCurveTexture() },
         uCurveCount: { value: CURVE_COUNT },
         uCurveSamples: { value: CURVE_SAMPLES },
+        // square package until the mark is rasterized, then its own outline
+        uPads: { value: squarePads(LOGO_CENTER_Y, LOGO_HEIGHT) },
       },
     })
   }, [])
 
-  // swap the halo placeholder for the sampled Growcast leaf mark (async)
+  // swap the halo placeholder for the sampled Growcast leaf mark, and the
+  // square package for connectors on its outline (async)
   useEffect(() => {
     let cancelled = false
-    sampleSvgPoints('/logo.svg', COUNT, {
-      worldHeight: LOGO_HEIGHT,
-      centerY: LOGO_CENTER_Y,
-      rasterHeight: 820,
-      step: 2,
-      depth: 0.08,
-      seed: 40427,
-    }).then((points) => {
-      if (cancelled) return
-      const attr = geometry.getAttribute('aLogo') as THREE.BufferAttribute
-      ;(attr.array as Float32Array).set(points)
-      attr.needsUpdate = true
-    })
+    const placement = { worldHeight: LOGO_HEIGHT, centerY: LOGO_CENTER_Y }
+    rasterizeSvg('/logo.svg', 820)
+      .catch(() => null)
+      .then((raster) => {
+        if (cancelled) return
+        const points = sampleRasterPoints(raster, COUNT, {
+          ...placement,
+          step: 2,
+          depth: 0.08,
+          seed: 40427,
+        })
+        const silhouette = raster && rasterSilhouette(raster, placement)
+        if (silhouette) {
+          const pads = logoPads(silhouette)
+          material.uniforms.uPads.value = pads
+          const grid = geometry.getAttribute('aGrid').array as Float32Array
+          fillFromPads(points, (i) => grid[i * 3], pads)
+        }
+        const attr = geometry.getAttribute('aLogo') as THREE.BufferAttribute
+        ;(attr.array as Float32Array).set(points)
+        attr.needsUpdate = true
+      })
     return () => {
       cancelled = true
     }
-  }, [geometry])
+  }, [geometry, material])
 
   useEffect(() => {
     const curveTex = material.uniforms.uCurveTex.value as THREE.DataTexture
