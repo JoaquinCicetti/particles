@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" name="Form controls" subtitle="Landing fields and language toggle; tool inputs, stepper, segmented, filters" viewport="1000x380" -->
+<!-- @dsCard group="Components" name="Form controls" subtitle="Landing fields and language flags; tool inputs, stepper, segmented, filters" viewport="1000x380" -->
 <!doctype html>
 <html lang="es" class="dark">
 <head>
@@ -11,7 +11,7 @@
 .demo-head { margin-bottom: 4px; }
 .stack { display: flex; flex-direction: column; gap: 14px; }
 .dialog-field { margin-top: 0; }
-.lang-track { align-self: flex-start; }
+.lang { align-self: flex-start; }
 .dz-surface { padding: 18px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
 .row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
@@ -23,7 +23,11 @@
     <div class="demo-head metric-label">Landing · contact</div>
     <label class="dialog-field"><span>Nombre</span><input placeholder="Tu nombre" /></label>
     <label class="dialog-field"><span>Empresa</span><input class="is-focus" value="Agro del Sur" /></label>
-    <div class="lang-track"><span class="lang-thumb"></span><button type="button" class="lang-opt is-active">ES</button><button type="button" class="lang-opt">EN</button><button type="button" class="lang-opt">PT</button></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" class="lang-opt is-active" aria-label="Español"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#74acdf" /><rect y="8" width="24" height="8" fill="#fff" /><circle cx="12" cy="12" r="2.6" fill="#f6b40e" /></svg></span></button>
+      <button type="button" class="lang-opt" aria-label="English"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff" /><rect y="0" width="24" height="1.846" fill="#b22234" /><rect y="3.692" width="24" height="1.846" fill="#b22234" /><rect y="7.385" width="24" height="1.846" fill="#b22234" /><rect y="11.077" width="24" height="1.846" fill="#b22234" /><rect y="14.769" width="24" height="1.846" fill="#b22234" /><rect y="18.462" width="24" height="1.846" fill="#b22234" /><rect y="22.154" width="24" height="1.846" fill="#b22234" /><rect width="11" height="12.923" fill="#3c3b6e" /></svg></span></button>
+      <button type="button" class="lang-opt" aria-label="Português"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#009c3b" /><path d="M12 3.6 22.6 12 12 20.4 1.4 12z" fill="#ffdf00" /><circle cx="12" cy="12" r="4.6" fill="#002776" /></svg></span></button>
+    </div>
   </div>
   <div class="stack">
     <div class="demo-head metric-label">Tool · inspector</div>
@@ -37,7 +41,7 @@
         <div class="dz-stepper"><button type="button">−</button><input value="3" /><button type="button">+</button></div>
         <div class="dz-seg"><button type="button" class="is-on">3D</button><button type="button">Plano</button><button type="button">Dividido</button></div>
       </div>
-      <div class="dz-filters"><button type="button" class="dz-filter is-on">Todo</button><button type="button" class="dz-filter">Sensores</button><button type="button" class="dz-filter">Clima</button><button type="button" class="dz-filter">Riego</button></div>
+      <div class="dz-filters"><button type="button" class="dz-filter is-on">Todo</button><button type="button" class="dz-filter">Estructura</button><button type="button" class="dz-filter">Periféricos</button><button type="button" class="dz-filter">Growcast</button></div>
     </div>
   </div>
 </main>

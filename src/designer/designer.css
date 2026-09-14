@@ -83,15 +83,11 @@
   text-decoration: none;
 }
 
+/* same logo spec as the landing header (global.css .brand) */
 .dz-logo {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.36rem;
-}
-
-.dz-brand .brand-mark {
-  width: 1.5rem;
-  height: 1.5rem;
+  gap: 0.6rem;
 }
 
 .dz-brand:hover .brand-mark {
@@ -100,8 +96,8 @@
 
 .dz-wordmark {
   font-family: var(--display);
-  font-weight: 700;
-  font-size: 1.02rem;
+  font-weight: 400;
+  font-size: 1.2rem;
   line-height: 1;
   letter-spacing: -0.01em;
 }

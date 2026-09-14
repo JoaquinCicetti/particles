@@ -2,9 +2,13 @@
 <html lang="es" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="mask-icon" href="/favicon.svg" color="#cad86e" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <!-- icons and theme colors: the same set app.growcast.io ships -->
+    <link rel="icon" type="image/svg+xml" href="/icon/web/favicon.svg" />
+    <link rel="icon" href="/icon/web/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/icon/web/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.json" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
@@ -14,7 +18,8 @@
       name="description"
       content="Growcast conecta una operación física con su teléfono, tablet o PC: monitoreo en tiempo real, alertas, históricos y, cuando la instalación lo permite, control de equipos."
     />
-    <meta name="theme-color" content="#1c1c20" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1C1D1F" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#DEDED8" />
     <!-- Drop any incoming #fragment before the parser finishes, so the browser
          never acquires a scroll target. Doing this from the app is too late:
          by the time React mounts, the fragment scroll is already scheduled,

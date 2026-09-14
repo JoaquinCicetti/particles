@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" name="Navigation" subtitle="Top bar, section index + progress rail, tool tabs and list" viewport="1000x400" -->
+<!-- @dsCard group="Components" name="Navigation" subtitle="Top bar with logo lockup and flags, section index + progress rail, tool tabs and list" viewport="1000x440" -->
 <!doctype html>
 <html lang="es" class="dark">
 <head>
@@ -11,7 +11,7 @@
 .nav { margin-bottom: 24px; }
 .demo-head { margin-bottom: 14px; }
 .side { display: flex; gap: 1.6rem; align-items: center; }
-.rail-track { height: 180px; }
+.rail-track { height: 200px; }
 .rail-fill { bottom: 55%; }
 .rail-dot { top: calc(45% - 3px); }
 .dz-surface { padding: 0.55rem 1rem; }
@@ -20,23 +20,29 @@
 </head>
 <body>
   <nav class="nav">
-    <a class="brand" href="#"><span class="brand-mark"></span><span class="wordmark">GROWCAST</span></a>
+    <a class="brand" href="#"><span class="brand-mark"></span><span class="wordmark">Growcast</span></a>
     <span class="nav-right">
-      <a class="nav-cta" href="#">Agendar demo</a>
-      <button type="button" class="nav-cta"><span class="nav-menu-lines"><i></i><i></i></span>Menú</button>
+      <span class="lang" role="group" aria-label="Language">
+        <button type="button" class="lang-opt is-active" aria-label="Español"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#74acdf" /><rect y="8" width="24" height="8" fill="#fff" /><circle cx="12" cy="12" r="2.6" fill="#f6b40e" /></svg></span></button>
+        <button type="button" class="lang-opt" aria-label="English"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#fff" /><rect y="0" width="24" height="1.846" fill="#b22234" /><rect y="3.692" width="24" height="1.846" fill="#b22234" /><rect y="7.385" width="24" height="1.846" fill="#b22234" /><rect y="11.077" width="24" height="1.846" fill="#b22234" /><rect y="14.769" width="24" height="1.846" fill="#b22234" /><rect y="18.462" width="24" height="1.846" fill="#b22234" /><rect y="22.154" width="24" height="1.846" fill="#b22234" /><rect width="11" height="12.923" fill="#3c3b6e" /></svg></span></button>
+        <button type="button" class="lang-opt" aria-label="Português"><span class="lang-flag"><svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#009c3b" /><path d="M12 3.6 22.6 12 12 20.4 1.4 12z" fill="#ffdf00" /><circle cx="12" cy="12" r="4.6" fill="#002776" /></svg></span></button>
+      </span>
+      <a class="nav-cta" href="#">Coordinar una reunión</a>
     </span>
   </nav>
   <main class="demo">
     <div>
       <div class="demo-head metric-label">.sidenav · .rail</div>
       <div class="side">
-        <div class="sidenav">
-          <a class="sidenav-item" href="#"><span>Inicio</span><i></i></a>
-          <a class="sidenav-item is-active" href="#"><span>Sensores</span><i></i></a>
-          <a class="sidenav-item" href="#"><span>Silos</span><i></i></a>
-          <a class="sidenav-item" href="#"><span>Salas</span><i></i></a>
-          <a class="sidenav-item" href="#"><span>Contacto</span><i></i></a>
-        </div>
+        <nav class="sidenav">
+          <a class="sidenav-home" href="#"><svg viewBox="0 0 16 16"><path d="M3.6 10.2 L8 5.8 L12.4 10.2" /></svg><span>Inicio</span></a>
+          <div class="sidenav-panel">
+            <a class="sidenav-item is-active" href="#"><span>Silos</span><i></i></a>
+            <a class="sidenav-item" href="#"><span>Cultivo/indoor</span><i></i></a>
+            <a class="sidenav-item" href="#"><span>Maduración</span><i></i></a>
+            <a class="sidenav-item" href="#"><span>Contacto</span><i></i></a>
+          </div>
+        </nav>
         <div class="rail-track"><span class="rail-fill"></span><span class="rail-dot"></span></div>
       </div>
     </div>
@@ -48,9 +54,9 @@
         <button type="button" class="dz-tab-new" aria-label="Nueva sala">+</button>
       </div>
       <ul class="dz-list">
-        <li class="dz-row"><span class="dz-row-name">Sensor de temperatura</span><span class="dz-row-meta"><em>×2</em>pared N</span></li>
-        <li class="dz-row is-selected"><span class="dz-row-name">Extractor 6"</span><span class="dz-row-meta"><em>×1</em>techo</span></li>
-        <li class="dz-row"><span class="dz-row-name">Panel LED 480W</span><span class="dz-row-meta"><em>×4</em>1.2 m</span></li>
+        <li class="dz-row"><span class="dz-row-name">Temperatura y humedad 1</span><span class="dz-row-meta">↕ 1.50 m</span></li>
+        <li class="dz-row is-selected"><span class="dz-row-name">Growcast+ 1</span><span class="dz-row-meta">↕ 1.40 m</span></li>
+        <li class="dz-row"><span class="dz-row-name">Luminaria 1</span><span class="dz-row-meta"><em>1 OUT</em>1.10×1.10</span></li>
       </ul>
     </div>
   </main>

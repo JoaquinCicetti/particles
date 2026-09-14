@@ -222,7 +222,7 @@ body {
   pointer-events: auto;
   display: inline-flex;
   align-items: baseline;
-  gap: 0.45rem;
+  gap: 0.6rem;
   text-decoration: none;
 }
 
@@ -245,8 +245,8 @@ body {
 /* the name as written — "Growcast" — so no uppercase tracking */
 .wordmark {
   font-family: var(--display);
-  font-weight: 700;
-  font-size: 1.3rem;
+  font-weight: 400;
+  font-size: 1.2rem;
   line-height: 1;
   letter-spacing: -0.01em;
   color: var(--fg);
@@ -977,7 +977,9 @@ body {
      glass panel now, so it occludes rather than overlaps — reserve its full
      width (~10.5rem incl. its own right offset) plus a gutter */
   padding-right: calc(clamp(1.5rem, 6vw, 6rem) + 10.5rem + env(safe-area-inset-right));
-  overflow: hidden; /* ghost numerals and glows must not widen the page */
+  /* ghost numerals and glows must not widen the page. clip, not hidden:
+     hidden makes this a scroll container and the sticky diagram stops sticking */
+  overflow: clip;
 }
 
 @media (max-width: 720px) {
@@ -1038,10 +1040,12 @@ body {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  /* the diagram is a card beside the other cards, not a row of its own: it
+     runs down the second column next to the panels and the steps */
   grid-template-areas:
     'head measure'
-    'fig fig'
-    'panels side';
+    'panels fig'
+    'side fig';
   gap: clamp(2.4rem, 5vw, 4.5rem) clamp(2rem, 5vw, 5rem);
   align-items: start;
   max-width: 72rem;
@@ -1063,8 +1067,8 @@ body {
 .sol-flip {
   grid-template-areas:
     'measure head'
-    'fig fig'
-    'side panels';
+    'fig panels'
+    'fig side';
 }
 
 /* hairline between sections */
@@ -1358,13 +1362,15 @@ body {
   line-height: 1.6;
 }
 
-/* the connection diagram: its own full-width row, capped so the drawing lands
-   at roughly 2× its authored size inside a padded frame — big enough to read
-   every label, not so big the 364-unit viewBox turns into a banner */
+/* the connection diagram: a card the width of its column, which lands the
+   364-unit drawing at roughly 1.3–1.5× — every label still reads. It spans the
+   panels and the steps, so it stays pinned in view while those are read. */
 .sol-figure {
   grid-area: fig;
-  width: min(100%, 50rem);
-  margin-inline: auto;
+  align-self: start;
+  position: sticky;
+  top: 12vh;
+  width: 100%;
   padding: 1.4rem 1.6rem 1.2rem;
   color: var(--brand);
 }
@@ -1591,6 +1597,11 @@ body {
   .sol-num {
     font-size: 8rem;
     top: 2vh;
+  }
+
+  /* one column: the diagram is just the next card, not pinned */
+  .sol-figure {
+    position: static;
   }
 
   .sol-stat .metric-value {
@@ -2078,17 +2089,17 @@ body {
 }
 
 /* ── schematic illustrations (silo / grow room / curing rack) ── */
-/* generous inner margin: the drawing breathes inside its frame */
+/* inner margin sized for a card, so the drawing still breathes in its frame */
 .silo-figure,
 .fig-panel {
-  padding: clamp(1.2rem, 3vw, 2.4rem) clamp(1.2rem, 3.6vw, 3rem) clamp(1rem, 2.4vw, 1.8rem);
+  padding: clamp(1rem, 2vw, 1.6rem) clamp(1rem, 2.2vw, 1.8rem) clamp(0.9rem, 1.6vw, 1.3rem);
 }
 
 .fig {
   display: block;
   width: 100%;
   height: auto;
-  margin: 1.2rem 0 1rem;
+  margin: 0.8rem 0 0.7rem;
   font-family: var(--mono);
   overflow: visible;
 }

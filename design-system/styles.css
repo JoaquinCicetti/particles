@@ -1,9 +1,7 @@
 /* Growcast — the one stylesheet. Tokens first, then the component layer.
    Lifted from src/styles/global.css (landing) and src/designer/designer.css
    (tool), keeping their class names so markup moves back into the repo as is.
-   The site is dark-only: put class="dark" on <html>. */
-
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+   The site is dark-only: put class="dark" on <html>. One family: Aeonik. */
 
 @font-face { font-family: 'Aeonik'; src: url('fonts/Aeonik-Thin.woff2') format('woff2'); font-weight: 200; font-display: swap; }
 @font-face { font-family: 'Aeonik'; src: url('fonts/Aeonik-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
@@ -102,7 +100,9 @@
   /* type */
   --display: 'Aeonik', system-ui, sans-serif;
   --body: 'Aeonik', system-ui, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /* labels, kickers and units: Aeonik too (the site dropped IBM Plex Mono);
+     the token stays so label styles keep one hook */
+  --mono: 'Aeonik', system-ui, sans-serif;
 
   /* the steps the site actually uses; landing layout is fluid (clamp/vh) */
   --space-1: 0.3rem;
@@ -244,24 +244,29 @@ button { font: inherit; }
   color: var(--fg-dim);
 }
 
+/* the name as written — "Growcast" — never uppercase, never tracked */
 .wordmark {
   font-family: var(--display);
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.38em;
+  font-weight: 400;
+  font-size: 1.2rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
   color: var(--fg);
 }
 
 /* ═══ LANDING COMPONENTS ═══════════════════════════════════════ */
 
-/* brand mark — logo geometry recolored via mask */
-.brand { display: inline-flex; align-items: center; gap: 0.85rem; color: inherit; text-decoration: none; }
+/* logo lockup — mark + wordmark, bottom-aligned. The mark has no baseline, so
+   baseline alignment sits its bottom edge on the wordmark's baseline. */
+.brand { display: inline-flex; align-items: baseline; gap: 0.6rem; color: inherit; text-decoration: none; }
+/* logo geometry recolored via mask, pinned to the bottom of its box */
 .brand-mark {
   width: 2rem;
   height: 2rem;
   background: var(--brand);
-  -webkit-mask: url('assets/logo.svg') center / contain no-repeat;
-  mask: url('assets/logo.svg') center / contain no-repeat;
+  -webkit-mask: url('assets/logo.svg') center bottom / contain no-repeat;
+  mask: url('assets/logo.svg') center bottom / contain no-repeat;
+  transform-origin: 50% 100%;
   transition: transform 0.4s ease;
 }
 .brand:hover .brand-mark { transform: rotate(-8deg) scale(1.06); }
@@ -503,52 +508,68 @@ button { font: inherit; }
 .dialog-field .is-focus { outline: none; border-color: var(--brand); }
 .dialog-field input::placeholder { color: rgba(242, 242, 246, 0.35); }
 
-/* language toggle — pill with a sliding thumb */
-.lang-track {
-  position: relative;
-  display: inline-flex;
-  padding: 0.2rem;
-  border: 1px solid var(--brand-dim);
-  border-radius: 999px;
-  background: rgba(19, 19, 23, 0.62);
-}
-.lang-thumb {
-  position: absolute;
-  top: 0.2rem;
-  left: 0.2rem;
-  width: 3rem;
-  height: calc(100% - 0.4rem);
-  border-radius: 999px;
-  background: var(--brand);
-  transition: transform 0.32s var(--ease-pop);
-}
+/* language switcher — three round flags (ES Argentina · EN US · PT Brazil),
+   inline SVG on a 24×24 square, cropped round. In the header on desktop, in
+   the menu sheet on phones. Inactive flags sit back, muted, until hovered. */
+.lang { display: inline-flex; align-items: center; }
 .lang-opt {
-  position: relative;
-  z-index: 1;
-  width: 3rem;
-  padding: 0.4rem 0;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  color: var(--fg-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.3rem;
+  height: 3rem;
+  padding: 0;
   background: transparent;
   border: 0;
   cursor: pointer;
 }
-.lang-opt.is-active { color: var(--bg); }
+.lang-flag {
+  display: block;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0.5;
+  filter: saturate(0.4);
+  box-shadow: 0 0 0 1px rgba(242, 242, 246, 0.2);
+  transition: opacity 0.25s ease, filter 0.25s ease, box-shadow 0.25s ease;
+}
+.lang-flag svg { display: block; width: 100%; height: 100%; }
+.lang-opt:hover .lang-flag { opacity: 0.9; filter: none; }
+.lang-opt.is-active .lang-flag { opacity: 1; filter: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--brand); }
 
-/* section index + progress rail */
-.sidenav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.85rem 1.1rem;
+/* section index — home is the 3D story, not a section, so it sits apart above
+   the list as a smaller chip; both carry their own glass */
+.sidenav { display: flex; flex-direction: column; align-items: stretch; gap: 0.6rem; }
+.sidenav-home,
+.sidenav-panel {
   background: var(--glass-light);
   backdrop-filter: blur(10px);
   border: 1px solid var(--brand-faint);
   border-radius: var(--radius);
 }
+.sidenav-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1.1rem;
+}
+.sidenav-home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--fg-dim);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.sidenav-home svg { width: 0.85rem; height: 0.85rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.sidenav-home:hover,
+.sidenav-home.is-active { color: var(--brand-bright); border-color: var(--brand-dim); }
 .sidenav-item {
   display: inline-flex;
   align-items: center;
@@ -812,5 +833,5 @@ button { font: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   .dialog { animation: none; }
-  .cta, .cta-arrow, .brand-mark, .lang-thumb { transition: none; }
+  .cta, .cta-arrow, .brand-mark, .lang-flag { transition: none; }
 }
