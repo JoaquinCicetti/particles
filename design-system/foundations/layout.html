@@ -1,0 +1,57 @@
+<!-- @dsCard group="Foundations" name="Shape & elevation" subtitle="Radius, hairlines, corner brackets, shadows vs. glow, texture" viewport="1000x620" -->
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8" />
+<title>Growcast — Shape &amp; elevation</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* demo scaffolding only */
+.demo { padding: 32px 36px; }
+.demo-head { margin: 28px 0 14px; }
+.demo-head:first-child { margin-top: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-end; }
+.box { width: 150px; height: 96px; display: flex; align-items: flex-end; padding: 10px; font-family: var(--mono); font-size: 0.62rem; color: var(--dz-text-2); background: var(--glass); }
+.sq { border: 1px solid var(--brand-dim); }
+.r { border: 1px solid var(--brand-dim); border-radius: var(--radius); }
+.rchip { border: 1px solid var(--brand-dim); border-radius: calc(var(--radius) + 0.25rem); }
+.pill { width: 150px; height: 40px; align-items: center; justify-content: center; border: 1px solid var(--brand-dim); border-radius: 999px; }
+.line-a { border: 1px solid var(--brand-dim); }
+.line-b { border: 1px solid var(--brand-faint); }
+.line-c { background: var(--dz-panel); border: 1px solid var(--dz-line); }
+.line-d { background: var(--dz-panel); border: 1px solid var(--dz-line-strong); }
+.e1 { border-radius: var(--radius); box-shadow: var(--shadow-panel); background: hsl(var(--card)); }
+.e2 { border-radius: var(--radius); box-shadow: var(--shadow-menu); background: var(--dz-menu); }
+.e3 { border-radius: var(--radius); box-shadow: var(--shadow-dialog); background: var(--dialog); }
+.g1 { border-radius: var(--radius); border: 1px solid var(--brand); box-shadow: var(--glow-cta); background: rgba(25,25,29,.55); }
+.texture { width: 100%; height: 90px; position: relative; overflow: hidden; border: 1px solid var(--dz-line); border-radius: var(--radius); }
+.ghost { position: absolute; right: 24px; top: -30px; font-family: var(--display); font-weight: 700; font-size: 9rem; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(202,216,110,.3); }
+</style>
+</head>
+<body>
+<main class="demo">
+  <div class="demo-head metric-label">Radius</div>
+  <div class="row">
+    <div class="box panel" style="padding:10px">.panel · square + brackets</div>
+    <div class="box r">--radius 0.5rem</div>
+    <div class="box rchip">metric chip · +0.25rem</div>
+    <div class="box pill">999px · chips</div>
+  </div>
+
+  <div class="demo-head metric-label">Hairlines &amp; elevation</div>
+  <div class="row">
+    <div class="box line-a">--brand-dim</div>
+    <div class="box line-b">--brand-faint</div>
+    <div class="box line-c">--dz-line</div>
+    <div class="box line-d">--dz-line-strong</div>
+    <div class="box e1">--shadow-panel</div>
+    <div class="box e2">--shadow-menu</div>
+    <div class="box e3">--shadow-dialog</div>
+    <div class="box g1">--glow-cta · emphasis only</div>
+  </div>
+
+  <div class="demo-head metric-label">Texture</div>
+  <div class="texture dot-grid"><span class="ghost">02</span></div>
+</main>
+</body>
+</html>

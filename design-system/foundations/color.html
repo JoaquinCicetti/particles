@@ -1,0 +1,71 @@
+<!-- @dsCard group="Foundations" name="Color" subtitle="One lime on graphite; status colors; the light app theme" viewport="1000x920" -->
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8" />
+<title>Growcast — Color</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* demo scaffolding only */
+.demo { padding: 28px; }
+.demo-head { margin: 26px 0 12px; }
+.demo-head:first-child { margin-top: 0; }
+.row { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.sw { border: 1px solid var(--dz-line); border-radius: var(--radius); overflow: hidden; background: var(--dialog); }
+.chip { height: 64px; }
+.meta { padding: 8px 10px 9px; }
+.meta b { display: block; font-weight: 500; font-size: 0.78rem; }
+.meta span { font-family: var(--mono); font-size: 0.62rem; color: var(--dz-text-2); }
+.light { background: #e2e2df; }
+.light .sw { background: #fdfdfc; border-color: #b7b7ae; }
+.light .meta b { color: #09090b; }
+.light .meta span { color: #54545f; }
+.note { margin-top: 14px; font-size: 0.8rem; color: var(--dz-text-2); max-width: 60ch; }
+</style>
+</head>
+<body>
+<main class="demo">
+  <div class="demo-head metric-label">Brand lime</div>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--brand)"></div><div class="meta"><b>--brand</b><span>#cad86e</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--brand-bright)"></div><div class="meta"><b>--brand-bright</b><span>#eef7b4</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--brand-hover)"></div><div class="meta"><b>--brand-hover</b><span>#b4c455</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--brand-dim)"></div><div class="meta"><b>--brand-dim</b><span>lime 35%</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--brand-faint)"></div><div class="meta"><b>--brand-faint</b><span>lime 14%</span></div></div>
+    <div class="sw"><div class="chip" style="background:hsl(var(--primary-foreground))"></div><div class="meta"><b>primary-fg</b><span>#373c10</span></div></div>
+  </div>
+
+  <div class="demo-head metric-label">Ground &amp; text</div>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--bg)"></div><div class="meta"><b>--bg</b><span>#1d1d20</span></div></div>
+    <div class="sw"><div class="chip" style="background:hsl(var(--card))"></div><div class="meta"><b>--card</b><span>#242429</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--dialog)"></div><div class="meta"><b>--dialog</b><span>#141418</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--dz-panel)"></div><div class="meta"><b>--dz-panel</b><span>#212127</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--dz-stage)"></div><div class="meta"><b>--dz-stage</b><span>#17171b</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--dz-menu)"></div><div class="meta"><b>--dz-menu</b><span>#26262c</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--fg)"></div><div class="meta"><b>--fg</b><span>#f2f2f2</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--fg-dim)"></div><div class="meta"><b>--fg-dim</b><span>white 86%</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--dz-text-2)"></div><div class="meta"><b>--dz-text-2</b><span>white 62%</span></div></div>
+  </div>
+
+  <div class="demo-head metric-label">Status</div>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:hsl(var(--success))"></div><div class="meta"><b>--success</b><span>#47d181</span></div></div>
+    <div class="sw"><div class="chip" style="background:hsl(var(--warning))"></div><div class="meta"><b>--warning</b><span>#f7b23b</span></div></div>
+    <div class="sw"><div class="chip" style="background:hsl(var(--info))"></div><div class="meta"><b>--info</b><span>#4cb2e6</span></div></div>
+    <div class="sw"><div class="chip" style="background:hsl(var(--destructive))"></div><div class="meta"><b>--destructive</b><span>#f15b5b</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--dz-danger)"></div><div class="meta"><b>--dz-danger</b><span>#f0a57e</span></div></div>
+  </div>
+
+  <div class="demo-head metric-label">Light — logged-in app only</div>
+  <div class="row light" style="padding:10px;border-radius:var(--radius)">
+    <div class="sw"><div class="chip" style="background:#e2e2df"></div><div class="meta"><b>background</b><span>#e2e2df</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fdfdfc"></div><div class="meta"><b>card</b><span>#fdfdfc</span></div></div>
+    <div class="sw"><div class="chip" style="background:#94b42d"></div><div class="meta"><b>primary</b><span>#94b42d</span></div></div>
+    <div class="sw"><div class="chip" style="background:#b7b7ae"></div><div class="meta"><b>border</b><span>#b7b7ae</span></div></div>
+    <div class="sw"><div class="chip" style="background:#09090b"></div><div class="meta"><b>foreground</b><span>#09090b</span></div></div>
+  </div>
+  <p class="note">Lime is the only brand hue — use it for an outline, a label, one glowing value; never a large fill.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!-- @dsCard group="Components" name="Form controls" subtitle="Landing fields and language toggle; tool inputs, stepper, segmented, filters" viewport="1000x380" -->
+<!doctype html>
+<html lang="es" class="dark">
+<head>
+<meta charset="utf-8" />
+<title>Growcast — Form controls</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* demo scaffolding only */
+.demo { padding: 32px 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+.demo-head { margin-bottom: 4px; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.dialog-field { margin-top: 0; }
+.lang-track { align-self: flex-start; }
+.dz-surface { padding: 18px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+</style>
+</head>
+<body>
+<main class="demo">
+  <div class="stack">
+    <div class="demo-head metric-label">Landing · contact</div>
+    <label class="dialog-field"><span>Nombre</span><input placeholder="Tu nombre" /></label>
+    <label class="dialog-field"><span>Empresa</span><input class="is-focus" value="Agro del Sur" /></label>
+    <div class="lang-track"><span class="lang-thumb"></span><button type="button" class="lang-opt is-active">ES</button><button type="button" class="lang-opt">EN</button><button type="button" class="lang-opt">PT</button></div>
+  </div>
+  <div class="stack">
+    <div class="demo-head metric-label">Tool · inspector</div>
+    <div class="stack dz dz-surface">
+      <label class="dz-field"><span>Nombre de la sala</span><input class="dz-input is-focus" value="Sala 1 — Vege" /></label>
+      <div class="grid2">
+        <label class="dz-field"><span>Ancho</span><span class="dz-num-box"><input value="4.20" /><span class="dz-num-unit">m</span></span></label>
+        <label class="dz-field"><span>Largo</span><span class="dz-num-box"><input value="6.00" /><span class="dz-num-unit">m</span></span></label>
+      </div>
+      <div class="row">
+        <div class="dz-stepper"><button type="button">−</button><input value="3" /><button type="button">+</button></div>
+        <div class="dz-seg"><button type="button" class="is-on">3D</button><button type="button">Plano</button><button type="button">Dividido</button></div>
+      </div>
+      <div class="dz-filters"><button type="button" class="dz-filter is-on">Todo</button><button type="button" class="dz-filter">Sensores</button><button type="button" class="dz-filter">Clima</button><button type="button" class="dz-filter">Riego</button></div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

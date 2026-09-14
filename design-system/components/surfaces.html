@@ -1,0 +1,71 @@
+<!-- @dsCard group="Components" name="Surfaces" subtitle="Bracketed panel, metric chip, pill tags, dialog, menu, toast" viewport="1000x700" -->
+<!doctype html>
+<html lang="es" class="dark">
+<head>
+<meta charset="utf-8" />
+<title>Growcast — Surfaces</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* demo scaffolding only */
+.demo { padding: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 34px; align-items: start; }
+.demo-head { margin: 30px 0 14px; }
+.demo-head:first-child { margin-top: 0; }
+.steps { display: flex; gap: 1.1rem; align-items: center; margin-top: 18px; }
+.steps strong { font-family: var(--display); font-weight: 500; font-size: 1.12rem; letter-spacing: 0.02em; }
+.pair { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+</style>
+</head>
+<body class="dot-grid">
+<main class="demo">
+  <div>
+    <div class="demo-head metric-label">.panel</div>
+    <div class="panel">
+      <h4 class="metric-label" style="margin:0;color:var(--brand-bright)">Qué medimos</h4>
+      <ul class="sol-list">
+        <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="9" height="8" rx="1.2"/><path d="M8 5.5V2.5M5.8 9.5h4.4"/></svg>Nodos de temperatura y humedad en cada nivel del silo.</li>
+        <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5h6.5a2.8 2.8 0 0 0 .3-5.6A4 4 0 0 0 4.2 8 2.3 2.3 0 0 0 5 12.5z"/></svg>CO₂ para detectar focos de actividad antes de que escalen.</li>
+        <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.4 14.6 13.6H1.4zM8 6.6v3.4M8 12v.4"/></svg>Alertas al celular cuando un valor sale de rango.</li>
+      </ul>
+    </div>
+
+    <div class="demo-head metric-label">.metric-float</div>
+    <div class="metric-float">
+      <div class="metric-head">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M8 2.2v7.6M5.4 4.4h5.2"/><circle cx="8" cy="11.8" r="2"/></svg>
+        <span class="metric-name">TEMPERATURA</span>
+      </div>
+      <div class="metric-read">
+        <span><span class="metric-value">24.6</span><span class="metric-unit">°C</span></span>
+        <svg class="metric-spark" viewBox="0 0 48 22"><path class="metric-spark-grid" d="M0 7h48M0 15h48"/><path class="metric-spark-area" d="M0 16 8 13 16 15 24 9 32 11 40 5 48 7V22H0z"/><path class="metric-spark-line" d="M0 16 8 13 16 15 24 9 32 11 40 5 48 7"/></svg>
+      </div>
+    </div>
+
+    <div class="demo-head metric-label">.sol-chips · .sol-step-n</div>
+    <ul class="sol-chips"><li>Temperatura</li><li>Humedad</li><li>CO₂</li><li>Nivel</li></ul>
+    <div class="steps"><span class="sol-step-n">01</span><strong>Instalamos los nodos</strong></div>
+  </div>
+
+  <div>
+    <div class="demo-head metric-label">.dialog</div>
+    <div class="dialog">
+      <button type="button" class="dialog-close" aria-label="Cerrar">×</button>
+      <span class="kicker">Contacto</span>
+      <h3 class="h-title">Hablemos de tu sala</h3>
+      <p class="dialog-sub">Contanos qué querés monitorear y te respondemos por WhatsApp.</p>
+      <label class="dialog-field"><span>Nombre</span><input placeholder="Tu nombre" /></label>
+      <button type="button" class="btn-solid btn-block" style="margin-top:1.5rem">Enviar por WhatsApp</button>
+    </div>
+
+    <div class="demo-head metric-label">.dz-menu · .dz-toast</div>
+    <div class="pair dz">
+      <div class="dz-menu">
+        <button type="button"><svg class="dz-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 12.5 11 4.5l1.5 1.5-8 8H3z"/></svg>Renombrar</button>
+        <button type="button"><svg class="dz-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="5" width="8" height="8" rx="1"/><path d="M3 11V3h8"/></svg>Duplicar</button>
+        <button type="button" class="is-danger"><svg class="dz-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 4.5h10M6 4.5V3h4v1.5M4.5 4.5l.6 9h5.8l.6-9"/></svg>Eliminar</button>
+      </div>
+      <div class="dz-toast">Diseño exportado · sala-1.json</div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

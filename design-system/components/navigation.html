@@ -1,0 +1,58 @@
+<!-- @dsCard group="Components" name="Navigation" subtitle="Top bar, section index + progress rail, tool tabs and list" viewport="1000x400" -->
+<!doctype html>
+<html lang="es" class="dark">
+<head>
+<meta charset="utf-8" />
+<title>Growcast — Navigation</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* demo scaffolding only */
+.demo { padding: 0 36px 32px; display: grid; grid-template-columns: auto 1fr; gap: 64px; align-items: start; }
+.nav { margin-bottom: 24px; }
+.demo-head { margin-bottom: 14px; }
+.side { display: flex; gap: 1.6rem; align-items: center; }
+.rail-track { height: 180px; }
+.rail-fill { bottom: 55%; }
+.rail-dot { top: calc(45% - 3px); }
+.dz-surface { padding: 0.55rem 1rem; }
+.dz-list { margin-top: 14px; background: var(--dz-panel); }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="#"><span class="brand-mark"></span><span class="wordmark">GROWCAST</span></a>
+    <span class="nav-right">
+      <a class="nav-cta" href="#">Agendar demo</a>
+      <button type="button" class="nav-cta"><span class="nav-menu-lines"><i></i><i></i></span>Menú</button>
+    </span>
+  </nav>
+  <main class="demo">
+    <div>
+      <div class="demo-head metric-label">.sidenav · .rail</div>
+      <div class="side">
+        <div class="sidenav">
+          <a class="sidenav-item" href="#"><span>Inicio</span><i></i></a>
+          <a class="sidenav-item is-active" href="#"><span>Sensores</span><i></i></a>
+          <a class="sidenav-item" href="#"><span>Silos</span><i></i></a>
+          <a class="sidenav-item" href="#"><span>Salas</span><i></i></a>
+          <a class="sidenav-item" href="#"><span>Contacto</span><i></i></a>
+        </div>
+        <div class="rail-track"><span class="rail-fill"></span><span class="rail-dot"></span></div>
+      </div>
+    </div>
+    <div class="dz">
+      <div class="demo-head metric-label">.dz-tabs · .dz-list</div>
+      <div class="dz-tabs dz-surface">
+        <span class="dz-tab is-active"><span class="dz-tab-dot"></span>Sala 1 — Vege</span>
+        <span class="dz-tab"><span class="dz-tab-dot"></span>Sala 2 — Flora</span>
+        <button type="button" class="dz-tab-new" aria-label="Nueva sala">+</button>
+      </div>
+      <ul class="dz-list">
+        <li class="dz-row"><span class="dz-row-name">Sensor de temperatura</span><span class="dz-row-meta"><em>×2</em>pared N</span></li>
+        <li class="dz-row is-selected"><span class="dz-row-name">Extractor 6"</span><span class="dz-row-meta"><em>×1</em>techo</span></li>
+        <li class="dz-row"><span class="dz-row-name">Panel LED 480W</span><span class="dz-row-meta"><em>×4</em>1.2 m</span></li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>
