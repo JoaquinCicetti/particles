@@ -1593,6 +1593,11 @@ textarea.dz-input {
   display: none;
 }
 
+/* wrapper only, so phones can drop the picker */
+.dz-lang {
+  display: contents;
+}
+
 /* ── laptop: inspector + summary stack under the build steps ── */
 @media (max-width: 1180px) {
   .dz {
@@ -1621,11 +1626,13 @@ textarea.dz-input {
   }
 }
 
-/* ── phone: viewport on top, one panel at a time below ── */
+/* ── phone: one-row bar, viewport, one panel at a time below ──
+   The designer is reached from the landing's buttons, so the kind switch and
+   the language picker stay off the phone bar. */
 @media (max-width: 720px) {
   .dz {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 46dvh) auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 42dvh) auto minmax(0, 1fr);
     grid-template-areas:
       'top'
       'stage'
@@ -1634,9 +1641,8 @@ textarea.dz-input {
   }
 
   .dz-top {
-    flex-wrap: wrap;
-    gap: 0.5rem 0.4rem;
-    padding: calc(0.5rem + env(safe-area-inset-top)) 0.7rem 0.5rem;
+    gap: 0.4rem;
+    padding: calc(0.4rem + env(safe-area-inset-top)) 0.6rem 0.4rem;
   }
 
   .dz-brand {
@@ -1646,7 +1652,8 @@ textarea.dz-input {
 
   .dz-wordmark,
   .dz-brand-kicker,
-  .dz-save {
+  .dz-save,
+  .dz-lang {
     display: none;
   }
 
@@ -1655,15 +1662,77 @@ textarea.dz-input {
     gap: 0.3rem;
   }
 
+  .dz-actions .dz-btn {
+    height: 2.1rem;
+  }
+
+  .dz-actions .dz-icon-btn,
+  .dz-actions > .dz-btn {
+    width: 2.1rem;
+  }
+
   .dz-tabs {
-    order: 3;
-    flex-basis: 100%;
+    gap: 0.25rem;
+  }
+
+  .dz-tab,
+  .dz-tab-new {
+    height: 2.1rem;
+  }
+
+  .dz-tab-new {
+    width: 2.1rem;
+  }
+
+  .dz-tab-btn {
+    max-width: 7.5rem;
+    gap: 0.4rem;
+    padding-left: 0.6rem;
+    font-size: 0.78rem;
+  }
+
+  .dz-tab-more {
+    width: 1.5rem;
   }
 
   .dz-left,
   .dz-right {
     grid-area: panel;
     border: 0;
+  }
+
+  .dz-left {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .dz-block,
+  .dz-insp {
+    padding: 0.85rem 0.9rem 1rem;
+  }
+
+  /* the running total shrinks to one line under the properties */
+  .dz-quotebar {
+    padding: 0.5rem 0.9rem calc(0.5rem + env(safe-area-inset-bottom));
+  }
+
+  .dz-quotebar .dz-totals {
+    gap: 1.1rem;
+    padding-bottom: 0;
+  }
+
+  .dz-quotebar .dz-total {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.35rem;
+  }
+
+  .dz-quotebar .dz-total b {
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  .dz-quotebar .dz-total span {
+    font-size: 0.7rem;
   }
 
   .dz-keys,
@@ -1686,7 +1755,7 @@ textarea.dz-input {
     align-items: center;
     justify-content: center;
     gap: 0.45rem;
-    min-height: 2.9rem;
+    min-height: 2.6rem;
     font-size: 0.78rem;
     color: var(--dz-text-2);
     background: none;
@@ -1701,10 +1770,6 @@ textarea.dz-input {
 
   .dz-view-hint {
     display: none;
-  }
-
-  .dz .lang-opt {
-    width: 1.8rem;
   }
 }
 
@@ -1748,6 +1813,13 @@ textarea.dz-input {
   }
 
   .dz-kindnav span {
+    display: none;
+  }
+}
+
+/* phones land on one designer from the landing; no switch in the bar */
+@media (max-width: 720px) {
+  .dz-kindnav {
     display: none;
   }
 }

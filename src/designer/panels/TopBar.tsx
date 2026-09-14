@@ -92,7 +92,9 @@ export default function TopBar() {
           <Glyph name="send" />
           <span className="dz-btn-label">{t(D.finish)}</span>
         </button>
-        <LangPicker />
+        <div className="dz-lang">
+          <LangPicker />
+        </div>
       </div>
     </header>
   )
